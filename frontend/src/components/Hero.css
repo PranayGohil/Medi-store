@@ -1,0 +1,22 @@
+.custom-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  bottom: -8px;
+}
+
+.swiper-pagination-bullet {
+  width: 25px;
+  height: 10px;
+  background: #4f5561;
+  border-radius: 0;
+  margin: 0 5px;
+  transition: all 0.3s ease-in-out;
+  opacity: 1;
+  transform: skewX(-20deg); /* Tilt the sides */
+}
+
+.swiper-pagination-bullet-active {
+  width: 40px;
+  background: #6c82ff;
+}
