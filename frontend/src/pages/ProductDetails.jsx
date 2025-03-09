@@ -1,9 +1,155 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useParams } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import RelatedProducts from "../components/RelatedProducts";
+import axios from "axios";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { ShopContext } from "../context/ShopContext";
+import { AuthContext } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
 
 const ProductDetails = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { id } = useParams();
+  const alias = id;
+  const { currency } = useContext(ShopContext);
+  const { user } = useContext(AuthContext);
+  const { addItemToCart } = useContext(CartContext);
+  const [product, setProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("detail");
+  const [mainImage, setMainImage] = useState(null);
+  const [rating, setrating] = useState(0);
+  const [selectedPrice, setSelectedPrice] = useState({});
+  const [quantity, setQuantity] = useState(1);
+  const [cart, setCart] = useState([]);
+
+  const [isProductInCart, setIsProductInCart] = useState(false);
+
+  const fetchCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Cart Details: " + response.data.cartItems);
+      if (response.data.success) {
+        setCart(response.data.cartItems);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
+
+  const fetchProduct = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/product/single-by-alias/${alias}`
+      );
+      console.log("Response: " + response.data.product);
+      if (response.data.success) {
+        setProduct(response.data.product);
+        if (response.data.product.product_images.length > 0) {
+          setMainImage(response.data.product.product_images[0]);
+        }
+        setrating(response.data.product.rating);
+        setSelectedPrice(response.data.product.pricing[0]);
+      } else {
+        console.error("Failed to fetch product");
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
+  useEffect(() => {
+    fetchProduct();
+  }, [alias]);
+
+  useEffect(() => {
+    if (cart && product && selectedPrice) {
+      const productExists = cart.some(
+        (item) =>
+          item.id === product._id &&
+          item.net_quantity === selectedPrice.net_quantity
+      );
+      setIsProductInCart(productExists);
+    }
+  }, [cart, product, selectedPrice]);
+
+  if (!product || isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  const handleThumbnailClick = (image) => {
+    setMainImage(image);
+  };
+
+  const displayRating = () => {
+    let stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <i
+          key={i}
+          className={
+            i < rating
+              ? "ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"
+              : "ri-star-line float-left text-[15px] mr-[3px] text-[#777]"
+          }
+        ></i>
+      );
+    }
+    return stars;
+  };
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      alert("Please login to add items to your cart.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/add-to-cart`,
+        {
+          userId: user._id,
+          product_id: product._id,
+          net_quantity: selectedPrice.net_quantity,
+          price: selectedPrice.total_price,
+          quantity: quantity,
+        }
+      );
+
+      if (response.data.success) {
+        alert("Product added to cart!");
+        fetchCart();
+        addItemToCart({
+          product_id: product._id,
+          net_quantity: selectedPrice.net_quantity,
+          price: selectedPrice.total_price,
+          quantity: quantity,
+        });
+        setIsProductInCart(true);
+      } else {
+        alert("Failed to add product to cart.");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("An error occurred while adding to cart.");
+    }
+  };
+
   return (
     <>
       <Breadcrumb
@@ -24,18 +170,19 @@ const ProductDetails = () => {
                         <div className="single-slide zoom-image-hover rounded-tl-[15px] rounded-tr-[15px]">
                           <img
                             className="img-responsive rounded-tl-[15px] rounded-tr-[15px]"
-                            src="../assets/img/new-product/1.jpg"
-                            alt="product-1"
+                            src={mainImage}
+                            alt={product.name}
                           />
                         </div>
                       </div>
                       <div className="flex mt-4 space-x-2">
-                        {[1, 2, 3, 4, 5].map((num) => (
+                        {product.product_images.map((image, index) => (
                           <img
-                            key={num}
+                            key={index}
                             className="w-32 overflow-scroll border border-transparent hover:border-gray-400 rounded-md cursor-pointer"
-                            src={`../assets/img/new-product/${num}.jpg`}
-                            alt={`product-${num}`}
+                            src={image}
+                            alt={`product-${index}`}
+                            onClick={() => handleThumbnailClick(image)}
                           />
                         ))}
                       </div>
@@ -46,42 +193,102 @@ const ProductDetails = () => {
                   <div className="min-[992px]:w-[58.33%] w-full px-[12px] mb-[24px]">
                     <div className="bb-single-pro-contact">
                       <div className="bb-sub-title mb-[20px]">
-                        <h4 className="font-quicksand text-[22px] tracking-[0.03rem] font-bold leading-[1.2] text-[#3d4750]">
-                          Ground Nuts Oil Pack 52g
+                        <h4 className="font-quicksand text-[22px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#3d4750]">
+                          {product.name}
                         </h4>
+                        <h3 className="font-quicksand text-[15px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#39393a]">
+                          ({product.generic_name})
+                        </h3>
                       </div>
                       <div className="bb-single-rating mb-[12px]">
                         <span className="bb-pro-rating mr-[10px]">
-                          <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                          <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                          <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                          <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                          <i className="ri-star-line float-left text-[15px] mr-[3px] text-[#777]"></i>
+                          {displayRating()}
                         </span>
                         <span className="bb-read-review">
                           |&nbsp;&nbsp;
-                          <a
-                            href="#bb-spt-nav-review"
+                          <Link
+                            to="#bb-spt-nav-review"
                             className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem] text-[#6c7fd8]"
                           >
-                            992 Ratings
-                          </a>
+                            {product.reviews.length} Reviews
+                          </Link>
                         </span>
                       </div>
                       <p className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Quas nihil laboriosam voluptatem ab consectetur
-                        dolorum id, soluta sunt at culpa commodi totam quod
-                        natus qui!
+                        <ul className="my-[-8px] pl-[18px]">
+                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                            <span className="font-Poppins text-[#777] text-[14px]">
+                              Product Code :
+                            </span>{" "}
+                            {product.product_code}
+                          </li>
+                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                            <span className="font-Poppins text-[#777] text-[14px]">
+                              Country of Origin :
+                            </span>{" "}
+                            {product.country_of_origin}
+                          </li>
+                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                            <span className="font-Poppins text-[#777] text-[14px]">
+                              Dosage Form :
+                            </span>{" "}
+                            {product.dosage_form}
+                          </li>
+                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                            <span className="font-Poppins text-[#777] text-[14px]">
+                              Manufacturer :
+                            </span>{" "}
+                            {product.manufacturer}
+                          </li>
+                        </ul>
+                        <div className="my-[8px] w-[300px] h-[100px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                          {product.manufacturer_image && (
+                            <img
+                              src={product.manufacturer_image}
+                              alt={product.manufacturer}
+                              className="w-full"
+                            />
+                          )}
+                        </div>
                       </p>
-                      <div className="bb-single-price-wrap flex justify-between py-[10px]">
+                      <div className="bb-single-pro-weight mb-[24px]">
+                        <div className="pro-title mb-[12px]">
+                          <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
+                            Select Quantity
+                          </h4>
+                        </div>
+                        <div className="bb-pro-variation-contant">
+                          <ul className="flex flex-wrap m-[-2px]">
+                            <div>
+                              {product.pricing.map((price, index) => (
+                                <li
+                                  className={`my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer ${
+                                    price.net_quantity ===
+                                    selectedPrice.net_quantity
+                                      ? "active-variation"
+                                      : ""
+                                  }`}
+                                  onClick={() => setSelectedPrice(price)}
+                                >
+                                  <span className="font-Poppins text-[#000000] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
+                                    {price.net_quantity} {product.dosage_form}{" "}
+                                    /s - &nbsp;&nbsp;&nbsp;&nbsp; {currency}
+                                    {price.total_price} &nbsp;&nbsp;&nbsp;&nbsp;
+                                    ( {currency}
+                                    {price.unit_price} per {product.dosage_form}{" "}
+                                    )
+                                  </span>
+                                </li>
+                              ))}
+                            </div>
+                          </ul>
+                        </div>
+                      </div>
+                      {/* <div className="bb-single-price-wrap flex justify-between py-[10px]">
                         <div className="bb-single-price py-[15px]">
                           <div className="price mb-[8px]">
                             <h5 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[20px] font-extrabold text-[#3d4750]">
-                              $923.00{" "}
-                              <span className="text-[#3d4750] text-[20px]">
-                                -78%
-                              </span>
+                              {currency + " " + selectedPrice.total_price}
                             </h5>
                           </div>
                           <div className="mrp">
@@ -105,103 +312,41 @@ const ProductDetails = () => {
                             </span>
                           </div>
                         </div>
-                      </div>
-                      <div className="bb-single-list mb-[30px]">
-                        <ul className="my-[-8px] pl-[18px]">
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Closure :
-                            </span>{" "}
-                            Hook & Loop
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Sole :
-                            </span>{" "}
-                            Polyvinyl Chloride
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Width :
-                            </span>{" "}
-                            Medium
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Outer Material :
-                            </span>{" "}
-                            A-Grade Standard Quality
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="bb-single-pro-weight mb-[24px]">
-                        <div className="pro-title mb-[12px]">
-                          <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
-                            Weight
-                          </h4>
-                        </div>
-                        <div className="bb-pro-variation-contant">
-                          <ul className="flex flex-wrap m-[-2px]">
-                            <li className="my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer active-variation">
-                              <span className="font-Poppins text-[#686e7d] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                250g
-                              </span>
-                            </li>
-                            <li className="my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer">
-                              <span className="font-Poppins text-[#686e7d] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                500g
-                              </span>
-                            </li>
-                            <li className="my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer">
-                              <span className="font-Poppins text-[#686e7d] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                1kg
-                              </span>
-                            </li>
-                            <li className="my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer">
-                              <span className="font-Poppins text-[#686e7d] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                2kg
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
+                      </div> */}
+
                       <div className="bb-single-qty flex flex-wrap m-[-2px]">
                         <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
                           <input
-                            className="qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center w-[32px] outline-[0] font-normal leading-[35px] rounded-[10px]"
-                            type="text"
-                            name="bb-qtybtn"
-                            value="1"
+                            className="w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
+                            type="number"
+                            name="quantity"
+                            value={quantity}
+                            onChange={(e) => {
+                              if (e.target.value < 1) {
+                                e.target.value = 1;
+                              }
+                              setQuantity(parseInt(e.target.value));
+                            }}
+                            min={1}
                           />
                         </div>
                         <div className="buttons m-[2px]">
-                          <a
-                            href="javascript:void(0)"
-                            className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                          >
-                            View Cart
-                          </a>
+                          {isProductInCart ? (
+                            <Link
+                              to="/cart"
+                              className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                            >
+                              View Cart
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={handleAddToCart}
+                              className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                            >
+                              Add to Cart
+                            </button>
+                          )}
                         </div>
-                        <ul className="bb-pro-actions my-[2px] flex">
-                          <li className="bb-btn-group">
-                            <a
-                              href="javascript:void(0)"
-                              title="heart"
-                              className="transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] mx-[2px] flex items-center justify-center text-[#fff] bg-[#fff] hover:bg-[#6c7fd8] border-[1px] border-solid border-[#eee] rounded-[10px]"
-                            >
-                              <i className="ri-heart-line text-[16px] leading-[10px] text-[#777]"></i>
-                            </a>
-                          </li>
-                          <li className="bb-btn-group">
-                            <a
-                              href="javascript:void(0)"
-                              title="Quick View"
-                              className="bb-modal-toggle transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] mx-[2px] flex items-center justify-center text-[#fff] bg-[#fff] hover:bg-[#6c7fd8] border-[1px] border-solid border-[#eee] rounded-[10px]"
-                            >
-                              <i className="ri-eye-line text-[16px] leading-[10px] text-[#777]"></i>
-                            </a>
-                          </li>
-                        </ul>
                       </div>
                     </div>
                   </div>
@@ -252,52 +397,12 @@ const ProductDetails = () => {
                   {activeTab === "detail" && (
                     <div className="tab-pro-pane" id="detail">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
-                        <div className="bb-details">
-                          <p className="mb-[12px] font-Poppins text-[#686e7d] leading-[28px] tracking-[0.03rem] font-light">
-                            Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit. Libero, voluptatum. Vitae dolores alias
-                            repellat eligendi, officiis, exercitationem corporis
-                            quisquam delectus cum non recusandae numquam
-                            dignissimos molestiae magnam hic natus. Cumque.
-                          </p>
-                          <div className="details-info">
-                            <ul className="list-disc pl-[20px] mb-[0]">
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                Any Product types that You want - Simple,
-                                Configurable
-                              </li>
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                Downloadable/Digital Products, Virtual Products
-                              </li>
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                Inventory Management with Backordered items
-                              </li>
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                Flatlock seams throughout.
-                              </li>
-                            </ul>
-                            <ul className="list-disc pl-[20px] mb-[0]">
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                <span className="inline-flex font-medium min-w-[150px]">
-                                  Highlights
-                                </span>
-                                Form FactorWhole
-                              </li>
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                <span className="inline-flex font-medium min-w-[150px]">
-                                  Seller
-                                </span>
-                                No Returns Allowed
-                              </li>
-                              <li className="py-[5px] text-[15px] text-[#686e7d] font-Poppins leading-[28px] font-light">
-                                <span className="inline-flex font-medium min-w-[150px]">
-                                  Services
-                                </span>
-                                Cash on Delivery available
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
+                        <div
+                          className="bb-details"
+                          dangerouslySetInnerHTML={{
+                            __html: product.description,
+                          }}
+                        ></div>
                       </div>
                     </div>
                   )}
@@ -305,70 +410,12 @@ const ProductDetails = () => {
                   {activeTab === "information" && (
                     <div className="tab-pro-pane" id="information">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
-                        <div className="information">
-                          <ul className="list-disc pl-[20px]">
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Weight
-                              </span>{" "}
-                              500 g
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Dimensions
-                              </span>{" "}
-                              17 × 15 × 3 cm
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Color
-                              </span>{" "}
-                              black,yellow,red
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Brand
-                              </span>{" "}
-                              Wonder Fort
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Form Factor
-                              </span>
-                              Whole
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Quantity
-                              </span>
-                              1
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Container Type
-                              </span>
-                              Pouch
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Shelf Life
-                              </span>
-                              12 Months
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Ingredients
-                              </span>
-                              Dalchini, Dhaniya, Badi Elaichi, Laung
-                            </li>
-                            <li className="font-Poppins text-[15px] font-light tracking-[0.03rem] leading-[28px] text-[#686e7d] py-[5px]">
-                              <span className="inline-flex min-w-[130px] font-medium">
-                                Other Features
-                              </span>
-                              Ingredient Type: Vegetarian
-                            </li>
-                          </ul>
-                        </div>
+                        <div
+                          className="information"
+                          dangerouslySetInnerHTML={{
+                            __html: product.information,
+                          }}
+                        ></div>
                       </div>
                     </div>
                   )}
@@ -377,114 +424,43 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="reviews">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
                         <div className="bb-reviews">
-                          <div className="reviews-bb-box flex mb-[24px] max-[575px]:flex-col">
-                            <div className="inner-image mr-[12px] max-[575px]:mr-[0] max-[575px]:mb-[12px]">
-                              <img
-                                src="../assets/img/reviews/1.jpg"
-                                alt="img-1"
-                                className="w-[50px] h-[50px] max-w-[50px] rounded-[10px]"
-                              />
-                            </div>
-                            <div className="inner-contact">
-                              <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                                Mariya Lykra
-                              </h4>
-                              <div className="bb-pro-rating flex">
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-line float-left text-[15px] mr-[3px] text-[#777]"></i>
+                          {product.reviews.length === 0 && (
+                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
+                              No Review Found
+                            </h4>
+                          )}
+                          {product.reviews.map((review) => (
+                            <div
+                              className="reviews-bb-box flex mb-[24px] max-[575px]:flex-col"
+                              key={review._id}
+                            >
+                              <div className="inner-image mr-[12px] max-[575px]:mr-[0] max-[575px]:mb-[12px]">
+                                <img
+                                  src="../assets/img/reviews/1.jpg"
+                                  alt="img-1"
+                                  className="w-[50px] h-[50px] max-w-[50px] rounded-[10px]"
+                                />
                               </div>
-                              <p className="font-Poppins text-[14px] leading-[26px] font-light tracking-[0.03rem] text-[#686e7d]">
-                                Lorem ipsum dolor sit amet consectetur
-                                adipisicing elit. Illo, hic expedita asperiores
-                                eos neque cumque impedit quam, placeat
-                                laudantium soluta repellendus possimus a
-                                distinctio voluptate veritatis nostrum
-                                perspiciatis est! Commodi!
-                              </p>
-                            </div>
-                          </div>
-                          <div className="reviews-bb-box flex mb-[24px] max-[575px]:flex-col">
-                            <div className="inner-image mr-[12px] max-[575px]:mr-[0] max-[575px]:mb-[12px]">
-                              <img
-                                src="../assets/img/reviews/2.jpg"
-                                alt="img-2"
-                                className="w-[50px] h-[50px] max-w-[50px] rounded-[10px]"
-                              />
-                            </div>
-                            <div className="inner-contact">
-                              <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                                Saddika Alard
-                              </h4>
-                              <div className="bb-pro-rating flex">
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                                <i className="ri-star-line float-left text-[15px] mr-[3px] text-[#777]"></i>
+                              <div className="inner-contact">
+                                <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
+                                  Mariya Lykra
+                                </h4>
+                                <div className="bb-pro-rating flex">
+                                  {[...Array(review.rating)].map(
+                                    (star, index) => (
+                                      <i
+                                        key={index}
+                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"
+                                      ></i>
+                                    )
+                                  )}
+                                </div>
+                                <p className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[14px] text-[#777]">
+                                  {review.comment}
+                                </p>
                               </div>
-                              <p className="font-Poppins text-[14px] leading-[26px] font-light tracking-[0.03rem] text-[#686e7d]">
-                                Lorem ipsum dolor sit amet consectetur
-                                adipisicing elit. Illo, hic expedita asperiores
-                                eos neque cumque impedit quam, placeat
-                                laudantium soluta repellendus possimus a
-                                distinctio voluptate veritatis nostrum
-                                perspiciatis est! Commodi!
-                              </p>
                             </div>
-                          </div>
-                        </div>
-                        <div className="bb-reviews-form">
-                          <h3 className="font-quicksand tracking-[0.03rem] leading-[1.2] mb-[8px] text-[20px] font-bold text-[#3d4750]">
-                            Add a Review
-                          </h3>
-                          <div className="bb-review-rating flex mb-[12px]">
-                            <span className="pr-[10px] font-Poppins text-[15px] font-semibold leading-[26px] tracking-[0.02rem] text-[#3d4750]">
-                              Your ratting :
-                            </span>
-                            <div className="bb-pro-rating">
-                              <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                              <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                              <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                              <i className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"></i>
-                              <i className="ri-star-line float-left text-[15px] mr-[3px] text-[#777]"></i>
-                            </div>
-                          </div>
-                          <form action="#">
-                            <div className="input-box mb-[24px]">
-                              <input
-                                type="text"
-                                placeholder="Name"
-                                name="your-name"
-                                className="w-full h-[50px] border-[1px] border-solid border-[#eee] pl-[20px] outline-[0] text-[14px] font-normal text-[#777] rounded-[20px] p-[10px]"
-                              />
-                            </div>
-                            <div className="input-box mb-[24px]">
-                              <input
-                                type="email"
-                                placeholder="Email"
-                                name="your-email"
-                                className="w-full h-[50px] border-[1px] border-solid border-[#eee] pl-[20px] outline-[0] text-[14px] font-normal text-[#777] rounded-[20px] p-[10px]"
-                              />
-                            </div>
-                            <div className="input-box mb-[24px]">
-                              <textarea
-                                name="your-comment"
-                                placeholder="Enter Your Comment"
-                                className="w-full h-[100px] border-[1px] border-solid border-[#eee] py-[20px] pl-[20px] pr-[10px] outline-[0] text-[14px] font-normal text-[#777] rounded-[20px] p-[10px]"
-                              ></textarea>
-                            </div>
-                            <div className="input-button">
-                              <a
-                                href="javascript:void(0)"
-                                className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] inline-flex font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[15px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                              >
-                                View Cart
-                              </a>
-                            </div>
-                          </form>
+                          ))}
                         </div>
                       </div>
                     </div>

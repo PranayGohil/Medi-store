@@ -30,21 +30,29 @@ const addProduct = async (req, res) => {
       })
     );
 
+    let alias = productData.name.split(" ").join("-").toLowerCase();
+    let suffix = 1;
+    let newAlias = alias;
+
+    // Check if alias already exists
+    while (await Product.findOne({ alias: newAlias })) {
+      newAlias = `${alias}-${suffix}`;
+      suffix++;
+    }
+
+    alias = newAlias;
+
     const product_data = {
       ...productData,
       categories: JSON.parse(productData.categories),
       pricing: JSON.parse(productData.pricing),
       product_images: productImageUrls,
       manufacturer_image: manufacturerImageUrl[0],
+      alias: alias,
     };
 
     const product = new Product(product_data);
     await product.save();
-    console.log(product);
-
-    console.log("Product Images Urls" + productImageUrls);
-    console.log("Manufacturer Image Url" + manufacturerImageUrl);
-
     return res.json({ success: true, product_data });
   } catch (error) {
     console.log(error);
@@ -189,10 +197,23 @@ const getSingleProduct = async (req, res) => {
   }
 };
 
+const getProductByAlias = async (req, res) => {
+  try {
+    const alias = req.params.alias;
+    const product = await Product.findOne({ alias: alias });
+    console.log("Product", product);
+    return res.json({ success: true, product });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   addProduct,
   removeProduct,
   editProduct,
   getAllProducts,
   getSingleProduct,
+  getProductByAlias,
 };

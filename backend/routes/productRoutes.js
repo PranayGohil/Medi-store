@@ -5,6 +5,7 @@ import {
   editProduct,
   getAllProducts,
   getSingleProduct,
+  getProductByAlias,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -30,5 +31,6 @@ productRouter.put(
 );
 productRouter.get("/all", getAllProducts);
 productRouter.get("/single/:id", getSingleProduct);
+productRouter.get("/single-by-alias/:alias", getProductByAlias);
 
 export default productRouter;

@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import Offers from "./pages/Offers";
 import OrderDetails from "./pages/OrderDetails";
 import OrderHistory from "./pages/OrderHistory";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/offers" element={<Offers />} />
         <Route path="/order-details" element={<OrderDetails />} />
         <Route path="/order-history" element={<OrderHistory />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer />

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Stepper from "../components/Stepper";
 import RichTextEditor from "../components/RichTextEditor";
 import { ShopContext } from "../context/ShopContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const EditProducts = () => {
   const { fetchProducts } = useContext(ShopContext);
@@ -20,6 +21,7 @@ const EditProducts = () => {
   const [manufacturerImage, setManufacturerImage] = useState(null);
   const [newProductImages, setNewProductImages] = useState([]);
   const [newManufacturerImage, setNewManufacturerImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const steps = [
     { name: "Basic Info", icon: "1" },
@@ -30,13 +32,20 @@ const EditProducts = () => {
 
   const getProductData = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/product/single/${id}`
-      );
-      const product = res.data.product;
-      setProductData(product);
-      setProductImages(product.product_images || []);
-      setManufacturerImage(product.manufacturer_image || null);
+      setIsLoading(true);
+      axios
+        .get(`${import.meta.env.VITE_APP_API_URL}/api/product/single/${id}`)
+        .then((res) => {
+          const product = res.data.product;
+          setProductData(product);
+          setProductImages(product.product_images || []);
+          setManufacturerImage(product.manufacturer_image || null);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching product data:", error);
+          setIsLoading(false);
+        });
     } catch (error) {
       console.error("Error fetching product data:", error);
     }
@@ -111,10 +120,9 @@ const EditProducts = () => {
     setManufacturerImage(null);
   };
 
-
-
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true);
       const formData = new FormData();
 
       Object.keys(values).forEach((key) => {
@@ -147,26 +155,34 @@ const EditProducts = () => {
         formData.append("manufacturer_image", newManufacturerImage);
       }
 
-      await axios.put(
-        `${import.meta.env.VITE_APP_API_URL}/api/product/edit/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      await fetchProducts();
-      notifySuccess();
-      navigate("/products");
+      axios
+        .put(
+          `${import.meta.env.VITE_APP_API_URL}/api/product/edit/${id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          fetchProducts();
+          notifySuccess();
+          setIsLoading(false);
+          navigate("/products");
+        }).catch((error) => {
+          console.error("Error editing product:", error);
+          notifyError(error.message || "Something went wrong.");
+          setIsLoading(false);
+        });
     } catch (error) {
       console.error("Error editing product:", error);
       notifyError(error.message || "Something went wrong.");
     }
   };
 
-  if (!productData) {
-    return <div>Loading...</div>;
+  if (!productData || isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (

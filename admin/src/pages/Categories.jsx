@@ -2,13 +2,16 @@ import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Categories = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const { products } = useContext(ShopContext);
 
   useEffect(() => {
     const fetchCategories = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/product/all`
@@ -38,6 +41,7 @@ const Categories = () => {
         );
 
         setCategories(formattedCategories);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -45,6 +49,10 @@ const Categories = () => {
 
     fetchCategories();
   }, [products]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

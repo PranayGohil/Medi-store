@@ -1,7 +1,40 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
 
 const Header = () => {
+  const { user } = useContext(AuthContext);
+  const { cartItems } = useContext(CartContext);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Close the mobile menu on larger screens
+      if (window.innerWidth > 991) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
+
+  useEffect(() => {
+    closeMobileMenu();
+  }, [location]);
+
+  const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <header className="bb-header relative z-[5] border-b-[1px] border-solid border-[#eee]">
       <div className="bottom-header py-[20px] max-[991px]:py-[15px]">
@@ -61,8 +94,8 @@ const Header = () => {
                   <div className="bb-flex-justify max-[575px]:flex max-[575px]:justify-between">
                     <div className="bb-header-buttons h-full flex justify-end items-center">
                       <div className="bb-acc-drop relative">
-                        <a
-                          href="javascript:void(0)"
+                        <Link
+                          to={`${user ? "/profile" : "/login"}`}
                           className="bb-header-btn bb-header-user dropdown-toggle bb-user-toggle transition-all duration-[0.3s] ease-in-out relative flex w-[auto] items-center whitespace-nowrap ml-[30px] max-[1199px]:ml-[20px] max-[767px]:ml-[0]"
                           title="Account"
                         >
@@ -84,38 +117,12 @@ const Header = () => {
                               Account
                             </span>
                             <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
-                              Login
+                              {user ? "Profile" : "Login"}
                             </span>
                           </div>
-                        </a>
-                        <ul className="bb-dropdown-menu min-w-[150px] py-[10px] px-[5px] transition-all duration-[0.3s] ease-in-out mt-[25px] absolute z-[16] text-left opacity-[0] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] block rounded-[10px]">
-                          <li className="py-[4px] px-[15px] m-[0] font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem]">
-                            <a
-                              className="dropdown-item transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] hover:text-[#6c7fd8] leading-[22px] block w-full font-normal tracking-[0.03rem]"
-                              href="register.html"
-                            >
-                              Register
-                            </a>
-                          </li>
-                          <li className="py-[4px] px-[15px] m-[0] font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem]">
-                            <a
-                              className="dropdown-item transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] hover:text-[#6c7fd8] leading-[22px] block w-full font-normal tracking-[0.03rem]"
-                              href="checkout.html"
-                            >
-                              Checkout
-                            </a>
-                          </li>
-                          <li className="py-[4px] px-[15px] m-[0] font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem]">
-                            <a
-                              className="dropdown-item transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] hover:text-[#6c7fd8] leading-[22px] block w-full font-normal tracking-[0.03rem]"
-                              href="login.html"
-                            >
-                              Login
-                            </a>
-                          </li>
-                        </ul>
+                        </Link>
                       </div>
-                      <a
+                      {/* <a
                         href="wishlist.html"
                         className="bb-header-btn bb-wish-toggle transition-all duration-[0.3s] ease-in-out relative flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
                         title="Wishlist"
@@ -142,7 +149,7 @@ const Header = () => {
                             Wishlist
                           </span>
                         </div>
-                      </a>
+                      </a> */}
                       <Link
                         to={"/cart"}
                         className="bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out relative flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
@@ -164,21 +171,21 @@ const Header = () => {
                         </div>
                         <div className="bb-btn-desc flex flex-col ml-[10px] max-[1199px]:hidden">
                           <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
-                            <b className="bb-cart-count">4</b> items
+                            <b className="bb-cart-count">{totalCartItems}</b> items
                           </span>
                           <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
                             Cart
                           </span>
                         </div>
                       </Link>
-                      <a
-                        href="javascript:void(0)"
+                      <button
+                        onClick={toggleMobileMenu} // Add onClick handler
                         className="bb-toggle-menu hidden max-[991px]:flex max-[991px]:ml-[20px]"
                       >
                         <div className="header-icon">
                           <i className="ri-menu-3-fill text-[22px] text-[#6c7fd8]" />
                         </div>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -291,156 +298,6 @@ const Header = () => {
                               </a>
                             </li>
                           </ul>
-                          <ul className="mega-block w-[calc(25%-30px)] mr-[30px] py-[15px]">
-                            <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
-                              <a
-                                href="javascript:void(0)"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins h-[auto] text-[#6c7fd8] text-[15px] font-medium tracking-[0.03rem] block py-[10px] leading-[22px] capitalize"
-                              >
-                                Banner
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-left-sidebar-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                left sidebar 3 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-left-sidebar-col-4.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                left sidebar 4 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-right-sidebar-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                right sidebar 3 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-right-sidebar-col-4.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                right sidebar 4 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-full-width.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Full width 4 column
-                              </a>
-                            </li>
-                          </ul>
-                          <ul className="mega-block w-[calc(25%-30px)] mr-[30px] py-[15px]">
-                            <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
-                              <a
-                                href="javascript:void(0)"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins h-[auto] text-[#6c7fd8] text-[15px] font-medium tracking-[0.03rem] block py-[10px] leading-[22px] capitalize"
-                              >
-                                Columns
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-full-width-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                3 Columns full width
-                              </a>{" "}
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-full-width-col-4.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                4 Columns full width
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-full-width-col-5.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                5 Columns full width
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-full-width-col-6.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                6 Columns full width
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-banner-full-width-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Banner 3 Columns
-                              </a>
-                            </li>
-                          </ul>
-                          <ul className="mega-block w-[calc(25%-30px)] mr-[30px] py-[15px]">
-                            <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
-                              <a
-                                href="javascript:void(0)"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins h-[auto] text-[#6c7fd8] text-[15px] font-medium tracking-[0.03rem] block py-[10px] leading-[22px] capitalize"
-                              >
-                                List
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-list-left-sidebar.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Shop left sidebar
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-list-right-sidebar.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Shop right sidebar
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-list-banner-left-sidebar.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Banner left sidebar
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-list-banner-right-sidebar.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Banner right sidebar
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-list-full-col-2.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Full width 2 columns
-                              </a>
-                            </li>
-                          </ul>
                         </li>
                       </ul>
                     </li>
@@ -470,7 +327,7 @@ const Header = () => {
                     </li>
                     <li className="nav-item flex items-center">
                       <Link
-                        to="/Offers"
+                        to="/offers"
                         className="nav-link font-Poppins  p-[0] leading-[28px] text-[15px] font-medium tracking-[0.03rem] text-[#3d4750] flex"
                       >
                         <svg
@@ -505,44 +362,22 @@ const Header = () => {
                     </li>
                   </ul>
                 </div>
-                <div className="bb-dropdown-menu flex max-[991px]:hidden">
-                  <div className="inner-select w-[180px] bg-[#fff] border-[1px] border-solid border-[#eee] rounded-[10px] flex items-center">
-                    <svg
-                      className="svg-icon m-[10px] w-[25px] h-[25px] align-middle"
-                      viewBox="0 0 1024 1024"
-                      version="1.1"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M511.614214 958.708971c-21.76163 0-41.744753-9.781784-54.865586-26.862811L222.50156 626.526383c-3.540639-4.044106-5.872754-7.978718-7.349385-10.461259-41.72838-58.515718-63.959707-127.685078-63.959707-199.699228 0.87288-193.650465 162.903184-351.075891 361.209691-351.075891 198.726064 0 360.40435 157.49194 360.40435 351.075891-0.839111 72.190159-23.070438 140.856052-64.345494 199.053522-1.962701 3.288906-4.312212 7.189749-7.735171 11.098779L566.479799 931.847184c-13.120832 17.080004-33.103956 26.861788-54.865585 26.861787zM273.525654 580.51956a33.707706 33.707706 0 0 1 2.63399 3.037173L511.278569 890.00931 747.068783 583.556733c0.435928-0.569982 0.889253-1.124614 1.358951-1.669013l2.51631-4.102434c0.285502-0.453325 0.587378-0.89744 0.889253-1.325182 33.507138-46.921659 51.577702-102.416578 52.248991-160.487158 0-155.294902-130.839931-281.95565-291.679105-281.95565-160.571069 0-291.780413 126.72931-292.484448 282.501073 0 57.450457 17.802458 112.811322 51.460022 159.933549l2.90312 4.580318c0.418532 0.73678-0.186242 0.032746-0.756223-0.512676z m476.059439 0.100284v0z m0.066515-0.058329c-0.016373 0.016373-0.033769 0.025583-0.033769 0.041956 0.001023-0.016373 0.017396-0.025583 0.033769-0.041956z m0.051166-0.041955a0.227174 0.227174 0 0 0-0.050142 0.041955c0.016373-0.016373 0.032746-0.033769 0.050142-0.041955z"
-                        fill="#444444"
-                        className="fill-[#6c7fd8]"
-                      />
-                      <path
-                        d="M512 577.206094c-90.000803 0-163.222455-73.221652-163.222455-163.222455s73.221652-163.222455 163.222455-163.222455S675.222455 323.982836 675.222455 413.983639s-73.222675 163.222455-163.222455 163.222455z m0-240.538355c-42.634006 0-77.3159 34.68087-77.3159 77.3159s34.68087 77.3159 77.3159 77.3159 77.3159-34.681894 77.3159-77.3159-34.681894-77.3159-77.3159-77.3159z"
-                        fill="#00D8A0"
-                        className="fill-[#6c7fd8]"
-                      />
-                    </svg>
-                    <div className="custom-select transition-all duration-[0.3s] ease-in-out w-full h-full pr-[15px] text-[#777] flex items-center justify-between text-[14px] relative">
-                      <select>
-                        <option value="option1">Surat</option>
-                        <option value="option2">Delhi</option>
-                        <option value="option3">Rajkot</option>
-                        <option value="option4">Udaipur</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="bb-mobile-menu-overlay hidden w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]" />
+      <div
+        className={`bb-mobile-menu-overlay ${
+          isMobileMenuOpen ? "block" : "hidden"
+        } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
+        onClick={closeMobileMenu}
+      />
       <div
         id="bb-mobile-menu"
-        className="bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] translate-x-[-100%] flex flex-col z-[17] overflow-auto max-[480px]:w-[300px]"
+        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[17] overflow-auto max-[480px]:w-[300px] ${
+          isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
+        }`}
       >
         <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-between">
           <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
@@ -550,6 +385,7 @@ const Header = () => {
           </span>
           <button
             type="button"
+            onClick={closeMobileMenu}
             className="bb-close-menu relative border-[0] text-[30px] leading-[1] text-[#ff0000] bg-transparent"
           >
             ×
@@ -559,20 +395,22 @@ const Header = () => {
           <div className="bb-menu-content">
             <ul>
               <li className="relative">
-                <a
-                  href="index.html"
+                <Link
+                  to="/"
+                  onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
                   Home
-                </a>
+                </Link>
               </li>
               <li className="relative">
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  to="/products"
+                  onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
                   Categories
-                </a>
+                </Link>
                 <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
                   <li className="relative">
                     <a
@@ -624,411 +462,72 @@ const Header = () => {
                       </li>
                     </ul>
                   </li>
-                  <li className="relative">
-                    <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      Banner
-                    </a>
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="shop-banner-left-sidebar-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Left sidebar 3 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-banner-left-sidebar-col-4.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Left sidebar 4 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-banner-right-sidebar-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Right sidebar 3 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-banner-right-sidebar-col-4.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Right sidebar 4 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-banner-full-width.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Full width 4 column
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      Columns
-                    </a>
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="shop-full-width-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          3 Columns full width
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-full-width-col-4.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          4 Columns full width
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-full-width-col-5.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          5 Columns full width
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-full-width-col-6.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          6 Columns full width
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-banner-full-width-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Banner 3 Columns
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      List
-                    </a>
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="shop-list-left-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Shop left sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-list-right-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Shop right sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-list-banner-left-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Banner left sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-list-banner-right-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Banner right sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-list-full-col-2.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Full width 2 columns
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
                 </ul>
               </li>
               <li className="relative">
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  to="/products"
+                  onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
-                  Products
-                </a>
-                <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                  <li className="relative">
-                    <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      Product page
-                    </a>
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="product-left-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Product left sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="product-right-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Product right sidebar
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      Product Accordion
-                    </a>
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="product-accordion-left-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          left sidebar
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="product-accordion-right-sidebar.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          right sidebar
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="product-full-width.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Product full width
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="product-accordion-full-width.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      accordion full width
-                    </a>
-                  </li>
-                </ul>
+                  Explore Products
+                </Link>
               </li>
               <li className="relative">
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  to="/about"
+                  onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
-                  Pages
-                </a>
-                <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                  <li className="relative">
-                    <a
-                      href="about-us.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      About Us
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="contact-us.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Contact Us
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="cart.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Cart
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="checkout.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Checkout
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="compare.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Compare
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="faq.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Faq
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="login.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Login
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="register.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Register
-                    </a>
-                  </li>
-                </ul>
+                  About
+                </Link>
               </li>
               <li className="relative">
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  to="/contact"
+                  onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
-                  Blog
-                </a>
-                <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                  <li className="relative">
-                    <a
-                      href="blog-left-sidebar.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Left Sidebar
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="blog-right-sidebar.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Right Sidebar
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="blog-full-width.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Full Width
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="blog-detail-left-sidebar.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Detail Left Sidebar
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="blog-detail-right-sidebar.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Detail Right Sidebar
-                    </a>
-                  </li>
-                  <li className="relative">
-                    <a
-                      href="blog-detail-full-width.html"
-                      className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[12px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                    >
-                      Detail Full Width
-                    </a>
-                  </li>
-                </ul>
+                  Contact
+                </Link>
+              </li>
+              <li className="relative">
+                <Link
+                  to="/offers"
+                  onClick={closeMobileMenu}
+                  className="ntransition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] flex font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    x={0}
+                    y={0}
+                    viewBox="0 0 64 64"
+                    style={{ enableBackground: "new 0 0 512 512" }}
+                    xmlSpace="preserve"
+                    className="w-[20px] h-[25px] mr-[5px] leading-[18px] align-middle"
+                  >
+                    <g>
+                      <path
+                        d="M10 16v22c0 .3.1.6.2.8.3.6 6.5 13.8 21 20h.2c.2 0 .3.1.5.1s.3 0 .5-.1h.2c14.5-6.2 20.8-19.4 21-20 .1-.3.2-.5.2-.8V16c0-.9-.6-1.7-1.5-1.9-7.6-1.9-19.3-9.6-19.4-9.7-.1-.1-.2-.1-.4-.2-.1 0-.1 0-.2-.1h-.9c-.1 0-.2.1-.3.1-.1.1-.2.1-.4.2s-11.8 7.8-19.4 9.7c-.7.2-1.3 1-1.3 1.9zm4 1.5c6.7-2.1 15-7.2 18-9.1 3 1.9 11.3 7 18 9.1v20c-1.1 2.1-6.7 12.1-18 17.3-11.3-5.2-16.9-15.2-18-17.3z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#6c7fd8]"
+                      />
+                      <path
+                        d="M28.6 38.4c.4.4.9.6 1.4.6s1-.2 1.4-.6l9.9-9.9c.8-.8.8-2 0-2.8s-2-.8-2.8 0L30 34.2l-4.5-4.5c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#6c7fd8]"
+                      />
+                    </g>
+                  </svg>
+                  Offers
+                </Link>
               </li>
             </ul>
-          </div>
-          <div className="header-res-lan-curr">
-            {/* Social Start */}
-            <div className="header-res-social mt-[30px]">
-              <div className="header-top-social">
-                <ul className="flex flex-row justify-center mb-[0]">
-                  <li className="list-inline-item w-[30px] h-[30px] flex items-center justify-center bg-[#3d4750] rounded-[10px] mr-[.5rem]">
-                    <a
-                      href="#"
-                      className="transition-all duration-[0.3s] ease-in-out"
-                    >
-                      <i className="ri-facebook-fill text-[#fff] text-[15px]" />
-                    </a>
-                  </li>
-                  <li className="list-inline-item w-[30px] h-[30px] flex items-center justify-center bg-[#3d4750] rounded-[10px] mr-[.5rem]">
-                    <a
-                      href="#"
-                      className="transition-all duration-[0.3s] ease-in-out"
-                    >
-                      <i className="ri-twitter-fill text-[#fff] text-[15px]" />
-                    </a>
-                  </li>
-                  <li className="list-inline-item w-[30px] h-[30px] flex items-center justify-center bg-[#3d4750] rounded-[10px] mr-[.5rem]">
-                    <a
-                      href="#"
-                      className="transition-all duration-[0.3s] ease-in-out"
-                    >
-                      <i className="ri-instagram-line text-[#fff] text-[15px]" />
-                    </a>
-                  </li>
-                  <li className="list-inline-item w-[30px] h-[30px] flex items-center justify-center bg-[#3d4750] rounded-[10px]">
-                    <a
-                      href="#"
-                      className="transition-all duration-[0.3s] ease-in-out"
-                    >
-                      <i className="ri-linkedin-fill text-[#fff] text-[15px]" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            {/* Social End */}
           </div>
         </div>
       </div>

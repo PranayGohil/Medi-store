@@ -1,35 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
+import axios from "axios";
+import { Country, State, City } from "country-state-city";
+import { ShopContext } from "../context/ShopContext";
+import { AuthContext } from "../context/AuthContext";
+import { LocationContext } from "../context/LocationContext";
 
 const Cart = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Ground Nuts Oil Pack",
-      price: 15,
-      quantity: 1,
-      image: "assets/img/new-product/1.jpg",
-    },
-    {
-      id: 2,
-      name: "Organic Litchi Juice Pack",
-      price: 25,
-      quantity: 1,
-      image: "assets/img/new-product/2.jpg",
-    },
-  ]);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [cartItems, setCartItems] = useState([]);
+  const [totalCartPrice, setTotalCartPrice] = useState(0);
+  const { currency, delivery_fee } = useContext(ShopContext);
+  const { user } = useContext(AuthContext);
+  const { updateLocationData } = useContext(LocationContext);
+
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setCartItems(response.data.cartItems);
+        setTotalCartPrice(response.data.totalCartPrice);
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      }
+    };
+    if (user) {
+      fetchCartData();
+    }
+  }, [user]);
 
   const handleQuantityChange = (id, value) => {
     const updatedCart = cartItems.map((item) =>
       item.id === id ? { ...item, quantity: Math.max(1, value) } : item
     );
     setCartItems(updatedCart);
+    // You'll need to update the backend here
   };
 
   const handleRemove = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+    const updatedCart = cartItems.filter((item) => item.id !== id);
+    setCartItems(updatedCart);
+    // You'll need to update the backend here
   };
 
   const calculateTotal = () => {
@@ -38,11 +60,28 @@ const Cart = () => {
       0
     );
   };
+
+  const handleLocationChange = () => {
+    updateLocationData({
+      country: selectedCountry,
+      state: selectedState,
+      city: selectedCity,
+      pincode: document.getElementById("Zip-code").value, // Get pincode from input
+    });
+  };
+
+  const countries = Country.getAllCountries();
+  const states = selectedCountry
+    ? State.getStatesOfCountry(selectedCountry)
+    : [];
+  const cities = selectedState
+    ? City.getCitiesOfState(selectedCountry, selectedState)
+    : [];
+
   return (
     <>
       <Breadcrumb title="Cart" destination1="Home" destination2="Cart" />
       <section className="ection-cart py-[50px] max-[1199px]:py-[35px]">
-        
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full mb-[-24px]">
             <div className="min-[992px]:w-[33.33%] w-full px-[12px] mb-[24px]">
@@ -60,15 +99,22 @@ const Cart = () => {
                       </label>
                       <div className="py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
                         <select
+                          className="block w-full"
                           value={selectedCountry}
-                          onChange={(e) => setSelectedCountry(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedCountry(e.target.value);
+                            handleLocationChange();
+                          }}
                         >
                           <option value="">Select a Country</option>
-                          <option value="Country1">Country 1</option>
-                          <option value="Country2">Country 2</option>
-                          <option value="Country3">Country 3</option>
-                          <option value="Country4">Country 4</option>
-                          <option value="Country5">Country 5</option>
+                          {countries.map((country) => (
+                            <option
+                              key={country.isoCode}
+                              value={country.isoCode}
+                            >
+                              {country.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -77,16 +123,44 @@ const Cart = () => {
                         State/Province *
                       </label>
                       <div className="custom-select py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
-                        <select>
-                          <option value="option1">
+                        <select
+                          className="block w-full"
+                          value={selectedState}
+                          onChange={(e) => {
+                            setSelectedState(e.target.value);
+                            handleLocationChange();
+                          }}
+                        >
+                          <option value="">
                             Please Select a region, state
                           </option>
-                          <option value="option2">Region/State 1</option>
-                          <option value="option3">Region/State 2</option>
-                          <option value="option4">Region/State 3</option>
-                          <option value="option5">Region/State 4</option>
-                          <option value="option6">Region/State 5</option>
-                          <option value="option7">Region/State 6</option>
+                          {states.map((state) => (
+                            <option key={state.isoCode} value={state.isoCode}>
+                              {state.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="input-box mb-[30px]">
+                      <label className="mb-[12px] inline-block text-[14px] font-medium text-[#3d4750] leading-[26px]">
+                        City *
+                      </label>
+                      <div className="custom-select py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
+                        <select
+                          className="block w-full"
+                          value={selectedCity}
+                          onChange={(e) => {
+                            setSelectedCity(e.target.value);
+                            handleLocationChange();
+                          }}
+                        >
+                          <option value="">Please Select a city</option>
+                          {cities.map((city) => (
+                            <option key={city.name} value={city.name}>
+                              {city.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -102,6 +176,7 @@ const Cart = () => {
                         placeholder="Zip/Postal Code"
                         className="w-full py-[10px] px-[15px]  leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
                         id="Zip-code"
+                        onChange={handleLocationChange}
                       />
                     </div>
                   </form>
@@ -113,7 +188,8 @@ const Cart = () => {
                             Sub-Total
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            ${calculateTotal().toFixed(2)}
+                            {currency}
+                            {calculateTotal().toFixed(2)}
                           </span>
                         </li>
                         <li className="mb-[12px] flex justify-between leading-[28px]">
@@ -121,7 +197,8 @@ const Cart = () => {
                             Delivery Charges
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            $80.00
+                            {currency}
+                            {delivery_fee}
                           </span>
                         </li>
                         <li className="mb-[12px] flex justify-between leading-[28px]">
@@ -162,7 +239,8 @@ const Cart = () => {
                             Total Amount
                           </span>
                           <span className="text-right font-Poppins text-[16px] leading-[28px] tracking-[0.03rem] font-semibold text-[#686e7d]">
-                            ${(calculateTotal() + 10).toFixed(2)}
+                            {currency}
+                            {(calculateTotal() + delivery_fee).toFixed(2)}
                           </span>
                         </li>
                       </ul>
@@ -194,7 +272,7 @@ const Cart = () => {
                   <tbody>
                     {cartItems.map((item) => (
                       <tr
-                        key={item.id}
+                        key={item.id + item.net_quantity}
                         className="border-b-[1px] border-solid border-[#eee]"
                       >
                         <td className="p-[12px]">
@@ -205,13 +283,16 @@ const Cart = () => {
                               className="w-[70px] border-[1px] border-solid border-[#eee] rounded-[10px]"
                             />
                             <span className="ml-[10px] font-Poppins text-[14px] font-normal leading-[28px] tracking-[0.03rem] text-[#686e7d]">
-                              {item.name}
+                              {item.name}({item.generic_name})
+                              <br />
+                              {item.net_quantity} {item.dosage_form}/s
                             </span>
                           </div>
                         </td>
                         <td className="p-[12px]">
                           <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                            ${item.price}
+                            {currency}
+                            {item.price}
                           </span>
                         </td>
                         <td className="p-[12px]">
@@ -232,7 +313,8 @@ const Cart = () => {
                         </td>
                         <td className="p-[12px]">
                           <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {currency}
+                            {item.total.toFixed(2)}
                           </span>
                         </td>
                         <td className="p-[12px]">
@@ -247,12 +329,12 @@ const Cart = () => {
                   </tbody>
                 </table>
               </div>
-              <a
-                href="checkout.html"
+              <Link
+                to="/checkout"
                 className="bb-btn-2 mt-[24px] inline-flex items-center justify-center check-btn transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[8px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
               >
                 Check Out
-              </a>
+              </Link>
             </div>
           </div>
         </div>

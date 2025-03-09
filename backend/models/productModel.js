@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema({
     rating: { type: Number },
     status: { type: String },
   }],
+  alias: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });

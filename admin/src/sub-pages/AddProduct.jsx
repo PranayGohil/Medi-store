@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import { addProduct } from "../validation-schema/product-validations";
@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Stepper from "../components/Stepper";
 import RichTextEditor from "../components/RichTextEditor";
 import { ShopContext } from "../context/ShopContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ const AddProduct = () => {
   const [step, setStep] = useState(1);
   const [productImages, setProductImages] = useState([]);
   const [manufacturerImage, setManufacturerImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   const steps = [
     { name: "Basic Info", icon: "1" },
@@ -69,6 +74,7 @@ const AddProduct = () => {
   };
 
   const handleSubmit = async (values) => {
+    setIsLoading(true);
     const formData = new FormData();
 
     formData.append("name", values.name);
@@ -101,6 +107,7 @@ const AddProduct = () => {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
+          setIsLoading(false);
           console.log("Response:", res.data);
           if (res.data.success) {
             fetchProducts();

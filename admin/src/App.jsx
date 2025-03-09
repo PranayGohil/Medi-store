@@ -15,6 +15,7 @@ import Users from "./pages/Users";
 import AddProduct from "./sub-pages/AddProduct";
 import EditProducts from "./sub-pages/EditProducts";
 import ViewProductDetails from "./sub-pages/ViewProductDetails";
+import ViewOrderDetails from "./sub-pages/ViewOrderDetails";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +47,8 @@ function App() {
           <Route path="/product/add-product" element={<AddProduct />} />
           <Route path="/product/edit-product/:id" element={<EditProducts />} />
           <Route path="/product/product-details/:id" element={<ViewProductDetails />} />
+          <Route path="/order/order-details/:id" element={<ViewOrderDetails />} />
+
         </Routes>
       </div>
     </div>

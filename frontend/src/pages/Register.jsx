@@ -1,7 +1,63 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import Breadcrumb from "../components/Breadcrumb";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    phonenumber: "",
+    password: "",
+    confirmpassword: "",
+  });
+  const [error, setError] = useState("");
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    setError("");
+
+    if (formData.password !== formData.confirmpassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/user/register`,
+        {
+          first_name: formData.firstname,
+          last_name: formData.lastname,
+          email: formData.email,
+          phone: formData.phonenumber,
+          password: formData.password,
+        }
+      );
+
+      if (response.data.success) {
+        // Registration successful
+        alert(response.data.message);
+        // Store the token in localStorage
+        localStorage.setItem("token", response.data.token);
+        login(response.data.user);
+        navigate("/");
+      } else {
+        // Registration failed
+        setError(response.data.message);
+      }
+    } catch (err) {
+      setError("An error occurred during registration.");
+      console.error("Registration error:", err);
+    }
+  };
+
   return (
     <>
       <Breadcrumb
@@ -28,7 +84,7 @@ const Register = () => {
                     </div>
                   </div>
                   <div className="w-full px-[12px]">
-                    <form method="post" className="flex flex-wrap mx-[-12px]">
+                    <form className="flex flex-wrap mx-[-12px]">
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           First Name*
@@ -39,6 +95,8 @@ const Register = () => {
                           placeholder="Enter your first name"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.firstname}
+                          onChange={handleChange}
                         />
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -47,10 +105,12 @@ const Register = () => {
                         </label>
                         <input
                           type="text"
-                          name="Lasttname"
+                          name="lastname"
                           placeholder="Enter your Last name"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.lastname}
+                          onChange={handleChange}
                         />
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -63,6 +123,8 @@ const Register = () => {
                           placeholder="Enter your Email"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.email}
+                          onChange={handleChange}
                         />
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -75,6 +137,8 @@ const Register = () => {
                           placeholder="Enter your phone number"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.phonenumber}
+                          onChange={handleChange}
                         />
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -87,6 +151,8 @@ const Register = () => {
                           placeholder="Enter Password"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.password}
+                          onChange={handleChange}
                         />
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -99,41 +165,19 @@ const Register = () => {
                           placeholder="Confirm Password"
                           className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
+                          value={formData.confirmpassword}
+                          onChange={handleChange}
                         />
                       </div>
-                      {/* <div className="w-full px-[12px] mb-[12px] flex items-center">
-                      <input
-                        type="checkbox"
-                        id="newsletter"
-                        className="mr-[8px]"
-                      />
-                      <label
-                        htmlFor="newsletter"
-                        className="text-[14px] text-[#3d4750]"
-                      >
-                        Subscribe to our newsletter
-                      </label>
-                    </div>
-                    <div className="w-full px-[12px] mb-[12px] flex">
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id="terms"
-                          className="mr-[8px]"
-                          required
-                        />
-                        <label
-                          htmlFor="terms"
-                          className="text-[14px] text-[#3d4750]"
-                        >
-                          I agree to the terms and conditions
-                        </label>
-                      </div>
-                    </div> */}
-
+                      {error && (
+                        <div className="w-full px-[12px] mb-[12px] text-red-500">
+                          {error}
+                        </div>
+                      )}
                       <div className="bb-register-button w-full flex justify-center">
                         <button
                           type="button"
+                          onClick={handleSubmit}
                           className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
                         >
                           Register

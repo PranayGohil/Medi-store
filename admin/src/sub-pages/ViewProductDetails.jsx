@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ViewProductDetails = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -12,10 +14,12 @@ const ViewProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [showModal, setShowModal] = useState(false); // State for modal
   const successDelete = () => toast.success("Product Deleted Successfully");
-  const errorDelete = (error) => toast.error("Error Deleting Product: " + error);
+  const errorDelete = (error) =>
+    toast.error("Error Deleting Product: " + error);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/product/single/${id}`
@@ -24,6 +28,7 @@ const ViewProductDetails = () => {
         if (response.data.product.product_images.length > 0) {
           setSelectedImage(response.data.product.product_images[0]);
         }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching product details:", error);
       }
@@ -33,6 +38,7 @@ const ViewProductDetails = () => {
   }, [id]);
 
   const removeProduct = async () => {
+    setIsLoading(true);
     try {
       await axios.delete(
         `${import.meta.env.VITE_APP_API_URL}/api/product/remove/${product._id}`
@@ -40,6 +46,7 @@ const ViewProductDetails = () => {
       fetchProducts();
       successDelete();
       navigate("/products");
+      setIsLoading(false);
     } catch (error) {
       errorDelete(error);
       console.error("Error deleting product:", error);
@@ -47,12 +54,8 @@ const ViewProductDetails = () => {
     setShowModal(false); // Close modal after delete
   };
 
-  if (!product) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-lg font-semibold text-gray-600">Loading...</p>
-      </div>
-    );
+  if (!product || isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -244,7 +247,7 @@ const ViewProductDetails = () => {
       </div>
       {/* Confirmation Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
             <p className="mb-4">
