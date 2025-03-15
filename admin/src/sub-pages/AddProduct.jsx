@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import { addProduct } from "../validation-schema/product-validations";
@@ -10,17 +10,15 @@ import { ShopContext } from "../context/ShopContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const AddProduct = () => {
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { fetchProducts } = useContext(ShopContext);
   const notifySuccess = () => toast.success("Product Added Successfully");
   const notifyError = (error) => toast.error("Error Adding Product: " + error);
   const [step, setStep] = useState(1);
+  const [categories, setCategories] = useState([]);
   const [productImages, setProductImages] = useState([]);
   const [manufacturerImage, setManufacturerImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   const steps = [
     { name: "Basic Info", icon: "1" },
@@ -46,7 +44,12 @@ const AddProduct = () => {
       case 3:
         return ["description", "information"];
       case 4:
-        return ["pricing", "stock_quantity"];
+        return [
+          "pricing",
+          "pricing.0.net_quantity",
+          "pricing.0.total_price",
+          "pricing.0.unit_price",
+        ];
       default:
         return [];
     }
@@ -70,12 +73,30 @@ const AddProduct = () => {
     information: "",
     prescription_required: false,
     pricing: [{ net_quantity: "", total_price: "", unit_price: "" }],
-    stock_quantity: "",
   };
 
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/category/all`
+        );
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoriesData();
+  }, []);
+
   const handleSubmit = async (values) => {
-    setIsLoading(true);
+    console.log(values);
     const formData = new FormData();
+    console.log("formdata" + formData);
 
     formData.append("name", values.name);
     formData.append("generic_name", values.generic_name);
@@ -86,7 +107,6 @@ const AddProduct = () => {
     formData.append("description", values.description);
     formData.append("information", values.information);
     formData.append("prescription_required", values.prescription_required);
-    formData.append("stock_quantity", values.stock_quantity);
 
     // Convert array fields to JSON strings
     formData.append("categories", JSON.stringify(values.categories));
@@ -100,25 +120,34 @@ const AddProduct = () => {
     if (values.manufacturer_image) {
       formData.append("manufacturer_image", values.manufacturer_image);
     }
-
     try {
-      axios
-        .post(`${import.meta.env.VITE_APP_API_URL}/api/product/add`, formData, {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 0)); // Allow state to update
+      console.log("Tryt : " + loading); // Now this logs 'true'
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/product/add`,
+        formData,
+        {
           headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((res) => {
-          setIsLoading(false);
-          console.log("Response:", res.data);
-          if (res.data.success) {
-            fetchProducts();
-            notifySuccess();
-            navigate("/products");
-          } else {
-            notifyError(error.message);
-          }
-        });
+        }
+      );
+
+      console.log("Response:", res.data);
+
+      if (res.data.success) {
+        fetchProducts();
+        notifySuccess();
+        navigate("/products");
+      } else {
+        notifyError(res.data.message || "Error adding product");
+      }
     } catch (error) {
       console.error("Error:", error);
+      notifyError(error.message);
+    } finally {
+      setLoading(false);
+      console.log("Finally:" + loading); // Now logs 'false'
     }
   };
 
@@ -161,6 +190,7 @@ const AddProduct = () => {
 
   return (
     <div className="p-8 bg-gray-100">
+      {loading && <LoadingSpinner />}
       <div className=" mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Add New Product
@@ -288,7 +318,7 @@ const AddProduct = () => {
                   <FieldArray name="categories">
                     {({ push, remove, form }) => (
                       <div>
-                        {values.categories.map((_, index) => (
+                        {values.categories.map((categoryObj, index) => (
                           <div
                             key={index}
                             className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-2"
@@ -298,11 +328,27 @@ const AddProduct = () => {
                                 Category
                               </label>
                               <Field
-                                type="text"
+                                as="select"
                                 name={`categories.${index}.category`}
-                                placeholder="Category"
                                 className="w-full p-3 border rounded-md"
-                              />
+                                onChange={(e) => {
+                                  setFieldValue(
+                                    `categories.${index}.category`,
+                                    e.target.value
+                                  );
+                                  setFieldValue(
+                                    `categories.${index}.subcategory`,
+                                    ""
+                                  );
+                                }}
+                              >
+                                <option value="">Select Category</option>
+                                {categories.map((cat) => (
+                                  <option key={cat._id} value={cat.category}>
+                                    {cat.category}
+                                  </option>
+                                ))}
+                              </Field>
                               <ErrorMessage
                                 name={`categories.${index}.category`}
                                 component="div"
@@ -314,11 +360,23 @@ const AddProduct = () => {
                                 Subcategory
                               </label>
                               <Field
-                                type="text"
+                                as="select"
                                 name={`categories.${index}.subcategory`}
-                                placeholder="Subcategory"
                                 className="w-full p-3 border rounded-md"
-                              />
+                              >
+                                <option value="">Select Subcategory</option>
+                                {categories
+                                  .find(
+                                    (cat) =>
+                                      cat.category ===
+                                      values.categories[index].category
+                                  )
+                                  ?.subcategory.map((subcat, subIndex) => (
+                                    <option key={subIndex} value={subcat}>
+                                      {subcat}
+                                    </option>
+                                  ))}
+                              </Field>
                               <ErrorMessage
                                 name={`categories.${index}.subcategory`}
                                 component="div"
@@ -534,7 +592,7 @@ const AddProduct = () => {
                 </>
               )}
 
-              {/* Step 4: Pricing, Stock & Prescription */}
+              {/* Step 4: Pricing, Prescription */}
               {step === 4 && (
                 <>
                   {/* Dynamic Pricing Fields */}
@@ -666,23 +724,7 @@ const AddProduct = () => {
                   </FieldArray>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-2">
-                    <div>
-                      <label className="block text-gray-600 font-medium">
-                        Stock Quantity
-                      </label>
-                      <Field
-                        type="number"
-                        name="stock_quantity"
-                        className="w-full p-3 border rounded-md"
-                        placeholder="Stock Quantity"
-                      />
-                      <ErrorMessage
-                        name="stock_quantity"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    </div>
-                    <div className="w-full flex items-center justify-center space-x-2 mt-4">
+                    <div className="w-full flex space-x-2 mt-4">
                       <Field
                         type="checkbox"
                         name="prescription_required"
@@ -714,7 +756,7 @@ const AddProduct = () => {
                   <div></div>
                 )}
 
-                {step < 4 ? (
+                {step < 4 && (
                   <button
                     type="button"
                     onClick={async () => {
@@ -735,18 +777,21 @@ const AddProduct = () => {
                         setStep(step + 1);
                       }
                     }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    className={`${
+                      step === 4 ? "bg-green-600" : "bg-blue-500"
+                    } text-white px-4 py-2 rounded`}
                   >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    Submit
+                    {step === 4 ? "Submit" : "Next"}
                   </button>
                 )}
+                <button
+                  type="submit"
+                  className={`bg-green-600 text-white px-4 py-2 rounded ${
+                    step === 4 ? "" : "hidden"
+                  }`}
+                >
+                  Submit
+                </button>
               </div>
             </Form>
           )}

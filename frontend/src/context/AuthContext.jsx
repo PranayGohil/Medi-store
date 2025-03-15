@@ -1,5 +1,5 @@
 // AuthContext.js
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 export const AuthContext = createContext();
 
@@ -23,6 +23,7 @@ export const AuthContextProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("cartItems");
   };
 
   const value = {

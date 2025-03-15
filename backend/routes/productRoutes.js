@@ -6,6 +6,12 @@ import {
   getAllProducts,
   getSingleProduct,
   getProductByAlias,
+  addReview,
+  deleteReview,
+  changeReviewStatus,
+  getUserReviews,
+  getProductReviews,
+  getAllReviews,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -32,5 +38,12 @@ productRouter.put(
 productRouter.get("/all", getAllProducts);
 productRouter.get("/single/:id", getSingleProduct);
 productRouter.get("/single-by-alias/:alias", getProductByAlias);
+
+productRouter.post("/add-review/:productId", addReview);
+productRouter.delete("/delete-review/:productId/:reviewId", deleteReview);
+productRouter.put("/change-review-status/:productId/:reviewId", changeReviewStatus);
+productRouter.get("/get-review/:productId/:userId", getUserReviews);
+productRouter.get("/get-review/:productId", getProductReviews);
+productRouter.get("/all-reviews", getAllReviews);
 
 export default productRouter;

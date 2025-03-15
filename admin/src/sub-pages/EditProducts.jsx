@@ -40,12 +40,10 @@ const EditProducts = () => {
           setProductData(product);
           setProductImages(product.product_images || []);
           setManufacturerImage(product.manufacturer_image || null);
-          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching product data:", error);
-          setIsLoading(false);
-        });
+        }).finally(() => setIsLoading(false));
     } catch (error) {
       console.error("Error fetching product data:", error);
     }
@@ -72,7 +70,7 @@ const EditProducts = () => {
       case 3:
         return ["description", "information"];
       case 4:
-        return ["pricing", "stock_quantity"];
+        return ["pricing"];
       default:
         return [];
     }
@@ -168,11 +166,11 @@ const EditProducts = () => {
         .then((res) => {
           fetchProducts();
           notifySuccess();
-          setIsLoading(false);
           navigate("/products");
         }).catch((error) => {
           console.error("Error editing product:", error);
           notifyError(error.message || "Something went wrong.");
+        }).finally(() => {
           setIsLoading(false);
         });
     } catch (error) {
@@ -212,7 +210,6 @@ const EditProducts = () => {
             pricing: productData.pricing || [
               { net_quantity: "", total_price: "", unit_price: "" },
             ],
-            stock_quantity: productData.stock_quantity || "",
             prescription_required: productData.prescription_required || false,
           }}
           // validationSchema={addProduct}
@@ -668,23 +665,7 @@ const EditProducts = () => {
                   </FieldArray>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-2">
-                    <div>
-                      <label className="block text-gray-600 font-medium">
-                        Stock Quantity
-                      </label>
-                      <Field
-                        type="number"
-                        name="stock_quantity"
-                        className="w-full p-3 border rounded-md"
-                        placeholder="Stock Quantity"
-                      />
-                      <ErrorMessage
-                        name="stock_quantity"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    </div>
-                    <div className="w-full flex items-center justify-center space-x-2 mt-4">
+                    <div className="w-full flex items-center justify-start space-x-2 mt-4">
                       <Field
                         type="checkbox"
                         name="prescription_required"

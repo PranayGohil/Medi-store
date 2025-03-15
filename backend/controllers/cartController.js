@@ -82,4 +82,61 @@ const getCartItems = async (req, res) => {
   }
 };
 
-export { addToCart, getCartItems };
+const removeCartItem = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userId = decoded.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const productId = req.params.productId;
+    const cartItemIndex = user.cartData.findIndex(
+      (item) => item.product_id.toString() === productId
+    );
+
+    if (cartItemIndex === -1) {
+      return res.json({ success: false, message: "Product not found in cart" });
+    }
+
+    user.cartData.splice(cartItemIndex, 1);
+    await user.save();
+
+    res.json({ success: true, message: "Product removed from cart" });
+  } catch (error) {
+    console.error("Error removing product from cart:", error);
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
+
+const clearCart = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userId = decoded.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    user.cartData = [];
+    await user.save();
+
+    res.json({ success: true, message: "Cart cleared successfully" });
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
+
+export { addToCart, getCartItems, removeCartItem, clearCart };

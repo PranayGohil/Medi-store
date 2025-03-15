@@ -1,37 +1,6 @@
-import { Bar, Pie } from "react-chartjs-2";
-import "chart.js/auto";
-
+import React from "react";
+import { Link } from "react-router-dom";
 const Dashboard = () => {
-  // Sample data for Bar Chart (Monthly Sales)
-  const barData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        label: "Monthly Sales ($)",
-        data: [5000, 7000, 8000, 6500, 9000, 11000],
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
-        borderRadius: 5,
-      },
-    ],
-  };
-
-  // Sample data for Pie Chart (Category Distribution)
-  const pieData = {
-    labels: ["Electronics", "Clothing", "Home", "Beauty", "Sports"],
-    datasets: [
-      {
-        data: [30, 20, 25, 15, 10], // Percentages
-        backgroundColor: [
-          "#4CAF50",
-          "#FF9800",
-          "#2196F3",
-          "#E91E63",
-          "#9C27B0",
-        ],
-      },
-    ],
-  };
-
   // Sample Best Selling Products (with images)
   const bestSellingProducts = [
     {
@@ -74,23 +43,54 @@ const Dashboard = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="bg-white p-6 shadow-lg rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Monthly Sales</h2>
-          <div className="h-52">
-            <Bar data={barData} />
-          </div>
+      <div className="w-full flex flex-wrap">
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/orders"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Orders</h2>
+          </Link>
         </div>
-
-        {/* Pie Chart */}
-        <div className="bg-white p-6 shadow-lg rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Category Distribution</h2>
-          <div className="h-52 flex justify-center">
-            <Pie data={pieData} />
-          </div>
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/categories"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Categories</h2>
+          </Link>
+        </div>
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/products"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Products</h2>
+          </Link>
+        </div>
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/reviews"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Reviews</h2>
+          </Link>
+        </div>
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/users"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage User</h2>
+          </Link>
+        </div>
+        <div className="w-1/4 p-3">
+          <Link
+            to={"/feedbacks"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Feedback</h2>
+          </Link>
         </div>
       </div>
 

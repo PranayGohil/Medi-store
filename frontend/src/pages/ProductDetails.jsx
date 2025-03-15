@@ -22,6 +22,7 @@ const ProductDetails = () => {
   const [selectedPrice, setSelectedPrice] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   const [isProductInCart, setIsProductInCart] = useState(false);
 
@@ -45,6 +46,57 @@ const ProductDetails = () => {
     }
   };
 
+  const fetchReviews = async (product_id) => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/product/get-review/${product_id}`
+      );
+
+      if (response.data.success) {
+        let reviewsData = response.data.reviews;
+
+        // Fetch user data for all reviews in parallel
+        const reviewsWithUserInfo = await Promise.all(
+          reviewsData.map(async (review) => {
+            try {
+              const userinfo = await axios.get(
+                `${import.meta.env.VITE_APP_API_URL}/api/user/get-user/${
+                  review.user_id
+                }`
+              );
+
+              if (userinfo.data.success) {
+                return {
+                  ...review,
+                  user_name:
+                    userinfo.data.user.first_name +
+                    " " +
+                    userinfo.data.user.last_name,
+                  email: userinfo.data.user.email,
+                  phone: userinfo.data.user.phone,
+                };
+              }
+            } catch (err) {
+              console.error("Error fetching user info:", err);
+              return {
+                ...review,
+                user_name: "Unknown",
+                email: "-",
+                phone: "-",
+              };
+            }
+          })
+        );
+        reviewsData = reviewsWithUserInfo.filter((review) => review.status === "approved");
+        setReviews(reviewsData);
+      }
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  };
+
   const fetchProduct = async () => {
     setIsLoading(true);
     try {
@@ -55,6 +107,7 @@ const ProductDetails = () => {
       );
       console.log("Response: " + response.data.product);
       if (response.data.success) {
+        fetchReviews(response.data.product._id);
         setProduct(response.data.product);
         if (response.data.product.product_images.length > 0) {
           setMainImage(response.data.product.product_images[0]);
@@ -424,12 +477,12 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="reviews">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
                         <div className="bb-reviews">
-                          {product.reviews.length === 0 && (
+                          {reviews.length === 0 && (
                             <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
                               No Review Found
                             </h4>
                           )}
-                          {product.reviews.map((review) => (
+                          {reviews.map((review) => (
                             <div
                               className="reviews-bb-box flex mb-[24px] max-[575px]:flex-col"
                               key={review._id}
@@ -443,7 +496,7 @@ const ProductDetails = () => {
                               </div>
                               <div className="inner-contact">
                                 <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                                  Mariya Lykra
+                                  {review.user_name}
                                 </h4>
                                 <div className="bb-pro-rating flex">
                                   {[...Array(review.rating)].map(

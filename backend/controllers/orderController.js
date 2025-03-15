@@ -24,6 +24,18 @@ export const getSingleOrder = async (req, res) => {
   }
 };
 
+export const getSingleOrderByOrderId = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    console.log("Order ID : ", orderId);
+    const order = await Order.findOne({ order_id: orderId });
+    return res.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+}
+
 export const getUserOrders = async (req, res) => {
   try {
     console.log("User Orders");
@@ -89,6 +101,17 @@ export const addOrder = async (req, res) => {
       order_id,
     });
     return res.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+export const removeOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByIdAndDelete(id);
+    return res.json({ success: true, message: "Order removed successfully" });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });

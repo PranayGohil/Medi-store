@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -10,47 +12,90 @@ const Orders = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const orders = [
-    {
-      id: "ORD12345",
-      customer: "John Doe",
-      total: 120,
-      status: "Pending",
-      date: "2025-02-25",
-      products: ["Paracetamol", "Ibuprofen"],
-    },
-    {
-      id: "ORD67890",
-      customer: "Jane Smith",
-      total: 250,
-      status: "Completed",
-      date: "2025-02-24",
-      products: ["Aspirin"],
-    },
-    {
-      id: "ORD54321",
-      customer: "Alice Brown",
-      total: 90,
-      status: "Canceled",
-      date: "2025-02-23",
-      products: ["Cough Syrup", "Vitamin C", "Antibiotic"],
-    },
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/order/all`
+        );
+        const ordersWithProducts = await Promise.all(
+          response.data.orders.map(async (order) => {
+            const productsWithDetails = await Promise.all(
+              order.products.map(async (productItem) => {
+                try {
+                  const productResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_API_URL}/api/product/single/${
+                      productItem.product_id
+                    }`
+                  );
+                  return {
+                    ...productResponse.data.product,
+                    net_quantity: productItem.net_quantity,
+                    quantity: productItem.quantity,
+                    price: productItem.price,
+                  };
+                } catch (productError) {
+                  console.error(
+                    `Error fetching product ${productItem.product_id}:`,
+                    productError
+                  );
+                  return {
+                    _id: productItem.product_id,
+                    name: "Product Not Found",
+                    net_quantity: productItem.net_quantity,
+                    quantity: productItem.quantity,
+                    price: productItem.price,
+                  };
+                }
+              })
+            );
+            return { ...order, products: productsWithDetails };
+          })
+        );
+        setOrders(ordersWithProducts);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
 
   // Filtered Orders
   const filteredOrders = orders.filter((order) => {
+    const orderDate = new Date(order.created_at).toISOString().split("T")[0];
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      order.order_id.toLowerCase().includes(searchLower) ||
+      order.delivery_address[0]?.first_name
+        .toLowerCase()
+        .includes(searchLower) ||
+      order.delivery_address[0]?.last_name
+        .toLowerCase()
+        .includes(searchLower) ||
+      order.products.some(
+        (product) =>
+          product.name?.toLowerCase().includes(searchLower) ||
+          product.generic_name?.toLowerCase().includes(searchLower)
+      );
+
     return (
-      (order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "" || order.status === statusFilter) &&
-      (dateFilter === "" || order.date === dateFilter)
+      matchesSearch &&
+      (statusFilter === "" || order.order_status === statusFilter) &&
+      (dateFilter === "" || orderDate === dateFilter)
     );
   });
 
   const handleEditStatus = (order) => {
     setSelectedOrder(order);
-    setSelectedStatus(order.status); // Set initial status in modal
+    setSelectedStatus(order.order_status);
     setShowEditModal(true);
   };
 
@@ -58,27 +103,43 @@ const Orders = () => {
     setSelectedStatus(event.target.value);
   };
 
-  const handleSaveStatus = () => {
-    // TODO: Update order status in your backend/data store
-    console.log(
-      "Updating order",
-      selectedOrder.id,
-      "to status:",
-      selectedStatus
-    );
-
-    // Update the order status in the local state (for now)
-    const updatedOrders = orders.map((order) =>
-      order.id === selectedOrder.id
-        ? { ...order, status: selectedStatus }
-        : order
-    );
-
-    // Update the orders state (replace this with your actual state update logic)
-    // setOrders(updatedOrders);
-
-    setShowEditModal(false);
+  const handleSaveStatus = async () => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_APP_API_URL}/api/order/update-status/${
+          selectedOrder._id
+        }`,
+        {
+          order_status: selectedStatus,
+        }
+      );
+      const updatedOrders = orders.map((order) =>
+        order._id === selectedOrder._id
+          ? { ...order, order_status: selectedStatus }
+          : order
+      );
+      setOrders(updatedOrders);
+      setShowEditModal(false);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    }
   };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div className="p-8 bg-gray-100 min-h-screen">Error: {error}</div>;
+  }
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
@@ -91,7 +152,7 @@ const Orders = () => {
           <div className="relative w-full md:w-1/3">
             <input
               type="text"
-              placeholder="Search by Order ID or Customer"
+              placeholder="Search by Order ID, Customer, Product"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full p-3 pl-10 border rounded-md"
@@ -106,9 +167,16 @@ const Orders = () => {
             className="w-full md:w-1/4 p-3 border rounded-md"
           >
             <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Completed">Completed</option>
-            <option value="Canceled">Canceled</option>
+            <option value="Order Placed">Order Placed</option>
+            <option value="Order Confirmed">Order Confirmed</option>
+            <option value="Order Processing">Order Processing</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="In Transmit">In Transmit</option>
+            <option value="Out for Delivery">Out for Delivery</option>
+            <option value="Order Delivered">Order Delivered</option>
+            <option value="Order Cancelled">Order Cancelled</option>
+            <option value="Return Request">Return Request</option>
+            <option value="Returned">Returned</option>
           </select>
 
           {/* Date Filter */}
@@ -137,32 +205,39 @@ const Orders = () => {
             <tbody>
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b">
-                    <td className="p-3">{order.id}</td>
-                    <td className="p-3">{order.customer}</td>
+                  <tr key={order._id} className="border-b">
+                    <td className="p-3">{order.order_id}</td>
+                    <td className="p-3">
+                      {order.delivery_address[0]?.first_name}{" "}
+                      {order.delivery_address[0]?.last_name}
+                    </td>
                     <td className="p-3">
                       <div className="flex flex-col">
                         {order.products.map((product, index) => (
-                          <span key={index}>{product}</span>
+                          <span key={index}>{product.name}</span>
                         ))}
                       </div>
                     </td>
                     <td className="p-3">${order.total}</td>
-                    <td className="p-3">{order.date}</td>
+                    <td className="p-3">{formatDate(order.created_at)}</td>
                     <td
                       className={`p-3 font-semibold ${
-                        order.status === "Completed"
+                        order.order_status === "Order Delivered"
                           ? "text-green-600"
-                          : order.status === "Pending"
+                          : order.order_status === "pending"
                           ? "text-yellow-600"
                           : "text-red-600"
                       }`}
                     >
-                      {order.status}
+                      {order.order_status}
                     </td>
                     <td className="p-3 flex justify-center">
-                      <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                        onClick={() => navigate(`/order/order-details/67c9ad59a985b5e536c7b051`)}>
+                      <button
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                        onClick={() =>
+                          navigate(`/order/order-details/${order._id}`)
+                        }
+                      >
                         View
                       </button>
                       <button
@@ -176,7 +251,7 @@ const Orders = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center text-gray-500 p-3">
+                  <td colSpan="7" className="text-center text-gray-500 p-3">
                     No orders found
                   </td>
                 </tr>
@@ -189,7 +264,7 @@ const Orders = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">Edit Order Status</h2>
-            <p className="mb-4">Order ID: {selectedOrder.id}</p>
+            <p className="mb-4">Order ID: {selectedOrder.order_id}</p>
             <select
               value={selectedStatus}
               onChange={handleStatusChange}

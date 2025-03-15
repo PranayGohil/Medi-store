@@ -50,11 +50,5 @@ export const addProduct = Yup.object().shape({
     )
     .min(1, "At least one pricing option is required"),
 
-  stock_quantity: Yup.number()
-    .typeError("Stock quantity must be a number")
-    .positive("Stock quantity must be greater than 0")
-    .integer("Stock quantity must be a whole number")
-    .required("Stock quantity is required"),
-
   prescription_required: Yup.boolean(),
 });

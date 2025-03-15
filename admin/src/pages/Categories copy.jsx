@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+
 import {
   FaSearch,
   FaPlus,
   FaChevronDown,
   FaChevronUp,
   FaEdit,
+  FaThLarge,
+  FaList,
 } from "react-icons/fa";
 
 const CategoryManagement = () => {
@@ -14,16 +17,15 @@ const CategoryManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newSubcategories, setNewSubcategories] = useState([""]);
+
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showEditCategoryModal, setShowEditCategoryModal] = useState(false);
+
   const [expandedCategories, setExpandedCategories] = useState({});
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editSubcategories, setEditSubcategories] = useState([]);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCategories, setFilteredCategories] = useState([]);
 
   const fetchCategories = async () => {
     try {
@@ -38,14 +40,7 @@ const CategoryManagement = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const results = categories.filter((category) =>
-      category.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredCategories(results);
-  }, [searchTerm, categories]);
+  });
 
   const handleCategoryChange = (event) => {
     const value = event.target.value;
@@ -104,8 +99,6 @@ const CategoryManagement = () => {
       setNewSubcategories([""]);
       setSelectedCategory("");
       setShowNewCategoryInput(false);
-      setShowAddCategoryModal(false);
-      setSidebarOpen(false);
     } catch (error) {
       console.error("Error adding category/subcategory:", error);
     }
@@ -178,9 +171,7 @@ const CategoryManagement = () => {
     event.preventDefault();
     try {
       await axios.put(
-        `${
-          import.meta.env.VITE_APP_API_URL
-        }/api/category/update/${editCategoryId}`,
+        `${import.meta.env.VITE_APP_API_URL}/api/category/update/${editCategoryId}`,
         {
           category: editCategoryName,
           subcategory: editSubcategories,
@@ -193,10 +184,6 @@ const CategoryManagement = () => {
     }
   };
 
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
@@ -205,21 +192,6 @@ const CategoryManagement = () => {
           <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
 
           <div className="flex items-center gap-4">
-            {/* Search Bar */}
-            <div className="">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search categories..."
-                  className="input input-bordered w-full pr-10"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <FaSearch className="text-gray-400" />
-                </div>
-              </div>
-            </div>
             {/* Add Product Button */}
             {!showAddCategoryModal ? (
               <button
@@ -244,10 +216,12 @@ const CategoryManagement = () => {
           <div className={`${sidebarOpen ? "w-1/2" : "w-full"} `}>
             <div className="p-4">
               <ul className="flex flex-wrap">
-                {filteredCategories.map((category) => (
+                {categories.map((category) => (
                   <li
                     key={category._id}
-                    className={`mb-2 p-2 ${sidebarOpen ? "w-1/2" : "w-1/3"} `}
+                    className={`mb-2 p-2 ${
+                      sidebarOpen ? "w-1/2" : "w-1/3"
+                    } `}
                   >
                     <div className="bg-white rounded-lg shadow-md p-4 ">
                       <div
@@ -295,21 +269,38 @@ const CategoryManagement = () => {
             <div className="md:w-1/2">
               <div className="flex flex-col h-full">
                 <div className="bg-white p-4 rounded-lg shadow-md flex-grow">
-                  <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
                   <form onSubmit={handleSubmit}>
                     <div>
-                      <div>
-                        <label className="label">
-                          <span className="label-text">Category Name</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered w-full"
-                          placeholder="New Category Name"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                        />
-                      </div>
+                      <select
+                        value={selectedCategory}
+                        className="input input-bordered w-full"
+                        onChange={handleCategoryChange}
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((category) => (
+                          <option key={category._id} value={category._id}>
+                            {category.category}
+                          </option>
+                        ))}
+                        <option value="add-new-category">
+                          Add New Category
+                        </option>
+                      </select>
+
+                      {showNewCategoryInput && (
+                        <div>
+                          <label className="label">
+                            <span className="label-text">Category Name</span>
+                          </label>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            placeholder="New Category Name"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                          />
+                        </div>
+                      )}
 
                       {/* Subcategory fields */}
                       <label className="label">

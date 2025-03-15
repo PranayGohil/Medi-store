@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
 import { LocationContext } from "../context/LocationContext";
 import { Country, State, City } from "country-state-city";
 import Modal from "../components/Modal";
@@ -13,6 +14,7 @@ const Checkout = () => {
   const { user } = useContext(AuthContext);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { locationData, updateLocationData } = useContext(LocationContext);
+  const { clearCart } = useContext(CartContext);
 
   const [selectedCountry, setSelectedCountry] = useState(
     locationData.country || ""
@@ -128,6 +130,8 @@ const Checkout = () => {
       const token = localStorage.getItem("token");
       let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
 
+      setShowModal(false);
+
       if (!isNewAddress && !selectedAddress) {
         alert("Please select or add an address.");
         setShowModal(false);
@@ -183,8 +187,25 @@ const Checkout = () => {
           });
       }
 
+      await axios
+        .delete(`${import.meta.env.VITE_APP_API_URL}/api/cart/clear-cart`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(() => {
+          if (!response.data.success) {
+            alert("Failed to clear cart.");
+          }
+          
+        })
+        .catch((error) => {
+          console.error("Error clearing cart:", error);
+          alert("Failed to clear cart.");
+        });
+
       console.log("Order created:", response.data);
-      setShowModal(false);
+      clearCart();
       alert("Order placed successfully!");
       navigate("/order-history");
       // Clear cart or redirect as needed
@@ -449,9 +470,9 @@ const Checkout = () => {
                               <select
                                 className="block w-full"
                                 name="country"
-                                onChange={() => {
-                                  handleInputChange();
+                                onChange={(e) => {
                                   setSelectedCountry(e.target.value);
+                                  handleInputChange(e);
                                 }}
                                 value={newAddress.country}
                               >
@@ -477,8 +498,8 @@ const Checkout = () => {
                               <select
                                 className="block w-full"
                                 name="state"
-                                onChange={() => {
-                                  handleInputChange();
+                                onChange={(e) => {
+                                  handleInputChange(e);
                                   setSelectedState(e.target.value);
                                 }}
                                 value={newAddress.state}
@@ -507,8 +528,8 @@ const Checkout = () => {
                               <select
                                 className="block w-full"
                                 name="city"
-                                onChange={() => {
-                                  handleInputChange();
+                                onChange={(e) => {
+                                  handleInputChange(e);
                                   setSelectedCity(e.target.value);
                                 }}
                                 value={newAddress.city}

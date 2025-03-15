@@ -41,7 +41,7 @@ export const CartContextProvider = ({ children }) => {
   };
 
   const clearCart = () => {
-    setCartItems();
+    localStorage.removeItem("cartItems");
   };
 
   const updateItemQuantity = (itemId, newQuantity) => {

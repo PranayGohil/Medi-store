@@ -24,7 +24,6 @@ const productSchema = new mongoose.Schema({
         unit_price: { type: Number, required: true },
     }
   ],
-  stock_quantity: { type: Number, required: true },
   prescription_required: { type: Boolean, required: true },
   rating: { type: Number, default: 0 },
   reviews: [{
@@ -32,6 +31,7 @@ const productSchema = new mongoose.Schema({
     comment: { type: String },
     rating: { type: Number },
     status: { type: String },
+    created_at: { type: Date, default: Date.now },
   }],
   alias: { type: String, required: true },
   created_at: { type: Date, default: Date.now },

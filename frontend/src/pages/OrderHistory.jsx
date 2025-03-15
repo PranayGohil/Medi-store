@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
@@ -113,12 +114,12 @@ const OrderHistory = () => {
                           </span>
                         </td>
                         <td className="p-[12px]">
-                          <button
+                          <Link
+                            to={`/order-details/${order.order_id}`}
                             className="bb-btn-2 inline-block items-center justify-center check-btn transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                            onClick={() => handleViewOrder(order._id)}
                           >
                             View Order Details
-                          </button>
+                          </Link>
                         </td>
                       </tr>
                     </tbody>

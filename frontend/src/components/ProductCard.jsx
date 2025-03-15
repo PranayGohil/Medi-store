@@ -35,7 +35,7 @@ const ProductCard = (product) => {
           </span>
 
           <img
-            className="w-full transition-all duration-300 hover:opacity-80"
+            className="w-full aspect-square object-contain transition-all duration-300 hover:opacity-80"
             src={product.product_images[0]}
             alt={product.name}
           />

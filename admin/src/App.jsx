@@ -4,13 +4,14 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
-import Categories from "./pages/Categories";
+import CategoryManagement from "./pages/Categories";
 import Products from "./pages/Products";
 import Stocks from "./pages/Stocks";
 import Reviews from "./pages/Reviews";
 import Feedbacks from "./pages/Feedbacks";
 import Statistics from "./pages/Statistics";
 import Users from "./pages/Users";
+import Login from "./pages/Login";
 
 import AddProduct from "./sub-pages/AddProduct";
 import EditProducts from "./sub-pages/EditProducts";
@@ -35,8 +36,9 @@ function App() {
         {/* Routes */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path='/login' element={<Login />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories" element={<CategoryManagement />} />
           <Route path="/products" element={<Products />} />
           <Route path="/stocks" element={<Stocks />} />
           <Route path="/reviews" element={<Reviews />} />
