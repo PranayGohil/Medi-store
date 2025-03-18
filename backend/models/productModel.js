@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema({
     status: { type: String },
     created_at: { type: Date, default: Date.now },
   }],
+  best_seller: { type: Boolean, default: false },
   alias: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

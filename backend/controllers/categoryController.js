@@ -24,11 +24,11 @@ const addCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { category, subcategory } = req.body;
+    const { category, subcategory, navbar_active } = req.body;
 
     const updatedCategory = await Category.findByIdAndUpdate(
       id,
-      { category, subcategory },
+      { category, subcategory, navbar_active, updated_at: Date.now() },
       { new: true }
     );
 

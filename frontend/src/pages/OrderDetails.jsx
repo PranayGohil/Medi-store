@@ -8,6 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ShopContext } from "../context/ShopContext";
 
 import { FaStar } from "react-icons/fa";
+import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const OrderDetails = () => {
@@ -31,6 +32,9 @@ const OrderDetails = () => {
     "Product Dispatched",
     "Product Delivered",
   ];
+
+  const notifyError = (message) => toast.error(message);
+  const notifySuccess = (message) => toast.success(message);
 
   const fetchOrder = async () => {
     setIsLoading(true);
@@ -102,7 +106,10 @@ const OrderDetails = () => {
   };
 
   useEffect(() => {
-    console.log("Order ID:");
+    if (!user) {
+      notifyError("Please login to view order details.");
+      navigate("/login");
+    }
     fetchOrder();
   }, []);
 
@@ -129,7 +136,7 @@ const OrderDetails = () => {
         }
       );
       console.log(response);
-      alert("Review submitted successfully!");
+      notifySuccess("Review submitted successfully!");
       fetchOrder();
     } catch (error) {
       console.error("Error submitting review:", error);

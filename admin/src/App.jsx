@@ -6,7 +6,6 @@ import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import CategoryManagement from "./pages/Categories";
 import Products from "./pages/Products";
-import Stocks from "./pages/Stocks";
 import Reviews from "./pages/Reviews";
 import Feedbacks from "./pages/Feedbacks";
 import Statistics from "./pages/Statistics";
@@ -17,6 +16,9 @@ import AddProduct from "./sub-pages/AddProduct";
 import EditProducts from "./sub-pages/EditProducts";
 import ViewProductDetails from "./sub-pages/ViewProductDetails";
 import ViewOrderDetails from "./sub-pages/ViewOrderDetails";
+import WebsiteSettings from "./pages/WebsiteSettings";
+import ViewFeedbackDetail from "./sub-pages/ViewFeedbackDetail";
+import ViewUserDetails from "./sub-pages/ViewUserDetails";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,16 +42,21 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/categories" element={<CategoryManagement />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/stocks" element={<Stocks />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/feedbacks" element={<Feedbacks />} />
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/users" element={<Users />} />
-          
+          <Route path="/user/user-details/:id" element={<ViewUserDetails />} />
+
+          <Route path="/website-settings" element={<WebsiteSettings />} />
+
           <Route path="/product/add-product" element={<AddProduct />} />
           <Route path="/product/edit-product/:id" element={<EditProducts />} />
           <Route path="/product/product-details/:id" element={<ViewProductDetails />} />
+
           <Route path="/order/order-details/:id" element={<ViewOrderDetails />} />
+
+          <Route path="/feedback-details/:id" element={<ViewFeedbackDetail />} />
 
         </Routes>
       </div>

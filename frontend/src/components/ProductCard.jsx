@@ -26,13 +26,10 @@ const ProductCard = (product) => {
     return (
       <Link
         to={`/product/${product.alias}`}
-        className="bb-pro-box bg-white border border-[#eee] rounded-[20px] overflow-hidden"
+        className="bb-pro-box rounded-[20px] overflow-hidden"
       >
         {/* Product Image */}
         <div className="bb-pro-img relative border-b border-[#eee]">
-          <span className="flags absolute top-[10px] left-[6px] text-[14px] text-[#777] font-medium uppercase">
-            {product.product_code}
-          </span>
 
           <img
             className="w-full aspect-square object-contain transition-all duration-300 hover:opacity-80"
@@ -55,6 +52,9 @@ const ProductCard = (product) => {
           <h4 className="transition-all duration-[0.3s] ease-in-out font-quicksand w-full block whitespace-nowrap overflow-hidden text-ellipsis text-[15px] leading-[18px] text-[#3d4750] font-semibold tracking-[0.03rem]">
             {product.name}
           </h4>
+          <small className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] leading-[16px] text-[#777] font-light tracking-[0.03rem]">
+            {product.generic_name}
+          </small>
           <div className="flex justify-between items-center">
             <span className="new-price px-[3px] text-[16px] text-[#686e7d] font-bold">
               {currency}

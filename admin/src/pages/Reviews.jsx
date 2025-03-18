@@ -1,11 +1,25 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaTrashAlt, FaStar, FaCheck, FaTimes } from "react-icons/fa";
+import {
+  FaSearch,
+  FaStar,
+  FaCheck,
+  FaTimes,
+  FaSortUp,
+  FaSortDown,
+} from "react-icons/fa";
 import axios from "axios";
+import ReactPaginate from "react-paginate";
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [ratingFilter, setRatingFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage] = useState(10);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   useEffect(() => {
     fetchReviews();
@@ -20,7 +34,6 @@ const Reviews = () => {
       if (response.data.success) {
         let reviewsData = response.data.reviews;
 
-        // Fetch user data for all reviews in parallel
         const reviewsWithUserInfo = await Promise.all(
           reviewsData.map(async (review) => {
             try {
@@ -52,8 +65,11 @@ const Reviews = () => {
             }
           })
         );
-
-        setReviews(reviewsWithUserInfo);
+        // Sort Reviews by created_at (newest first)
+      const sortedReviews = reviewsWithUserInfo.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+        setReviews(sortedReviews);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -65,18 +81,17 @@ const Reviews = () => {
       await axios.put(
         `${
           import.meta.env.VITE_APP_API_URL
-        }/api/product//change-review-status/${productId}/${reviewId}`,
+        }/api/product/change-review-status/${productId}/${reviewId}`,
         {
           status,
         }
       );
-      fetchReviews(); // Refresh reviews after update
+      fetchReviews();
     } catch (error) {
       console.error("Error updating review:", error);
     }
   };
 
-  // Filter reviews based on search & rating
   const filteredReviews = reviews.filter(
     (review) =>
       (review.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,6 +102,85 @@ const Reviews = () => {
       (ratingFilter === "" || review.rating === parseInt(ratingFilter))
   );
 
+  const sortedReviews = [...filteredReviews].sort((a, b) => {
+    if (!sortColumn) return 0;
+
+    let aValue, bValue;
+    if (sortColumn === "user_name") {
+      aValue = a.user_name;
+      bValue = b.user_name;
+    } else if (sortColumn === "product_name") {
+      aValue = a.product_name;
+      bValue = b.product_name;
+    } else if (sortColumn === "rating") {
+      aValue = a.rating;
+      bValue = b.rating;
+    } else if (sortColumn === "created_at") {
+      aValue = new Date(a.created_at);
+      bValue = new Date(b.created_at);
+    } else if (sortColumn === "status") {
+      aValue = a.status;
+      bValue = b.status;
+    } else {
+      return 0;
+    }
+
+    if (sortDirection === "asc") {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  });
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const offset = currentPage * itemsPerPage;
+  const currentReviews = sortedReviews.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(sortedReviews.length / itemsPerPage);
+
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
+  };
+
+  const handleOpenModal = (review) => {
+    setSelectedReview(review);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedReview(null);
+  };
+
+  const handleModalApprove = () => {
+    if (selectedReview) {
+      handleReviewStatus(
+        selectedReview.product_id,
+        selectedReview._id,
+        "approved"
+      );
+      handleCloseModal();
+    }
+  };
+
+  const handleModalReject = () => {
+    if (selectedReview) {
+      handleReviewStatus(
+        selectedReview.product_id,
+        selectedReview._id,
+        "rejected"
+      );
+      handleCloseModal();
+    }
+  };
+
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
@@ -94,7 +188,6 @@ const Reviews = () => {
           Product Reviews
         </h1>
 
-        {/* Search & Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative w-full md:w-2/3">
             <input
@@ -121,25 +214,79 @@ const Reviews = () => {
           </select>
         </div>
 
-        {/* Reviews Table */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse bg-white shadow-md rounded-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
-                <th className="p-3 text-left">User Name</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("user_name")}
+                >
+                  User Name
+                  {sortColumn === "user_name" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Email</th>
                 <th className="p-3 text-left">Phone</th>
-                <th className="p-3 text-left">Product</th>
-                <th className="p-3 text-left">Rating</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("product_name")}
+                >
+                  Product
+                  {sortColumn === "product_name" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("rating")}
+                >
+                  Rating
+                  {sortColumn === "rating" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Comment</th>
-                <th className="p-3 text-left">Date</th>
-                <th className="p-3 text-center">Status</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("created_at")}
+                >
+                  Date
+                  {sortColumn === "created_at" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-center cursor-pointer"
+                  onClick={() => handleSort("status")}
+                >
+                  Status
+                  {sortColumn === "status" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
                 <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredReviews.length > 0 ? (
-                filteredReviews.map((review) => (
+              {currentReviews.length > 0 ? (
+                currentReviews.map((review) => (
                   <tr key={review._id} className="border-b">
                     <td className="p-3">{review.user_name}</td>
                     <td className="p-3">{review.email}</td>
@@ -195,19 +342,20 @@ const Reviews = () => {
                         </button>
                       </td>
                     ) : (
-                      <>
-                        <td className="p-3 flex justify-center gap-2">
-                          <button className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 flex items-center justify-center">
-                            Change Status
-                          </button>
-                        </td>
-                      </>
+                      <td className="p-3 flex justify-center gap-2">
+                        <button
+                          onClick={() => handleOpenModal(review)}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 flex items-center justify-center"
+                        >
+                          Change Status
+                        </button>
+                      </td>
                     )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center text-gray-500 p-3">
+                  <td colSpan="9" className="text-center text-gray-500 p-3">
                     No reviews found
                   </td>
                 </tr>
@@ -215,7 +363,53 @@ const Reviews = () => {
             </tbody>
           </table>
         </div>
+        <ReactPaginate
+          previousLabel={"previous"}
+          nextLabel={"next"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination flex justify-center mt-4"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active bg-blue-500 text-white"}
+          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+        />
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-md">
+            <h2 className="text-lg font-semibold mb-4">Change Review Status</h2>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleModalApprove}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+              >
+                Approve
+              </button>
+              <button
+                onClick={handleModalReject}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                Reject
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

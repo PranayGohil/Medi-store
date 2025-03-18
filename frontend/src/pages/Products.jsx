@@ -11,6 +11,8 @@ const Products = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [visibleProducts, setVisibleProducts] = useState(9); // Initial count
+  const [loading, setLoading] = useState(false);
 
   // Group products by category
   const categoryGroups = products.reduce((acc, product) => {
@@ -29,7 +31,7 @@ const Products = () => {
 
   useEffect(() => {
     // Filter products based on selected categories and subcategories
-    const filtered = products.filter((product) => {
+    let filtered = products.filter((product) => {
       const categoryMatch =
         selectedCategories.length === 0 ||
         product.categories.some((cat) =>
@@ -44,29 +46,38 @@ const Products = () => {
 
       return categoryMatch && subcategoryMatch;
     });
+
+    // Sorting Logic
+    if (sortOption === "name-asc") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === "name-desc") {
+      filtered = [...filtered].sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sortOption === "price-low") {
+      filtered = [...filtered].sort((a, b) => a.price - b.price);
+    } else if (sortOption === "price-high") {
+      filtered = [...filtered].sort((a, b) => b.price - a.price);
+    }
+
     setFilteredProducts(filtered);
-  }, [products, selectedCategories, selectedSubcategories]);
+    setVisibleProducts(9);
+  }, [products, selectedCategories, selectedSubcategories, sortOption]);
 
   // Handle category filter change
   const handleCategoryChange = (category) => {
-    setSelectedCategories((prevCategories) => {
-      if (prevCategories.includes(category)) {
-        return prevCategories.filter((c) => c !== category);
-      } else {
-        return [...prevCategories, category];
-      }
-    });
+    setSelectedCategories((prevCategories) =>
+      prevCategories.includes(category)
+        ? prevCategories.filter((c) => c !== category)
+        : [...prevCategories, category]
+    );
   };
 
   // Handle subcategory filter change
   const handleSubcategoryChange = (subcategory) => {
-    setSelectedSubcategories((prevSubcategories) => {
-      if (prevSubcategories.includes(subcategory)) {
-        return prevSubcategories.filter((s) => s !== subcategory);
-      } else {
-        return [...prevSubcategories, subcategory];
-      }
-    });
+    setSelectedSubcategories((prevSubcategories) =>
+      prevSubcategories.includes(subcategory)
+        ? prevSubcategories.filter((s) => s !== subcategory)
+        : [...prevSubcategories, subcategory]
+    );
   };
 
   const toggleCategory = (category) => {
@@ -75,6 +86,32 @@ const Products = () => {
       [category]: !prev[category],
     }));
   };
+
+  // Lazy loading function
+  const loadMoreProducts = () => {
+    if (loading || visibleProducts >= filteredProducts.length) return;
+    setLoading(true);
+    setTimeout(() => {
+      setVisibleProducts((prev) => prev + 10); // Load 10 more products
+      setLoading(false);
+    }, 1000); // 1-second delay
+  };
+
+  // Handle scroll event to trigger lazy loading
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 100 &&
+        !loading
+      ) {
+        loadMoreProducts();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, visibleProducts, filteredProducts]);
 
   return (
     <>
@@ -169,6 +206,7 @@ const Products = () => {
                 </div>
               </div>
             </div>
+
             {/* Products Section */}
             <div className="lg:w-3/4 w-full px-3 mb-6">
               <div className="flex justify-between bg-gray-100 border border-gray-200 rounded-2xl p-4 mb-6">
@@ -191,13 +229,11 @@ const Products = () => {
                   </button>
                 </div>
                 <select
-                  className="border px-3 py-2 rounded-md"
+                  className="block border px-3 py-2 rounded-md"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
                 >
                   <option disabled>Sort by</option>
-                  <option value="position">Position</option>
-                  <option value="relevance">Relevance</option>
                   <option value="name-asc">Name, A to Z</option>
                   <option value="name-desc">Name, Z to A</option>
                   <option value="price-low">Price, Low to High</option>
@@ -211,10 +247,26 @@ const Products = () => {
                   listView ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3 gap-6"
                 }`}
               >
-                {filteredProducts.map((product, index) => (
-                  <ProductCard {...product} key={index} listView={listView} />
-                ))}
+                {filteredProducts
+                  .slice(0, visibleProducts)
+                  .map((product, index) => (
+                    <ProductCard {...product} key={index} listView={listView} />
+                  ))}
               </div>
+
+              {/* Loading Indicator */}
+              {loading && (
+                <div className="text-center py-4">
+                  <p>Loading more products...</p>
+                </div>
+              )}
+
+              {/* No More Products */}
+              {visibleProducts >= filteredProducts.length && !loading && (
+                <div className="text-center py-4">
+                  <p>No more products to load.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

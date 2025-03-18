@@ -1,12 +1,13 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { SitePreferencesContext } from "./SitePreferencesContext";
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const currency = "₹";
-  const delivery_fee = 100;
+  const [delivery_fee, set_delivery_charge] = useState(0);
 
   const fetchProducts = async () => {
     try {
@@ -19,8 +20,22 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const fetchSitePreferences = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/site`
+      );
+      if (response.data && response.data[0]) {
+        set_delivery_charge(response.data[0].delivery_charge);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch settings");
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchSitePreferences();
   }, []);
 
   const value = {

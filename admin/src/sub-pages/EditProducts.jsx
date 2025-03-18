@@ -533,7 +533,7 @@ const EditProducts = () => {
                 </>
               )}
 
-              {/* Step 4: Pricing, Stock & Prescription */}
+              {/* Step 4: Pricing, Prescription */}
               {step === 4 && (
                 <>
                   {/* Dynamic Pricing Fields */}

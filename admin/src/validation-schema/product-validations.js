@@ -30,7 +30,7 @@ export const addProduct = Yup.object().shape({
   description: Yup.string().required("Description is required"),
   information: Yup.string().required("Additional information is required"),
 
-  // Step 4: Pricing & Stock
+  // Step 4: Pricing
   pricing: Yup.array()
     .of(
       Yup.object().shape({

@@ -1,96 +1,167 @@
-import React from "react";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Breadcrumb from "../components/Breadcrumb";
+import { toast } from "react-toastify";
+import { AuthContext } from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Contact = () => {
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    feedback: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const notifySuccess = (msg) => toast.success(msg);
+  const notifyError = (msg) => toast.error(msg);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        phone: user.phone,
+        feedback: "",
+      });
+    }
+  })
+  // Handle input changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Submit feedback
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    console.log(formData);
+
+    if(!formData.first_name || !formData.last_name || !formData.email || !formData.phone || !formData.feedback){
+      notifyError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
+      notifyError("Invalid email format.");
+      setLoading(false);
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.phone)) {
+      notifyError("Invalid phone number format.");
+      setLoading(false);
+      return;
+    }
+    
+
+    try {
+      console.log("try");
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/feedback/add`,
+        formData
+      );
+      console.log(" response : ", response);
+
+      if (response.data.success) {
+        notifySuccess(response.data.message);
+        setFormData({
+          first_name: "",
+          last_name: "",
+          email: "",
+          phone: "",
+          feedback: "",
+        });
+        navigate("/");
+      } else {
+        notifyError(response.data.message);
+      }
+    } catch (error) {
+      notifyError("Something went wrong. Please try again.");
+      console.error("Error submitting feedback:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Breadcrumb title="Contact" destination1="Home" destination2="Contact" />
-      <section className="section-contact py-[50px] max-[1199px]:py-[35px]">
-        <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
-          <div className="flex flex-wrap w-full mb-[-24px]">
-            <div className="w-full px-[12px]">
-              <div
-                className="section-title mb-[20px] pb-[20px] relative flex flex-col items-center text-center max-[991px]:pb-[0]"
+      <section className="py-[50px] max-[1199px]:py-[35px]">
+        <div className="flex flex-wrap justify-center items-center mx-auto max-w-[960px]">
+          <div className="w-full px-[12px] mb-[24px]">
+            <h2 className="text-center text-[25px] font-bold text-[#3d4750]">
+              Get In <span className="text-[#6c7fd8]">Touch</span>
+            </h2>
+            <p className="text-center text-[14px] text-[#686e7d]">
+              Please select a topic below related to your inquiry. If you don't
+              find what you need, fill out our contact form.
+            </p>
+          </div>
+
+          {/* Feedback Form */}
+          <div className="w-full md:w-1/2 border border-[#eee] rounded-[20px] p-[30px]">
+      
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="first_name"
+                placeholder="Enter Your First Name"
+                value={formData.first_name}
+                onChange={handleChange}
+                required
+                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+              />
+              <input
+                type="text"
+                name="last_name"
+                placeholder="Enter Your Last Name"
+                value={formData.last_name}
+                onChange={handleChange}
+                required
+                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+              />
+              <input
+                type="text"
+                name="phone"
+                placeholder="Enter Your Phone Number"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+              />
+              <textarea
+                name="feedback"
+                placeholder="Please leave your comments here.."
+                value={formData.feedback}
+                onChange={handleChange}
+                required
+                className="w-full h-[150px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+              ></textarea>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 text-white bg-[#6c7fd8] rounded-[10px] border border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
               >
-                <div className="section-detail max-[991px]:mb-[12px]">
-                  <h2 className="bb-title font-quicksand mb-[0] p-[0] text-[25px] font-bold text-[#3d4750] relative inline capitalize leading-[1] tracking-[0.03rem] max-[767px]:text-[23px]">
-                    Get In <span className="text-[#6c7fd8]">Touch</span>
-                  </h2>
-                  <p className="font-Poppins max-w-[400px] mt-[10px] text-[14px] text-[#686e7d] leading-[18px] font-light tracking-[0.03rem] max-[991px]:mx-[auto]">
-                    Please select a topic below related to you inquiry. If you
-                    don't fint what you need, fill out our contact form.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className="min-[992px]:w-[50%] w-full px-[12px] mb-[24px]"
-            >
-              <div className="bb-contact-form border-[1px] border-solid border-[#eee] rounded-[20px] p-[30px]">
-                <form method="post">
-                  <div className="bb-contact-wrap mb-[24px]">
-                    <input
-                      type="text"
-                      name="firstname"
-                      placeholder="Enter Your First Name"
-                      className="w-full h-[50px] py-[10px] pl-[15px] pr-[10px] border-[1px] border-solid border-[#eee] outline-[0] text-[14px] font-normal text-[#686e7d] rounded-[10px]"
-                    />
-                  </div>
-                  <div className="bb-contact-wrap mb-[24px]">
-                    <input
-                      type="text"
-                      name="lastname"
-                      placeholder="Enter Your Last Name"
-                      className="w-full h-[50px] py-[10px] pl-[15px] pr-[10px] border-[1px] border-solid border-[#eee] outline-[0] text-[14px] font-normal text-[#686e7d] rounded-[10px]"
-                    />
-                  </div>
-                  <div className="bb-contact-wrap mb-[24px]">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Enter Your Email"
-                      className="w-full h-[50px] py-[10px] pl-[15px] pr-[10px] border-[1px] border-solid border-[#eee] outline-[0] text-[14px] font-normal text-[#686e7d] rounded-[10px]"
-                    />
-                  </div>
-                  <div className="bb-contact-wrap mb-[24px]">
-                    <input
-                      type="text"
-                      name="phonenumber"
-                      placeholder="Enter Your Phone Number"
-                      className="w-full h-[50px] py-[10px] pl-[15px] pr-[10px] border-[1px] border-solid border-[#eee] outline-[0] text-[14px] font-normal text-[#686e7d] rounded-[10px]"
-                    />
-                  </div>
-                  <div className="bb-contact-wrap mb-[24px]">
-                    <textarea
-                      name="address"
-                      placeholder="Please leave your comments here.."
-                      className="w-full h-[150px] py-[10px] pl-[15px] pr-[10px] border-[1px] border-solid border-[#eee] outline-[0] text-[14px] font-normal text-[#686e7d] rounded-[10px]"
-                      defaultValue={""}
-                    />
-                  </div>
-                  <div className="bb-contact-button">
-                    <button
-                      className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                      type="submit"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-            <div
-              className="min-[992px]:w-[50%] w-full px-[12px] mb-[24px]"
-            >
-              <div className="bb-contact-maps sticky top-[0]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d929.6923186886103!2d72.9043573711624!3d21.240995949535076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1718947386404!5m2!1sen!2sin"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full h-[577px] mb-[-10px] rounded-[20px] border-[0]"
-                />
-              </div>
-            </div>
+                {loading ? <loadingSpinner /> : "Submit"}
+              </button>
+            </form>
           </div>
         </div>
       </section>

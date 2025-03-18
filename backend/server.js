@@ -9,6 +9,8 @@ import orderRouter from "./routes/orderRoutes.js";
 import feedbackRouter from "./routes/feedbackRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
+import sitePreferencesRouter from "./routes/sitePreferencesRoutes.js";
+import statisticsRouter from "./routes/statisticsRoutes.js";
 
 // App config
 const app = express();
@@ -27,6 +29,8 @@ app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/category', categoryRouter);
+app.use('/api/site', sitePreferencesRouter);
+app.use('/api/statistics', statisticsRouter);
 app.get("/", (req, res) => {
     res.status(200).send("Hello World!");
 });

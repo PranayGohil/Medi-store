@@ -1,10 +1,11 @@
-import React from "react";
+import { useContext, useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "./Hero.css";
+import { SitePreferencesContext } from "../context/SitePreferencesContext";
 
 const slides = [
   {
@@ -31,44 +32,9 @@ const slides = [
 ];
 
 const Hero = () => {
+  const { banners } = useContext(SitePreferencesContext);
   return (
     <section className="section-hero mb-[50px] max-[1199px]:mb-[35px] py-[50px] relative bg-[#f8f8fb] overflow-hidden">
-      <div className="bb-social-follow absolute left-[20px] bottom-[30px] max-[1250px]:hidden">
-        <ul className="inner-links">
-          <li className="p-[6px] rotate-[270deg]">
-            <a
-              href="javascript:void(0)"
-              className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[16px] font-medium text-[#777] hover:text-[#6c7fd8] leading-[28px] tracking-[0.03rem] uppercase"
-            >
-              Fb
-            </a>
-          </li>
-          <li className="p-[6px] rotate-[270deg]">
-            <a
-              href="javascript:void(0)"
-              className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[16px] font-medium text-[#777] hover:text-[#6c7fd8] leading-[28px] tracking-[0.03rem] uppercase"
-            >
-              Li
-            </a>
-          </li>
-          <li className="p-[6px] rotate-[270deg]">
-            <a
-              href="javascript:void(0)"
-              className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[16px] font-medium text-[#777] hover:text-[#6c7fd8] leading-[28px] tracking-[0.03rem] uppercase"
-            >
-              Dr
-            </a>
-          </li>
-          <li className="p-[6px] rotate-[270deg]">
-            <a
-              href="javascript:void(0)"
-              className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[16px] font-medium text-[#777] hover:text-[#6c7fd8] leading-[28px] tracking-[0.03rem] uppercase"
-            >
-              In
-            </a>
-          </li>
-        </ul>
-      </div>
       <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
         <div className="flex flex-wrap w-full">
           <div className="w-full">
@@ -80,7 +46,7 @@ const Hero = () => {
               autoplay={{ delay: 5000 }}
               className="w-full max-w-[90rem] mx-auto"
             >
-              {slides.map((slide, index) => (
+              {banners.map((slide, index) => (
                 <SwiperSlide
                   key={index}
                   className="flex flex-wrap w-full mb-[-24px]"
@@ -89,7 +55,7 @@ const Hero = () => {
                     <div className="min-[992px]:w-[50%] w-full px-[12px] min-[992px]:order-1 order-2 mb-[24px]">
                       <div className="hero-contact h-full flex flex-col items-start justify-center max-[991px]:items-center">
                         <p className="mb-[20px] font-Poppins text-[18px] text-[#777] font-light leading-[28px] tracking-[0.03rem] max-[1199px]:mb-[10px] max-[1199px]:text-[16px]">
-                          {slide.discount}
+                          {slide.discription}
                         </p>
                         <h1 className="mb-[20px] font-quicksand text-[50px] text-[#3d4750] font-bold tracking-[0.03rem] leading-[1.2] max-[1199px]:mb-[10px] max-[1199px]:text-[38px] max-[991px]:text-center max-[991px]:text-[45px] max-[767px]:text-[40px] max-[575px]:text-[35px] max-[420px]:text-[30px] max-[360px]:text-[28px]">
                           {slide.title1}{" "}

@@ -1,43 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import { FaSearch, FaReply } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Feedbacks = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [replyModal, setReplyModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [replyMessage, setReplyMessage] = useState("");
+  const [feedbacks, setFeedbacks] = useState([]);
 
-  // Sample feedback data
-  const feedbacks = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      message: "Great service! Keep it up.",
-      date: "2025-02-24",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      message: "Can you add more payment options?",
-      date: "2025-02-25",
-    },
-    {
-      id: 3,
-      name: "Alice Brown",
-      email: "alice.brown@example.com",
-      message: "I faced an issue while ordering. Please assist.",
-      date: "2025-02-26",
-    },
-  ];
+  const notifySuccess = (message) => toast.success(message);
+  const notifyError = (message) => toast.error(message);
 
+  const fetchFeedbacks = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/feedback/all`
+      );
+      console.log("Data : ", response.data.feedbacks);
+      // Sort feedbacks by created_at (newest first)
+      const sortedFeedbacks = response.data.feedbacks.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+      setFeedbacks(sortedFeedbacks);
+    } catch (error) {
+      console.error("Error fetching feedbacks:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedbacks();
+  });
+  
   // Filtered feedbacks
   const filteredFeedbacks = feedbacks.filter(
     (feedback) =>
-      feedback.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      feedback.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      feedback.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       feedback.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      feedback.message.toLowerCase().includes(searchQuery.toLowerCase())
+      feedback.feedback.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Open reply modal
@@ -50,11 +53,11 @@ const Feedbacks = () => {
   // Send reply function
   const sendReply = () => {
     if (!replyMessage.trim()) {
-      alert("Reply message cannot be empty!");
+      notifyError("Reply message cannot be empty!");
       return;
     }
 
-    alert(`Reply sent to ${selectedFeedback.email}: \n\n"${replyMessage}"`);
+    notifySuccess(`Reply sent to ${selectedFeedback.email}: \n\n"${replyMessage}"`);
     setReplyModal(false);
   };
 
@@ -82,6 +85,7 @@ const Feedbacks = () => {
               <tr className="bg-gray-200 text-gray-700">
                 <th className="p-3 text-left">Name</th>
                 <th className="p-3 text-left">Email</th>
+                <th className="p-3 text-left">Phone</th>
                 <th className="p-3 text-left">Message</th>
                 <th className="p-3 text-left">Date</th>
                 <th className="p-3 text-center">Action</th>
@@ -91,11 +95,25 @@ const Feedbacks = () => {
               {filteredFeedbacks.length > 0 ? (
                 filteredFeedbacks.map((feedback) => (
                   <tr key={feedback.id} className="border-b">
-                    <td className="p-3">{feedback.name}</td>
+                    <td className="p-3">
+                      {feedback.first_name} {feedback.last_name}
+                    </td>
                     <td className="p-3">{feedback.email}</td>
-                    <td className="p-3">{feedback.message}</td>
-                    <td className="p-3">{feedback.date}</td>
-                    <td className="p-3 text-center">
+                    <td className="p-3">{feedback.phone}</td>
+                    <td className="p-3">
+                      {feedback.feedback.length > 40
+                        ? `${feedback.feedback.substring(0, 40)}...`
+                        : feedback.feedback}
+                    </td>
+                    <td className="p-3">
+                      {new Date(feedback.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="p-3 text-center flex justify-center gap-2">
+                      <Link to={`/feedback-details/${feedback._id}`}>
+                        <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                          View Full Details
+                        </button>
+                      </Link>
                       <button
                         onClick={() => handleReply(feedback)}
                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center justify-center"
@@ -122,13 +140,14 @@ const Feedbacks = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
           <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">
-              Reply to {selectedFeedback.name}
+              Reply to {selectedFeedback.first_name}{" "}
+              {selectedFeedback.last_name}
             </h2>
             <p className="text-gray-700 mb-2">
               Email: {selectedFeedback.email}
             </p>
             <p className="text-gray-700 mb-4">
-              Message: {selectedFeedback.message}
+              Message: {selectedFeedback.feedback}
             </p>
             <textarea
               value={replyMessage}

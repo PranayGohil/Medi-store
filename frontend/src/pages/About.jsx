@@ -1,7 +1,6 @@
 import React from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import Services from "../components/Services";
-import Testimonials from "../components/Testimonials";
 
 const About = () => {
   return (
@@ -106,7 +105,6 @@ const About = () => {
         </div>
       </section>
       <Services />
-      <Testimonials />
     </>
   );
 };

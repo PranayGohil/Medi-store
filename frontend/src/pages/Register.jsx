@@ -2,9 +2,13 @@ import React, { useState, useContext } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -17,12 +21,46 @@ const Register = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const notifySuccess = (message) => toast.success(message);
+  const notifyError = (message) => toast.error(message);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
     setError("");
+
+    if (
+      formData.firstname === "" ||
+      formData.lastname === "" ||
+      formData.email === "" ||
+      formData.phonenumber === "" ||
+      formData.password === "" ||
+      formData.confirmpassword === ""
+    ) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
+      setError("Invalid email format.");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.phonenumber)) {
+      setError("Invalid phone number format.");
+      return;
+    }
+
+    if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(
+        formData.password
+      )
+    ) {
+      setError("Please enter a strong password");
+      return;
+    }
 
     if (formData.password !== formData.confirmpassword) {
       setError("Passwords do not match.");
@@ -42,14 +80,11 @@ const Register = () => {
       );
 
       if (response.data.success) {
-        // Registration successful
-        alert(response.data.message);
-        // Store the token in localStorage
+        notifySuccess(response.data.message);
         localStorage.setItem("token", response.data.token);
         login(response.data.user);
         navigate("/");
       } else {
-        // Registration failed
         setError(response.data.message);
       }
     } catch (err) {

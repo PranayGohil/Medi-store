@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaSortUp, FaSortDown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ReactPaginate from "react-paginate";
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage] = useState(10);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -58,7 +63,11 @@ const Orders = () => {
             return { ...order, products: productsWithDetails };
           })
         );
-        setOrders(ordersWithProducts);
+        // Sort feedbacks by created_at (newest first)
+        const sortedOrders = ordersWithProducts.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+        setOrders(sortedOrders);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -92,6 +101,46 @@ const Orders = () => {
       (dateFilter === "" || orderDate === dateFilter)
     );
   });
+
+  // Sorting Logic
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    if (!sortColumn) return 0;
+
+    let aValue, bValue;
+    if (sortColumn === "order_id") {
+      aValue = a.order_id;
+      bValue = b.order_id;
+    } else if (sortColumn === "customer") {
+      aValue = `${a.delivery_address[0]?.first_name} ${a.delivery_address[0]?.last_name}`;
+      bValue = `${b.delivery_address[0]?.first_name} ${b.delivery_address[0]?.last_name}`;
+    } else if (sortColumn === "total") {
+      aValue = a.total;
+      bValue = b.total;
+    } else if (sortColumn === "created_at") {
+      aValue = new Date(a.created_at);
+      bValue = new Date(b.created_at);
+    } else if (sortColumn === "order_status") {
+      aValue = a.order_status;
+      bValue = b.order_status;
+    } else {
+      return 0;
+    }
+
+    if (sortDirection === "asc") {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  });
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
 
   const handleEditStatus = (order) => {
     setSelectedOrder(order);
@@ -131,6 +180,15 @@ const Orders = () => {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
+  };
+
+  // Pagination
+  const offset = currentPage * itemsPerPage;
+  const currentOrders = sortedOrders.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(sortedOrders.length / itemsPerPage);
+
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
   };
 
   if (loading) {
@@ -193,18 +251,73 @@ const Orders = () => {
           <table className="w-full border-collapse bg-white shadow-md rounded-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
-                <th className="p-3 text-left">Order ID</th>
-                <th className="p-3 text-left">Customer</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("order_id")}
+                >
+                  Order ID
+                  {sortColumn === "order_id" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("customer")}
+                >
+                  Customer
+                  {sortColumn === "customer" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Products</th>
-                <th className="p-3 text-left">Total Amount</th>
-                <th className="p-3 text-left">Date</th>
-                <th className="p-3 text-left">Status</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("total")}
+                >
+                  Total Amount
+                  {sortColumn === "total" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("created_at")}
+                >
+                  Date
+                  {sortColumn === "created_at" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("order_status")}
+                >
+                  Status
+                  {sortColumn === "order_status" &&
+                    (sortDirection === "asc" ? (
+                      <FaSortUp className="inline ml-1" />
+                    ) : (
+                      <FaSortDown className="inline ml-1" />
+                    ))}
+                </th>
                 <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
+              {currentOrders.length > 0 ? (
+                currentOrders.map((order) => (
                   <tr key={order._id} className="border-b">
                     <td className="p-3">{order.order_id}</td>
                     <td className="p-3">
@@ -259,6 +372,23 @@ const Orders = () => {
             </tbody>
           </table>
         </div>
+        <ReactPaginate
+          previousLabel={"previous"}
+          nextLabel={"next"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination flex justify-center mt-4"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active bg-blue-500 text-white"}
+          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+        />
       </div>
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">

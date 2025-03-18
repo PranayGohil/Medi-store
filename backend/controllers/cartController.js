@@ -82,6 +82,55 @@ const getCartItems = async (req, res) => {
   }
 };
 
+const gwtCartItemsById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const cartItems = [];
+    let totalCartPrice = 0;
+
+    for (const cartItem of user.cartData) {
+      const product = await Product.findById(cartItem.product_id);
+
+      if (product) {
+        // Find the correct pricing based on the net quantity
+        const pricing = product.pricing.find(
+          (p) => p.net_quantity === cartItem.net_quantity
+        );
+
+        if (pricing) {
+          const itemTotal = pricing.total_price * cartItem.quantity;
+          totalCartPrice += itemTotal;
+
+          cartItems.push({
+            id: product._id,
+            name: product.name,
+            generic_name: product.generic_name,
+            dosage_form: product.dosage_form,
+            price: pricing.total_price,
+            quantity: cartItem.quantity,
+            net_quantity: cartItem.net_quantity,
+            image: product.product_images[0], // Assuming the first image is the main image
+            total: itemTotal,
+          });
+        }
+      }
+    }
+    console.log(cartItems);
+
+
+    res.json({ success: true, cartItems, totalCartPrice });
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const removeCartItem = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -139,4 +188,4 @@ const clearCart = async (req, res) => {
   }
 };
 
-export { addToCart, getCartItems, removeCartItem, clearCart };
+export { addToCart, getCartItems, gwtCartItemsById, removeCartItem, clearCart };

@@ -211,6 +211,17 @@ const getProductByAlias = async (req, res) => {
   }
 };
 
+const productSuggestions = async (req, res) => {
+  try {
+    console.log("suggestions");
+    const suggestions = await Product.find({}).limit(5);
+    return res.json({ success: true, suggestions });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 const addReview = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -359,7 +370,7 @@ const getAllReviews = async (req, res) => {
       }))
     );
 
-    res.json({success: true, reviews: allReviews});
+    res.json({ success: true, reviews: allReviews });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
@@ -372,6 +383,7 @@ export {
   getAllProducts,
   getSingleProduct,
   getProductByAlias,
+  productSuggestions,
   addReview,
   deleteReview,
   changeReviewStatus,

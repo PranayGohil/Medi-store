@@ -14,12 +14,10 @@ createRoot(document.getElementById("root")).render(
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
+        newestOnTop={true}
+        closeOnClick={true}
         rtl={false}
-        pauseOnFocusLoss
         draggable
-        pauseOnHover
         theme="colored"
       />
     </ShopContextProvider>

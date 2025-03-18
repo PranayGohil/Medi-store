@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb"; // Import Breadcrumb
+import { toast } from "react-toastify";
+import Breadcrumb from "../components/Breadcrumb";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ const Profile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
+  const notifySuccess = (message) => toast.success(message);
+  const notifyError = (message) => toast.error(message);
 
   const getAddresses = async () => {
     try {
@@ -56,6 +59,9 @@ const Profile = () => {
         email: user.email,
         phone: user.phone,
       });
+    } else {
+      notifyError("Please login to view your profile.");
+      navigate("/login");
     }
   }, [user]);
 
@@ -493,7 +499,6 @@ const Profile = () => {
               >
                 Logout
               </button>
-            
             </div>
           </div>
         </div>

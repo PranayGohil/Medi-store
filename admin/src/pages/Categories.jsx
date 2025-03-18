@@ -7,6 +7,7 @@ import {
   FaChevronUp,
   FaEdit,
 } from "react-icons/fa";
+import { TbLayoutNavbarExpand } from "react-icons/tb";
 
 const CategoryManagement = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +22,7 @@ const CategoryManagement = () => {
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editSubcategories, setEditSubcategories] = useState([]);
+  const [editNavbarActive, setEditNavbarActive] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
@@ -46,6 +48,21 @@ const CategoryManagement = () => {
     );
     setFilteredCategories(results);
   }, [searchTerm, categories]);
+
+  const resetAllForms = () => {
+    setSidebarOpen(false);
+    setNewCategoryName("");
+    setSelectedCategory("");
+    setNewSubcategories([""]);
+    setShowNewCategoryInput(false);
+    setShowAddCategoryModal(false);
+    setShowEditCategoryModal(false);
+    setExpandedCategories({});
+    setEditCategoryId(null);
+    setEditCategoryName("");
+    setEditSubcategories([]);
+    setEditNavbarActive(false);
+  };
 
   const handleCategoryChange = (event) => {
     const value = event.target.value;
@@ -120,11 +137,7 @@ const CategoryManagement = () => {
   };
 
   const handleCloseAddCategoryModal = () => {
-    setSidebarOpen(false);
-    setShowAddCategoryModal(false);
-    setSelectedCategory("");
-    setShowNewCategoryInput(false);
-    setNewCategoryName("");
+    resetAllForms();
   };
 
   const toggleCategoryExpansion = (categoryId) => {
@@ -134,7 +147,7 @@ const CategoryManagement = () => {
     }));
   };
 
-  const handleEditCategory = (categoryId) => {
+  const handleEditCategory = (categoryId, navbar_active) => {
     const categoryToEdit = categories.find((cat) => cat._id === categoryId);
     if (categoryToEdit) {
       setSidebarOpen(true);
@@ -147,11 +160,7 @@ const CategoryManagement = () => {
   };
 
   const handleCloseEditCategoryModal = () => {
-    setSidebarOpen(false);
-    setShowEditCategoryModal(false);
-    setEditCategoryId(null);
-    setEditCategoryName("");
-    setEditSubcategories([]);
+    resetAllForms();
   };
 
   const handleEditSubcategoryChange = (index, value) => {
@@ -176,6 +185,7 @@ const CategoryManagement = () => {
 
   const handleEditSubmit = async (event) => {
     event.preventDefault();
+
     try {
       await axios.put(
         `${
@@ -184,6 +194,7 @@ const CategoryManagement = () => {
         {
           category: editCategoryName,
           subcategory: editSubcategories,
+          navbar_active: editNavbarActive,
         }
       );
       fetchCategories();
@@ -255,11 +266,16 @@ const CategoryManagement = () => {
                         onClick={() => toggleCategoryExpansion(category._id)}
                       >
                         {category.category}
-                        {expandedCategories[category._id] ? (
-                          <FaChevronUp className="ml-2" />
-                        ) : (
-                          <FaChevronDown className="ml-2" />
-                        )}
+                        <div className="flex items-center">
+                          {category.navbar_active && (
+                            <TbLayoutNavbarExpand className="ml-2 bg-green-500 rounded-md p-1" />
+                          )}
+                          {expandedCategories[category._id] ? (
+                            <FaChevronUp className="ml-2" />
+                          ) : (
+                            <FaChevronDown className="ml-2" />
+                          )}
+                        </div>
                       </div>
                       <hr />
                       {expandedCategories[category._id] && (
@@ -277,7 +293,14 @@ const CategoryManagement = () => {
                           <hr className="my-2" />
                           <button
                             className="flex items-center bg-blue-600 text-white mt-3 py-1 px-4 rounded-lg hover:bg-blue-700 transition"
-                            onClick={() => handleEditCategory(category._id)}
+                            onClick={() => {
+                              handleEditCategory(category._id);
+                              if (category.navbar_active) {
+                                setEditNavbarActive(true);
+                              } else {
+                                setEditNavbarActive(false);
+                              }
+                            }}
                           >
                             <FaEdit className="mr-2" /> Edit
                           </button>
@@ -295,7 +318,9 @@ const CategoryManagement = () => {
             <div className="md:w-1/2">
               <div className="flex flex-col h-full">
                 <div className="bg-white p-4 rounded-lg shadow-md flex-grow">
-                  <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Add New Category
+                  </h2>
                   <form onSubmit={handleSubmit}>
                     <div>
                       <div>
@@ -419,6 +444,18 @@ const CategoryManagement = () => {
                       >
                         Add More Subcategories
                       </button>
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="mr-2 mt-3"
+                          id="editNavbarActive"
+                          checked={editNavbarActive}
+                          onChange={(e) =>
+                            setEditNavbarActive(e.target.checked)
+                          }
+                        />
+                        <label htmlFor="editNavbarActive">Show in Navbar</label>
+                      </div>
                     </div>
 
                     <button type="submit" className="btn btn-primary">

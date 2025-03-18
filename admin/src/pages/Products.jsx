@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaSearch, FaPlus, FaThLarge, FaList } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
@@ -7,8 +7,13 @@ import { ShopContext } from "../context/ShopContext";
 const Products = () => {
   const location = useLocation();
   const { products } = useContext(ShopContext);
+
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState("grid");
+  const [visibleProducts, setVisibleProducts] = useState(12); // Initial products
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Control loading text
+  const observerRef = useRef(null);
+
   const navigate = useNavigate();
 
   // Extract category and subcategory from query parameters
@@ -32,6 +37,30 @@ const Products = () => {
     return matchesCategory && matchesSubcategory && matchesSearch;
   });
 
+  // Lazy Loading with Delay
+  useEffect(() => {
+    if (!observerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          setIsLoadingMore(true);
+
+          // Delay loading new products by 1.5 seconds
+          setTimeout(() => {
+            setVisibleProducts((prev) => prev + 8);
+            setIsLoadingMore(false);
+          }, 1000);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    observer.observe(observerRef.current);
+
+    return () => observer.disconnect();
+  }, [filteredProducts, isLoadingMore]);
+
   return (
     <div className="p-6 bg-gray-50">
       {/* Header */}
@@ -39,7 +68,6 @@ const Products = () => {
         <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
 
         <div className="flex items-center gap-4">
-          {/* Add Product Button */}
           <button
             onClick={() => navigate("/product/add-product")}
             className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
@@ -52,7 +80,6 @@ const Products = () => {
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <div className="flex gap-2 bg-gray-300 p-1 rounded-lg">
-          {/* Grid View Button */}
           <button
             onClick={() => setViewMode("grid")}
             className={`p-2 rounded-lg transition ${
@@ -64,7 +91,6 @@ const Products = () => {
             <FaThLarge size={20} />
           </button>
 
-          {/* List View Button */}
           <button
             onClick={() => setViewMode("list")}
             className={`p-2 rounded-lg transition ${
@@ -77,8 +103,7 @@ const Products = () => {
           </button>
         </div>
         <div className="flex justify-end items-center gap-4 w-full md:w-1/2">
-          {/* Search Bar */}
-          <div className="flex items-center bg-white shadow-md p-3 rounded-lg ">
+          <div className="flex items-center bg-white shadow-md p-3 rounded-lg">
             <FaSearch className="text-gray-500" />
             <input
               type="text"
@@ -99,16 +124,21 @@ const Products = () => {
             : "space-y-4"
         }
       >
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product, index) => (
-            <ProductCard product={product} key={index} viewMode={viewMode} />
-          ))
-        ) : (
-          <p className="text-gray-500 col-span-full text-center">
-            No products found.
-          </p>
-        )}
+        {filteredProducts.slice(0, visibleProducts).map((product, index) => (
+          <ProductCard product={product} key={index} viewMode={viewMode} />
+        ))}
       </div>
+
+      {/* Lazy Load Trigger */}
+      {visibleProducts < filteredProducts.length && (
+        <div ref={observerRef} className="mt-6 text-center">
+          {isLoadingMore ? (
+            <p className="text-gray-500 animate-pulse">Loading more products...</p>
+          ) : (
+            <p className="text-gray-400">Scroll down to load more</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

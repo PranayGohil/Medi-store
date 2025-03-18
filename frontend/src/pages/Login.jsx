@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
   const { cartItems, addItemToCart } = useContext(CartContext);
+
+  const notifySuccess = (message) => toast.success(message);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,7 +36,7 @@ const Login = () => {
       );
 
       if (response.data.success) {
-        alert(response.data.message);
+        notifySuccess(response.data.message);
         localStorage.setItem("token", response.data.token);
         login(response.data.user);
         response.data.cartData.forEach((item) => {

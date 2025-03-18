@@ -133,6 +133,16 @@ const getUser = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error("Error getting users:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 const updateUser = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -273,6 +283,7 @@ export {
   loginUser,
   registerUser,
   getUser,
+  getAllUsers,
   adminLogin,
   updateUser,
   addAddress,

@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
+import { toast } from "react-toastify";
 
 const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,8 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([]);
 
   const [isProductInCart, setIsProductInCart] = useState(false);
+  const notifySuccess = (message) => toast.success(message);
+  const notifyError = (message) => toast.error(message);
 
   const fetchCart = async () => {
     try {
@@ -168,7 +171,7 @@ const ProductDetails = () => {
 
   const handleAddToCart = async () => {
     if (!user) {
-      alert("Please login to add items to your cart.");
+      notifyError("Please login to add items to your cart.");
       return;
     }
 
@@ -185,7 +188,7 @@ const ProductDetails = () => {
       );
 
       if (response.data.success) {
-        alert("Product added to cart!");
+        notifySuccess("Product added to cart!");
         fetchCart();
         addItemToCart({
           product_id: product._id,
@@ -195,11 +198,11 @@ const ProductDetails = () => {
         });
         setIsProductInCart(true);
       } else {
-        alert("Failed to add product to cart.");
+        notifyError("Failed to add product to cart.");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("An error occurred while adding to cart.");
+      notifyError("An error occurred while adding to cart.");
     }
   };
 

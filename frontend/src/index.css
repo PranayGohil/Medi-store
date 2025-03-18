@@ -71,3 +71,24 @@
 .modal-buttons button:last-child:hover {
   background-color: #c82333; /* Darker red on hover */
 }
+
+.Toastify__toast--success {
+  background-color: White !important;
+  color: #6c7fd8 !important;
+}
+.Toastify__progress-bar--success {
+  background-color: #6c7fd8 !important; /* Change success progress bar */
+}
+
+.Toastify__toast--error {
+  background-color: white !important;
+  color: #e78169 !important;
+}
+.Toastify__progress-bar--error {
+  background-color: #ff5733 !important; /* Error Toast */
+}
+
+.custom-toast {
+  font-size: 16px;
+  border-radius: 8px;
+}

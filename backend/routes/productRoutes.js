@@ -6,6 +6,7 @@ import {
   getAllProducts,
   getSingleProduct,
   getProductByAlias,
+  productSuggestions,
   addReview,
   deleteReview,
   changeReviewStatus,
@@ -38,6 +39,7 @@ productRouter.put(
 productRouter.get("/all", getAllProducts);
 productRouter.get("/single/:id", getSingleProduct);
 productRouter.get("/single-by-alias/:alias", getProductByAlias);
+productRouter.get("/suggestions", productSuggestions);
 
 productRouter.post("/add-review/:productId", addReview);
 productRouter.delete("/delete-review/:productId/:reviewId", deleteReview);

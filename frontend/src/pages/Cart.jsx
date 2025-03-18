@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { Country, State, City } from "country-state-city";
+import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { LocationContext } from "../context/LocationContext";
+import { CartContext } from "../context/CartContext";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -16,27 +19,35 @@ const Cart = () => {
   const { currency, delivery_fee } = useContext(ShopContext);
   const { user } = useContext(AuthContext);
   const { updateLocationData } = useContext(LocationContext);
+  const { removeItemFromCart } = useContext(CartContext);
+
+  const notifySuccess = (message) => toast.success(message);
+  const notifyError = (message) => toast.error(message);
+
+  const fetchCartData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setCartItems(response.data.cartItems);
+      setTotalCartPrice(response.data.totalCartPrice);
+    } catch (error) {
+      console.error("Error fetching cart data:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchCartData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setCartItems(response.data.cartItems);
-        setTotalCartPrice(response.data.totalCartPrice);
-      } catch (error) {
-        console.error("Error fetching cart data:", error);
-      }
-    };
     if (user) {
       fetchCartData();
+    } else {
+      notifyError("Please login to view your cart.");
+      navigate("/login");
     }
   }, [user]);
 
@@ -48,10 +59,24 @@ const Cart = () => {
     // You'll need to update the backend here
   };
 
-  const handleRemove = (id) => {
-    const updatedCart = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedCart);
-    // You'll need to update the backend here
+  const handleRemove = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.delete(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/remove-from-cart/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data);
+      if (response.data.success) {
+        notifySuccess(response.data.message);
+        removeItemFromCart(id);
+        fetchCartData();
+      }
+    } catch (error) {}
   };
 
   const calculateTotal = () => {
@@ -326,15 +351,24 @@ const Cart = () => {
                         </td>
                       </tr>
                     ))}
+                    {cartItems.length === 0 && (
+                      <tr>
+                        <td colSpan="5" className="text-center py-4">
+                          Your cart is empty
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
-              <Link
-                to="/checkout"
-                className="bb-btn-2 mt-[24px] inline-flex items-center justify-center check-btn transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[8px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-              >
-                Check Out
-              </Link>
+              {cartItems.length > 0 && (
+                <Link
+                  to="/checkout"
+                  className="bb-btn-2 mt-[24px] inline-flex items-center justify-center check-btn transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[8px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                >
+                  Check Out
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
-import Breadcrumb from "../components/Breadcrumb"; // Import Breadcrumb
+import { toast } from "react-toastify";
+import Breadcrumb from "../components/Breadcrumb"; 
 
 const OrderHistory = () => {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { currency } = useContext(ShopContext);
   const [orders, setOrders] = useState([]);
+
+  const notifyError = (message) => toast.error(message);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -31,6 +35,9 @@ const OrderHistory = () => {
 
     if (user) {
       fetchOrders();
+    } else {
+      notifyError("Please login to view your order history.");
+      navigate("/login");
     }
   }, [user]);
 

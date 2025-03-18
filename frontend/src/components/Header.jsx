@@ -1,13 +1,23 @@
 import { useState, useEffect, useContext } from "react";
+import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
+import { ShopContext } from "../context/ShopContext";
 
 const Header = () => {
   const { user } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
+  const { products } = useContext(ShopContext);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [genericSearchQuery, setGenericSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const [categories, setCategories] = useState([]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -17,17 +27,28 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/category/all`
+      );
+      console.log("Data : ", response.data);
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchCategories();
     const handleResize = () => {
-      // Close the mobile menu on larger screens
       if (window.innerWidth > 991) {
         setIsMobileMenuOpen(false);
       }
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  });
+  }, []);
 
   useEffect(() => {
     closeMobileMenu();
@@ -40,6 +61,48 @@ const Header = () => {
       0
     );
   }
+
+  // 🔥 Auto-suggest logic
+  const handleGenericSearchChange = (e) => {
+    const query = e.target.value;
+    setGenericSearchQuery(query);
+
+    if (query.length > 1) {
+      const filteredSuggestions = products
+        .filter((product) =>
+          product.generic_name.toLowerCase().includes(query.toLowerCase())
+        )
+        .map((product) => product.generic_name);
+
+      // Remove duplicates
+      const uniqueSuggestions = [...new Set(filteredSuggestions)];
+      setSuggestions(uniqueSuggestions);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setGenericSearchQuery(suggestion);
+    setShowSuggestions(false);
+  };
+
+  const handleGenericSearchSubmit = (e) => {
+    e.preventDefault();
+    if (genericSearchQuery) {
+      window.location.href = `/search?generic=${encodeURIComponent(
+        genericSearchQuery
+      )}`;
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
 
   return (
     <header className="bb-header relative z-[5] border-b-[1px] border-solid border-[#eee]">
@@ -66,34 +129,65 @@ const Header = () => {
                   </div>
                   {/* Header Logo End */}
                 </div>
+                {/* Search forms */}
                 <div className="cols flex justify-center">
-                  <div className="header-search w-[600px] max-[1399px]:w-[500px] max-[1199px]:w-[400px] max-[991px]:w-full max-[991px]:min-w-[300px] max-[767px]:py-[15px] max-[480px]:min-w-[auto]">
+                  <div className="header-search flex flex-wrap justify-between align-middle w-[600px] max-[1399px]:w-[500px] max-[1199px]:w-[400px] max-[991px]:w-full max-[991px]:min-w-[300px] max-[767px]:py-[15px] max-[480px]:min-w-[auto]">
+                    {/* Product Search */}
                     <form
-                      className="bb-btn-group-form flex relative max-[991px]:ml-[20px] max-[767px]:m-[0]"
-                      action="#"
+                      className="w-1/2 bb-btn-group-form flex relative max-[991px]:ml-[20px] max-[767px]:m-[0] px-2"
+                      onSubmit={handleSearchSubmit}
                     >
-                      <div className="inner-select border-r-[1px] border-solid border-[#eee] h-full px-[20px] flex items-center absolute top-[0] left-[0] max-[991px]:hidden">
-                        <div className="custom-select w-[100px] capitalize text-[#777] flex items-center justify-between transition-all duration-[0.2s] ease-in text-[14px] relative">
-                          <select>
-                            <option value="option1">vegetables</option>
-                            <option value="option2">Cold Drinks</option>
-                            <option value="option3">Fruits</option>
-                            <option value="option4">Bakery</option>
-                          </select>
-                        </div>
-                      </div>
                       <input
                         type="text"
-                        className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] pr-[10px] pl-[160px] max-[991px]:min-h-[40px] max-[991px]:h-[40px] max-[991px]:p-[10px] text-[14px] font-normal leading-[1] text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee] tracking-[0.5px]"
+                        className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee]"
                         placeholder="Search products..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
                       <button
-                        className="submit absolute top-[0] left-[auto] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px] rounded-[0] outline-[0] border-[0] padding-[0]"
+                        className="submit absolute top-[0] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px]"
                         type="submit"
                       >
-                        <i className="ri-search-line text-[18px] leading-[12px] text-[#555]" />
+                        <i className="ri-search-line text-[18px] text-[#555]" />
                       </button>
                     </form>
+
+                    {/* Generic Name Search with Auto-Suggest */}
+                    <div className="w-1/2 relative px-2">
+                      <form
+                        className="bb-btn-group-form flex relative"
+                        onSubmit={handleGenericSearchSubmit}
+                      >
+                        <input
+                          type="text"
+                          className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee]"
+                          placeholder="Search by generic name..."
+                          value={genericSearchQuery}
+                          onChange={handleGenericSearchChange}
+                        />
+                        <button
+                          className="submit absolute top-[0] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px]"
+                          type="submit"
+                        >
+                          <i className="ri-search-line text-[18px] text-[#555]" />
+                        </button>
+                      </form>
+
+                      {/* Auto-suggest dropdown */}
+                      {showSuggestions && suggestions.length > 0 && (
+                        <ul className="absolute top-[100%] left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md z-10">
+                          {suggestions.map((suggestion, index) => (
+                            <li
+                              key={index}
+                              className="p-2 cursor-pointer hover:bg-gray-100"
+                              onClick={() => handleSuggestionClick(suggestion)}
+                            >
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="cols bb-icons flex justify-center">
@@ -253,57 +347,31 @@ const Header = () => {
                       >
                         Categories
                       </Link>
-                      <ul className="mega-menu min-w-full transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[0] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] flex flex-col rounded-[10px]">
-                        <li className="m-[0] flex items-center">
-                          <ul className="mega-block w-[calc(25%-30px)] mr-[30px] py-[15px]">
-                            <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
+                      <ul className="mega-menu min-w-3/4 transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[0] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] flex flex-col rounded-[10px]">
+                        <li className="m-[0] flex items-center w-full">
+                          <ul className="mega-block mr-[30px] py-[15px] w-full">
+                            {/* <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
                               <a
                                 href="javascript:void(0)"
                                 className="transition-all duration-[0.3s] ease-in-out font-Poppins h-[auto] text-[#6c7fd8] text-[15px] font-medium tracking-[0.03rem] block py-[10px] leading-[22px] capitalize"
                               >
                                 Classic
                               </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-left-sidebar-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Left sidebar 3 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-left-sidebar-col-4.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Left sidebar 4 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-right-sidebar-col-3.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Right sidebar 3 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-right-sidebar-col-4.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Right sidebar 4 column
-                              </a>
-                            </li>
-                            <li className="flex items-center leading-[28px]">
-                              <a
-                                href="shop-full-width.html"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
-                              >
-                                Full width 4 column
-                              </a>
-                            </li>
+                            </li> */}
+                            {categories.map((category) => (
+                              <div key={category._id}>
+                                {category.navbar_active && (
+                                  <li className="flex items-center leading-[28px]">
+                                    <a
+                                      href="shop-left-sidebar-col-3.html"
+                                      className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
+                                    >
+                                      {category.category}
+                                    </a>
+                                  </li>
+                                )}
+                              </div>
+                            ))}
                           </ul>
                         </li>
                       </ul>
@@ -420,12 +488,12 @@ const Header = () => {
                 </Link>
                 <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
                   <li className="relative">
-                    <a
+                    {/* <a
                       href="javascript:void(0)"
                       className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
                     >
                       Classic
-                    </a>
+                    </a> */}
                     <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
                       <li className="relative">
                         <a

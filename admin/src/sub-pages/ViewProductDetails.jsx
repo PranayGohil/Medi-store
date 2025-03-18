@@ -132,9 +132,6 @@ const ViewProductDetails = () => {
               <strong>Dosage Form:</strong> {product.dosage_form}
             </p>
             <p>
-              <strong>Stock Quantity:</strong> {product.stock_quantity}
-            </p>
-            <p>
               <strong>Prescription Required:</strong>{" "}
               {product.prescription_required ? "Yes" : "No"}
             </p>
