@@ -44,7 +44,7 @@ const Dashboard = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
       <div className="w-full flex flex-wrap">
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/orders"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
@@ -52,7 +52,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage Orders</h2>
           </Link>
         </div>
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/categories"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
@@ -60,7 +60,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage Categories</h2>
           </Link>
         </div>
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/products"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
@@ -68,7 +68,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage Products</h2>
           </Link>
         </div>
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/reviews"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
@@ -76,7 +76,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage Reviews</h2>
           </Link>
         </div>
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/users"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
@@ -84,7 +84,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage User</h2>
           </Link>
         </div>
-        <div className="w-1/4 p-3">
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/feedbacks"}
             className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
