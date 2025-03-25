@@ -25,6 +25,8 @@ import ViewUserDetails from "./sub-pages/ViewUserDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPassword from "./pages/ForgotPassword";
 
+import PageNotFound from "./pages/PageNotFound";
+
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -76,6 +78,8 @@ function App() {
 
           <Route path="/profile" element={<Profile />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>
     </div>

@@ -196,6 +196,7 @@ export const getBestSellers = async (req, res) => {
             rating: product.rating,
             prescription_required: product.prescription_required,
             best_seller: product.best_seller,
+            alias: product.alias,
             created_at: product.created_at,
           };
         }
