@@ -1,83 +1,102 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
-const Login = () => {
+const AdminLogin = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
 
     try {
-      const response = await fetch(
+      setIsLoading(true);
+      console.log("Login ", email, password);
+      const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/admin/login`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+          userid: email,
+          password: password,
         }
       );
 
-      if (response.ok) {
-        // Successful login
-        const data = await response.json();
-        // Store the token or user data in local storage or state
-        // Redirect to the admin dashboard or protected route
-        console.log("Login successful:", data);
+      const { success, token, user } = response.data;
+
+      if (success) {
+        localStorage.setItem("token", token);
+        toast.success("Logged in successfully!");
+        navigate("/dashboard");
       } else {
-        // Handle login error (e.g., display error message)
-        console.error("Login failed");
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Error during login:", error);
+      console.error("Login failed:", error);
+      toast.error("Invalid credentials");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, width: "100vw", height: "100vh", zIndex: 9999}}>
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Admin Login
-        </h2>
+    <div
+      className="flex items-center justify-center bg-gray-100"
+      style={{
+        height: "100vh",
+        width: "100vw",
+        zIndex: 9999,
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-semibold mb-6">Admin Login</h1>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-gray-700 font-medium mb-2"
-            >
-              Email
-            </label>
+            <label className="block text-gray-700">Email / Username:</label>
             <input
-              type="email"
-              id="email"
-              className="input input-bordered w-full"
-              placeholder="Enter your email"
+              type="text"
+              placeholder="Enter Email or Username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border rounded-md"
               required
             />
           </div>
+
           <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-medium mb-2"
-            >
-              Password
-            </label>
+            <label className="block text-gray-700">Password:</label>
             <input
               type="password"
-              id="password"
-              className="input input-bordered w-full"
-              placeholder="Enter your password"
+              placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded-md"
               required
             />
           </div>
+
           <button
             type="submit"
-            className="btn btn-primary w-full hover:bg-blue-700"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md"
           >
             Login
           </button>
@@ -87,4 +106,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

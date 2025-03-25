@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   FaSearch,
@@ -8,8 +9,12 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import { TbLayoutNavbarExpand } from "react-icons/tb";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CategoryManagement = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -23,18 +28,22 @@ const CategoryManagement = () => {
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editSubcategories, setEditSubcategories] = useState([]);
   const [editNavbarActive, setEditNavbarActive] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
 
   const fetchCategories = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/category/all`
       );
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,23 +103,50 @@ const CategoryManagement = () => {
     event.preventDefault();
 
     try {
+      setIsLoading(true);
       if (showNewCategoryInput) {
         // Add new category with subcategories
-        await axios.post(
+        const response = await axios.post(
           `${import.meta.env.VITE_APP_API_URL}/api/category/add`,
           {
             category: newCategoryName,
             subcategory: newSubcategories,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
+        if (
+          response.data.success === false &&
+          response.data.message === "Unauthorized"
+        ) {
+          toast.error(response.data.message);
+          navigate("/login");
+          return;
+        }
       } else {
         // Add new subcategories to existing category
-        await axios.put(
+        const response = await axios.put(
           `${
             import.meta.env.VITE_APP_API_URL
           }/api/category/update/${selectedCategory}`,
-          { subcategory: newSubcategories }
+          { subcategory: newSubcategories },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
+        if (
+          response.data.success === false &&
+          response.data.message === "Unauthorized"
+        ) {
+          toast.error(response.data.message);
+          navigate("/login");
+          return;
+        }
       }
 
       // Refresh categories after submission
@@ -125,6 +161,8 @@ const CategoryManagement = () => {
       setSidebarOpen(false);
     } catch (error) {
       console.error("Error adding category/subcategory:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -187,7 +225,8 @@ const CategoryManagement = () => {
     event.preventDefault();
 
     try {
-      await axios.put(
+      setIsLoading(true);
+      const response = await axios.put(
         `${
           import.meta.env.VITE_APP_API_URL
         }/api/category/update/${editCategoryId}`,
@@ -195,12 +234,27 @@ const CategoryManagement = () => {
           category: editCategoryName,
           subcategory: editSubcategories,
           navbar_active: editNavbarActive,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       fetchCategories();
       handleCloseEditCategoryModal();
     } catch (error) {
       console.error("Error updating category:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -208,8 +262,63 @@ const CategoryManagement = () => {
     setSearchTerm(event.target.value);
   };
 
+  const handleDeleteClick = (categoryId) => {
+    setEditCategoryId(categoryId);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.delete(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/category/remove/${editCategoryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
+
+      if (response.data.success === false) {
+        toast.error(response.data.message);
+      } else {
+        toast.success("Category deleted successfully");
+        resetAllForms();
+        fetchCategories();
+      }
+      setShowDeleteConfirmation(false);
+      setEditCategoryId(null);
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category");
+      setShowDeleteConfirmation(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+    setEditCategoryId(null);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -444,6 +553,13 @@ const CategoryManagement = () => {
                       >
                         Add More Subcategories
                       </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline mt-2"
+                        onClick={() => handleDeleteClick(editCategoryId)}
+                      >
+                        Remove Category
+                      </button>
                       <div>
                         <input
                           type="checkbox"
@@ -462,6 +578,34 @@ const CategoryManagement = () => {
                       Save Changes
                     </button>
                   </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation Modal */}
+          {showDeleteConfirmation && (
+            <div className="fixed top-0 left-0 z-50 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+                <p>Are you sure you want to delete this category? </p>
+                <h2 className="text-lg text-center font-bold mb-4">
+                  {" "}
+                  {editCategoryName}{" "}
+                </h2>
+                <div className="flex justify-end mt-4">
+                  <button
+                    className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+                    onClick={cancelDelete}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    onClick={confirmDelete}
+                  >
+                    Confirm
+                  </button>
                 </div>
               </div>
             </div>

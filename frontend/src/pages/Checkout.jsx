@@ -8,9 +8,16 @@ import { CartContext } from "../context/CartContext";
 import { LocationContext } from "../context/LocationContext";
 import { Country, State, City } from "country-state-city";
 import Modal from "../components/Modal";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Checkout = () => {
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const { user } = useContext(AuthContext);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { locationData, updateLocationData } = useContext(LocationContext);
@@ -42,7 +49,7 @@ const Checkout = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [isApplying, setIsApplying] = useState(false);
 
   const countries = Country.getAllCountries();
   const states = selectedCountry
@@ -55,6 +62,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchCartData = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem("token");
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
@@ -68,10 +76,13 @@ const Checkout = () => {
         setTotalCartPrice(response.data.totalCartPrice);
       } catch (error) {
         console.error("Error fetching cart data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     const fetchAddresses = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem("token");
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/user/get-addresses`,
@@ -84,6 +95,8 @@ const Checkout = () => {
         setAddresses(response.data.addresses);
       } catch (error) {
         console.error("Error fetching addresses:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     if (user) {
@@ -113,27 +126,16 @@ const Checkout = () => {
     setSelectedAddress(address);
   };
 
-  const applyCoupon = () => {
-    if (couponCode === "DISCOUNT10") {
-      setDiscount(total * 0.1);
-    } else {
-      alert("Invalid coupon code");
-    }
-  };
-
-  const handlePlaceOrder = async () => {
-    setShowModal(true);
-  };
-
   const confirmOrder = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
 
       setShowModal(false);
 
       if (!isNewAddress && !selectedAddress) {
-        alert("Please select or add an address.");
+        toast.error("Please select or add an address.");
         setShowModal(false);
         return;
       }
@@ -179,11 +181,11 @@ const Checkout = () => {
             }
           )
           .then(() => {
-            alert("Address Saved Successfully.");
+            toast.success("Address Saved Successfully.");
           })
           .catch((error) => {
             console.error("Error adding address:", error);
-            alert("Failed to add address.");
+            toast.error("Failed to add address.");
           });
       }
 
@@ -195,25 +197,215 @@ const Checkout = () => {
         })
         .then(() => {
           if (!response.data.success) {
-            alert("Failed to clear cart.");
+            toast.error("Failed to clear cart.");
           }
-          
         })
         .catch((error) => {
           console.error("Error clearing cart:", error);
-          alert("Failed to clear cart.");
+          toast.error("Failed to clear cart.");
         });
 
       console.log("Order created:", response.data);
       clearCart();
-      alert("Order placed successfully!");
+      toast.success("Order placed successfully!");
       navigate("/order-history");
       // Clear cart or redirect as needed
     } catch (error) {
       console.error("Error creating order:", error);
-      alert("Failed to create order.");
+      toast.error("Failed to create order.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const [paymentMethod, setPaymentMethod] = useState("paypal");
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+
+  const totalAmount = (subtotal + delivery_fee - discount).toFixed(2);
+
+  const handlePlaceOrder = () => {
+    if (!isNewAddress && !selectedAddress) {
+      toast.error("Please select or add an address.");
+      setShowModal(false);
+      return;
+    }
+    if (isNewAddress) {
+      if (
+        newAddress.first_name === "" ||
+        newAddress.last_name === "" ||
+        newAddress.email === "" ||
+        newAddress.phone === "" ||
+        newAddress.address === "" ||
+        newAddress.country === "" ||
+        newAddress.state === "" ||
+        newAddress.city === "" ||
+        newAddress.pincode === ""
+      ) {
+        toast.error("Please fill all the details.");
+        return;
+      }
+    }
+    setShowPaymentOptions(true);
+  };
+
+  const handleApprove = async (orderID) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
+
+      const orderData = {
+        order_id: orderID,
+        products: cartItems.map((item) => ({
+          product_id: item.id,
+          net_quantity: item.net_quantity,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        sub_total: subtotal,
+        delivery_charge: delivery_fee,
+        discount: discount,
+        total: total,
+        delivery_address: deliveryAddress,
+        payment_method: paymentMethod,
+        payment_status: "pending",
+        order_status: "Order Placed",
+      };
+
+      const addOrder = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Order created:", addOrder.data);
+
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/paypal/captureorder`,
+        {
+          orderID,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      navigate("/payment-completed");
+    } catch (error) {
+      console.error("Error capturing order:", error);
+      navigate("/payment-cancelled");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createOrder = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!isNewAddress && !selectedAddress) {
+        toast.error("Please select or add an address.");
+        return;
+      }
+
+      if (isNewAddress) {
+        await axios
+          .put(
+            `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
+            { address: newAddress },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then(() => {
+            toast.success("Address Saved Successfully.");
+          })
+          .catch((error) => {
+            console.error("Error adding address:", error);
+            toast.error("Failed to add address.");
+          });
+      }
+      console.log("Total Amount:" + totalAmount);
+      let product_id = "";
+      let quantity = "";
+      cartItems.map(
+        (item) => (
+          (product_id = product_id + item.id + ","),
+          (quantity = quantity + item.quantity + ",")
+        )
+      );
+      console.log("Product ID:" + product_id);
+      console.log("Quantity:" + quantity);
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/paypal/createorder`,
+        {
+          total: "100",
+          products: [
+            {
+              product_id: "product_id",
+              quantity: "1",
+              price: "100",
+            },
+          ],
+        }
+      );
+
+      return response.data.id;
+    } catch (error) {
+      console.error("Error creating order:", error);
+      setError("Failed to create order");
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    console.log("Coupon Code:", couponCode);
+    if (!couponCode) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    setIsApplying(true);
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/coupon/apply`,
+        {
+          code: couponCode,
+          total: totalAmount,
+        }
+      );
+      const { discount, discountedTotal } = response.data;
+      setDiscount(discount);
+      toast.success(`Coupon applied! You saved $${discount.toFixed(2)}`);
+    } catch (error) {
+      console.error("Error verifying coupon:", error);
+      toast.error(
+        error.response?.data?.error || "Invalid or expired coupon code"
+      );
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setDiscount(0);
+    setCouponCode("");
+    toast.success("Coupon removed!");
+  };
+
+  const discountedTotal = (total - discount).toFixed(2);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -253,36 +445,59 @@ const Checkout = () => {
                           {delivery_fee.toFixed(2)}
                         </span>
                       </li>
+                      {discount > 0 && (
+                        <>
+                          <li className="flex justify-between leading-[28px] mb-[8px] border-b-[1px] border-solid border-[#eee]">
+                            <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
+                              Coupon Code Applied
+                            </span>
+                          </li>
+                          <li className="flex justify-between leading-[28px] mb-[8px] pb-1 border-b-[1px] border-solid border-[#eee]">
+                            <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
+                              {couponCode}
+                            </span>
+                            <span className="font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
+                              - {currency}
+                              {discount.toFixed(2)}
+                            </span>
+                          </li>
+                        </>
+                      )}
+
                       <li className="flex justify-between leading-[28px] mb-[8px]">
                         <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
                           Coupon Discount
                         </span>
-                        <span className="font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
-                          <a
-                            href="javascript:void(0)"
-                            className="apply drop-coupon font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#ff0000]"
-                          >
-                            Apply Coupon
-                          </a>
-                        </span>
                       </li>
                       <li className="flex justify-between leading-[28px]">
                         <div className="coupon-down-box w-full">
-                          <form method="post" className="relative">
+                          <div className="relative">
                             <input
                               className="bb-coupon w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px]"
                               type="text"
                               placeholder="Enter Your coupon Code"
-                              name="bb-coupon"
-                              required=""
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value)}
+                              disabled={discount > 0}
                             />
-                            <button
-                              className="bb-btn-2 transition-all duration-[0.3s] ease-in-out my-[8px] mr-[8px] flex justify-center items-center absolute right-[0] top-[0] bottom-[0] font-Poppins leading-[28px] tracking-[0.03rem] py-[2px] px-[12px] text-[13px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                              type="submit"
-                            >
-                              Apply
-                            </button>
-                          </form>
+
+                            {discount > 0 ? (
+                              <button
+                                className="bb-btn-2 transition-all duration-[0.3s] ease-in-out my-[8px] mr-[8px] flex justify-center items-center absolute right-[0] top-[0] bottom-[0] font-Poppins leading-[28px] tracking-[0.03rem] py-[2px] px-[12px] text-[13px] font-normal text-[#fff] bg-[#d86c6c] rounded-[10px] border-[1px] border-solid border-[#e76d6d] hover:bg-[#f15a5a] hover:border-[#e64848] hover:text-[#ffffff]"
+                                onClick={handleRemoveCoupon}
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <button
+                                className="bb-btn-2 transition-all duration-[0.3s] ease-in-out my-[8px] mr-[8px] flex justify-center items-center absolute right-[0] top-[0] bottom-[0] font-Poppins leading-[28px] tracking-[0.03rem] py-[2px] px-[12px] text-[13px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                                onClick={handleApplyCoupon}
+                                disabled={isApplying}
+                              >
+                                {isApplying ? "Applying..." : "Apply"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </li>
                     </ul>
@@ -606,51 +821,72 @@ const Checkout = () => {
                     )}
                   </div>
                 )}
-                <div className="checkout-items w-full my-[24px]">
-                  <div className="main-title mb-[20px]">
-                    <h4 className="font-quicksand tracking-[0.03rem] leading-text-[20px] font-bold text-[#3d4750]">
-                      Payment Method
-                    </h4>
+
+                <div className="checkout-container">
+                  <div className="checkout-summary mb-6 border-b border-gray-300 py-4">
+                    <ul>
+                      <li className="flex justify-between mb-2">
+                        <span className="text-gray-600">Sub-total:</span>
+                        <span>
+                          {currency}
+                          {subtotal.toFixed(2)}
+                        </span>
+                      </li>
+                      <li className="flex justify-between mb-2">
+                        <span className="text-gray-600">Delivery Charges:</span>
+                        <span>
+                          {currency}
+                          {delivery_fee.toFixed(2)}
+                        </span>
+                      </li>
+                      {discount > 0 && (
+                        <li className="flex justify-between mb-2">
+                          <span className="text-gray-600">
+                            Coupon Discount:
+                          </span>
+                          <span>
+                            - {currency}
+                            {discount.toFixed(2)}
+                          </span>
+                        </li>
+                      )}
+
+                      <li className="flex justify-between mb-2">
+                        <span className="text-gray-600">Total Amount:</span>
+                        <span className="font-bold">
+                          {currency}
+                          {totalAmount}
+                        </span>
+                      </li>
+                    </ul>
                   </div>
-                  <div className="checkout-method mb-[24px]">
-                    <span className="details font-Poppins leading-[26px] tracking-[0.02rem] text-[15px] font-medium text-[#686e7d]">
-                      Please select the preferred payment method to use on this
-                      order.
-                    </span>
-                    <div className="bb-del-option mt-[12px] flex max-[480px]:flex-col">
-                      <div className="inner-del w-[50%] max-[480px]:w-full">
-                        <div className="radio-itens">
-                          <input
-                            type="radio"
-                            id="Cash1"
-                            name="radio-itens"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px]"
-                            value="cod"
-                            checked={paymentMethod === "cod"}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                          />
-                          <label
-                            htmlFor="Cash1"
-                            className="relative pl-[26px] cursor-pointer leading-[16px] inline-block text-[#686e7d] tracking-[0]"
-                          >
-                            Cash On Delivery
-                          </label>
-                        </div>
-                      </div>
-                      {/* Add more payment options here */}
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full px-[12px]">
-                  <div className="input-button">
+                  <div className="w-full">
                     <button
-                      type="button"
-                      className="bb-btn-2 inline-block items-center justify-center check-btn transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                      className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
                       onClick={handlePlaceOrder}
                     >
                       Place Order
                     </button>
                   </div>
+                  {showPaymentOptions && (
+                    <div className="my-5 ">
+                      <PayPalScriptProvider
+                        options={{
+                          "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
+                        }}
+                      >
+                        <div className="">
+                          {error && <p style={{ color: "red" }}>{error}</p>}
+
+                          <PayPalButtons
+                            createOrder={createOrder}
+                            onApprove={(data) => handleApprove(data.orderID)}
+                            fundingSource="paypal"
+                          />
+                        </div>
+                      </PayPalScriptProvider>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

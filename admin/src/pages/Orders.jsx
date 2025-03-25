@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReactPaginate from "react-paginate";
+import { toast } from "react-toastify";
 
 const Orders = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -14,7 +16,6 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage] = useState(10);
@@ -23,12 +24,25 @@ const Orders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      setLoading(true);
       setError(null);
       try {
+        setIsLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/api/order/all`
+          `${import.meta.env.VITE_APP_API_URL}/api/order/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
+        if (
+          response.data.success === false &&
+          response.data.message === "Unauthorized"
+        ) {
+          toast.error(response.data.message);
+          navigate("/login");
+          return;
+        }
         const ordersWithProducts = await Promise.all(
           response.data.orders.map(async (order) => {
             const productsWithDetails = await Promise.all(
@@ -71,7 +85,7 @@ const Orders = () => {
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     fetchOrders();
@@ -94,6 +108,8 @@ const Orders = () => {
           product.name?.toLowerCase().includes(searchLower) ||
           product.generic_name?.toLowerCase().includes(searchLower)
       );
+    console.log(" Order Date : ", orderDate);
+    console.log(" Date Filter : ", dateFilter);
 
     return (
       matchesSearch &&
@@ -154,14 +170,28 @@ const Orders = () => {
 
   const handleSaveStatus = async () => {
     try {
-      await axios.put(
+      setIsLoading(true);
+      const response = await axios.put(
         `${import.meta.env.VITE_APP_API_URL}/api/order/update-status/${
           selectedOrder._id
         }`,
         {
           order_status: selectedStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       const updatedOrders = orders.map((order) =>
         order._id === selectedOrder._id
           ? { ...order, order_status: selectedStatus }
@@ -171,14 +201,21 @@ const Orders = () => {
       setShowEditModal(false);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
+    console.log("Date String : ", dateString);
     const date = new Date(dateString);
+    console.log("Date : ", date);
     const day = String(date.getDate()).padStart(2, "0");
+    console.log("Day : ", day);
     const month = String(date.getMonth() + 1).padStart(2, "0");
+    console.log("Month : ", month);
     const year = date.getFullYear();
+    console.log("Year : ", year);
     return `${day}-${month}-${year}`;
   };
 
@@ -191,16 +228,16 @@ const Orders = () => {
     setCurrentPage(selected);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return <div className="p-8 bg-gray-100 min-h-screen">Error: {error}</div>;
+    return <div className="p-8 bg-gray-100">Error: {error}</div>;
   }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Orders</h1>
 
@@ -400,15 +437,16 @@ const Orders = () => {
               onChange={handleStatusChange}
               className="w-full p-3 border rounded-md mb-4"
             >
+              <option value="" disabled>
+                Select Status
+              </option>
               <option value="Order Placed">Order Placed</option>
-              <option value="Order Confirmed">Order Confirmed</option>
               <option value="Order Processing">Order Processing</option>
               <option value="Dispatched">Dispatched</option>
-              <option value="In Transmit">In Transmit</option>
               <option value="Out for Delivery">Out for Delivery</option>
-              <option value="Order Delivered">Order Delivered</option>
+              <option value="Order Delivered">Delivered</option>
               <option value="Order Cancelled">Order Cancelled</option>
-              <option value="Return Request">Return Request</option>
+              <option value="Return Request">Return Request Confirmed</option>
               <option value="Returned">Returned</option>
             </select>
             <div className="flex justify-end gap-4">

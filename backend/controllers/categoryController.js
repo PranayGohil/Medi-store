@@ -1,6 +1,6 @@
 import Category from "../models/categoryModel.js";
 
-const getAllCategories = async (req, res) => {
+export const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find();
     res.status(200).json(categories);
@@ -9,7 +9,7 @@ const getAllCategories = async (req, res) => {
   }
 };
 
-const addCategory = async (req, res) => {
+export const addCategory = async (req, res) => {
   try {
     const { category, subcategory } = req.body;
     const newCategory = new Category({ category, subcategory });
@@ -21,7 +21,7 @@ const addCategory = async (req, res) => {
   }
 };
 
-const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { category, subcategory, navbar_active } = req.body;
@@ -39,4 +39,13 @@ const updateCategory = async (req, res) => {
   }
 };
 
-export { addCategory, getAllCategories, updateCategory };
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Category.findByIdAndDelete(id);
+    res.json({ success: true, message: "Category deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    res.json({ success: false, error: "Failed to delete category" });
+  }
+};

@@ -10,7 +10,7 @@ import { ShopContext } from "../context/ShopContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const AddProduct = () => {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { fetchProducts } = useContext(ShopContext);
   const notifySuccess = () => toast.success("Product Added Successfully");
@@ -77,8 +77,8 @@ const AddProduct = () => {
 
   useEffect(() => {
     const fetchCategoriesData = async () => {
-      setLoading(true);
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/category/all`
         );
@@ -86,7 +86,7 @@ const AddProduct = () => {
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -121,33 +121,41 @@ const AddProduct = () => {
       formData.append("manufacturer_image", values.manufacturer_image);
     }
     try {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 0)); // Allow state to update
-      console.log("Tryt : " + loading); // Now this logs 'true'
+      setIsLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      const res = await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/product/add`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
+      console.log("Response:", response.data);
 
-      console.log("Response:", res.data);
-
-      if (res.data.success) {
+      if (response.data.success) {
         fetchProducts();
         notifySuccess();
         navigate("/products");
       } else {
-        notifyError(res.data.message || "Error adding product");
+        notifyError(response.data.message || "Error adding product");
       }
     } catch (error) {
       console.error("Error:", error);
       notifyError(error.message);
     } finally {
-      setLoading(false);
-      console.log("Finally:" + loading); // Now logs 'false'
+      setIsLoading(false);
     }
   };
 
@@ -188,9 +196,12 @@ const AddProduct = () => {
     setManufacturerImage(null);
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="p-8 bg-gray-100">
-      {loading && <LoadingSpinner />}
       <div className=" mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Add New Product

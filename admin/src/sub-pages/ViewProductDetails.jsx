@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const ViewProductDetails = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
   const [product, setProduct] = useState(null);
   const { currency, fetchProducts } = useContext(ShopContext);
   const [selectedImage, setSelectedImage] = useState("");
@@ -28,9 +28,10 @@ const ViewProductDetails = () => {
         if (response.data.product.product_images.length > 0) {
           setSelectedImage(response.data.product.product_images[0]);
         }
-        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching product details:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -38,18 +39,32 @@ const ViewProductDetails = () => {
   }, [id]);
 
   const removeProduct = async () => {
-    setIsLoading(true);
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_APP_API_URL}/api/product/remove/${product._id}`
+      setIsLoading(true);
+      const response = await axios.delete(
+        `${import.meta.env.VITE_APP_API_URL}/api/product/remove/${product._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       fetchProducts();
       successDelete();
       navigate("/products");
-      setIsLoading(false);
     } catch (error) {
       errorDelete(error);
       console.error("Error deleting product:", error);
+    } finally {
+      setIsLoading(false);
     }
     setShowModal(false); // Close modal after delete
   };

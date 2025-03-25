@@ -11,6 +11,8 @@ import Feedbacks from "./pages/Feedbacks";
 import Statistics from "./pages/Statistics";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+import DiscountCoupons from "./pages/DiscountCoupons";
 
 import AddProduct from "./sub-pages/AddProduct";
 import EditProducts from "./sub-pages/EditProducts";
@@ -19,6 +21,9 @@ import ViewOrderDetails from "./sub-pages/ViewOrderDetails";
 import WebsiteSettings from "./pages/WebsiteSettings";
 import ViewFeedbackDetail from "./sub-pages/ViewFeedbackDetail";
 import ViewUserDetails from "./sub-pages/ViewUserDetails";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +43,8 @@ function App() {
         {/* Routes */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path='/login' element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/categories" element={<CategoryManagement />} />
           <Route path="/products" element={<Products />} />
@@ -49,15 +55,27 @@ function App() {
           <Route path="/user/user-details/:id" element={<ViewUserDetails />} />
 
           <Route path="/website-settings" element={<WebsiteSettings />} />
+          <Route path="/discount-coupons" element={<DiscountCoupons />} />
 
           <Route path="/product/add-product" element={<AddProduct />} />
           <Route path="/product/edit-product/:id" element={<EditProducts />} />
-          <Route path="/product/product-details/:id" element={<ViewProductDetails />} />
+          <Route
+            path="/product/product-details/:id"
+            element={<ViewProductDetails />}
+          />
 
-          <Route path="/order/order-details/:id" element={<ViewOrderDetails />} />
+          <Route
+            path="/order/order-details/:id"
+            element={<ViewOrderDetails />}
+          />
 
-          <Route path="/feedback-details/:id" element={<ViewFeedbackDetail />} />
+          <Route
+            path="/feedback-details/:id"
+            element={<ViewFeedbackDetail />}
+          />
 
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </div>
     </div>

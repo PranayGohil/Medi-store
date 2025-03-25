@@ -1,3 +1,4 @@
+import ScrollRestoration from "./components/ScrollRestoration";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Route, Routes } from "react-router-dom";
@@ -16,10 +17,17 @@ import OrderDetails from "./pages/OrderDetails";
 import OrderHistory from "./pages/OrderHistory";
 import Profile from "./pages/Profile";
 import SearchResults from "./pages/SearchResults";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyAndPolicy from "./pages/PrivacyAndPolicy";
+import AllCategories from "./pages/AllCategories";
+import PaymentCompleted from "./pages/PaymentCompleted";
+import PaymentCancelled from "./pages/PaymentCancelled";
+
 
 function App() {
   return (
     <div>
+      <ScrollRestoration />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -36,6 +44,11 @@ function App() {
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyAndPolicy />} />
+        <Route path="/all-categories" element={<AllCategories />} />
+        <Route path="/payment-completed" element={<PaymentCompleted />} />
+        <Route path="/payment-cancelled" element={<PaymentCancelled />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer />

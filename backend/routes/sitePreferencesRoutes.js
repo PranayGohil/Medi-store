@@ -14,10 +14,11 @@ const sitePreferencesRouter = express.Router();
 sitePreferencesRouter.get("/", getSitePreferences);
 sitePreferencesRouter.post(
   "/add-banner",
+  adminAuth,
   upload.fields([{ name: "image", maxCount: 1 }]),
   addBanner
 );
-sitePreferencesRouter.delete("/remove-banner/:id", removeBanner);
-sitePreferencesRouter.put("/set-delivery-charge", setDeliveryCharge);
+sitePreferencesRouter.delete("/remove-banner/:id", adminAuth, removeBanner);
+sitePreferencesRouter.put("/set-delivery-charge", adminAuth, setDeliveryCharge);
 
 export default sitePreferencesRouter;

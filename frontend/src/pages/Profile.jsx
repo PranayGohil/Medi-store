@@ -5,9 +5,11 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Breadcrumb from "../components/Breadcrumb";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { user, login, logout } = useContext(AuthContext);
   const [profileData, setProfileData] = useState({
     first_name: "",
@@ -34,6 +36,7 @@ const Profile = () => {
 
   const getAddresses = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/user/get-addresses`,
@@ -46,6 +49,8 @@ const Profile = () => {
       setExistingAddress(response.data.addresses);
     } catch (error) {
       console.error("Error fetching addresses:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -81,6 +86,7 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       await axios
         .put(
@@ -99,6 +105,8 @@ const Profile = () => {
         .catch((err) => console.log(err));
     } catch (error) {
       console.error("Error updating profile:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,6 +116,7 @@ const Profile = () => {
 
   const handleSaveAddress = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       console.log("New address:" + newAddress);
       await axios
@@ -139,11 +148,14 @@ const Profile = () => {
         .catch((err) => console.log(err));
     } catch (error) {
       console.error("Error adding address:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleRemoveAddress = async (addressId) => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       await axios.delete(
         `${
@@ -158,6 +170,8 @@ const Profile = () => {
       getAddresses();
     } catch (error) {
       console.error("Error removing address:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -165,6 +179,10 @@ const Profile = () => {
     logout(); // Call the logout function from AuthContext
     navigate("/login"); // Redirect to login page
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

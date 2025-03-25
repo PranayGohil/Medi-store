@@ -4,8 +4,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Register = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -68,6 +70,7 @@ const Register = () => {
     }
 
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/user/register`,
         {
@@ -90,8 +93,22 @@ const Register = () => {
     } catch (err) {
       setError("An error occurred during registration.");
       console.error("Registration error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -180,29 +197,53 @@ const Register = () => {
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           Password*
                         </label>
-                        <input
-                          type="password"
-                          name="password"
-                          placeholder="Enter Password"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
-                          value={formData.password}
-                          onChange={handleChange}
-                        />
+                        <div className="relative">
+                          <input
+                            type={`${showPassword ? "text" : "password"}`}
+                            name="password"
+                            placeholder="Enter Password"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                            required=""
+                            value={formData.password}
+                            onChange={handleChange}
+                          />
+                          <span
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                            onClick={togglePasswordVisibility}
+                          >
+                            {showPassword ? (
+                              <i className="ri-eye-fill"></i>
+                            ) : (
+                              <i className="ri-eye-off-fill"></i>
+                            )}
+                          </span>
+                        </div>
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           Confirm Password*
                         </label>
-                        <input
-                          type="password"
-                          name="confirmpassword"
-                          placeholder="Confirm Password"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
-                          value={formData.confirmpassword}
-                          onChange={handleChange}
-                        />
+                        <div className="relative">
+                          <input
+                            type={`${showConfirmPassword ? "text" : "password"}`}
+                            name="confirmpassword"
+                            placeholder="Confirm Password"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                            required=""
+                            value={formData.confirmpassword}
+                            onChange={handleChange}
+                          />
+                          <span
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                            onClick={toggleConfirmPasswordVisibility}
+                          >
+                            {showPassword ? (
+                              <i className="ri-eye-fill"></i>
+                            ) : (
+                              <i className="ri-eye-off-fill"></i>
+                            )}
+                          </span>
+                        </div>
                       </div>
                       {error && (
                         <div className="w-full px-[12px] mb-[12px] text-red-500">

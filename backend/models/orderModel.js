@@ -30,7 +30,17 @@ const orderSchema = new mongoose.Schema({
   ],
   payment_method: { type: String, required: true },
   payment_status: { type: String, required: true },
+  payment_details: { type: Object },
   order_status: { type: String, required: true },
+
+  // New status history field
+  status_history: [
+    {
+      status: { type: String },
+      changed_at: { type: Date, default: Date.now },
+    },
+  ],
+
   created_at: { type: Date, default: Date.now },
 });
 

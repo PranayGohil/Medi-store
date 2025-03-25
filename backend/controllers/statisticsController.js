@@ -2,6 +2,67 @@ import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
 
+const getStartOfPeriod = (period) => {
+  const now = new Date();
+  switch (period) {
+    case "daily":
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    case "weekly":
+      const firstDayOfWeek = now.getDate() - now.getDay();
+      return new Date(now.getFullYear(), now.getMonth(), firstDayOfWeek);
+    case "monthly":
+      return new Date(now.getFullYear(), now.getMonth(), 1);
+    case "yearly":
+      return new Date(now.getFullYear(), 0, 1);
+    default:
+      return null;
+  }
+};
+
+export const getReports = async (req, res) => {
+  try {
+    const { period } = req.query; // daily, weekly, monthly, yearly
+    const startDate = getStartOfPeriod(period);
+
+    if (!startDate) {
+      return res.status(400).json({ message: "Invalid period" });
+    }
+
+    const userCount = await User.countDocuments({
+      created_at: { $gte: startDate },
+    });
+
+    const productCount = await Product.countDocuments({
+      created_at: { $gte: startDate },
+    });
+
+    const orders = await Order.find({
+      created_at: { $gte: startDate },
+    });
+
+    const totalRevenue = orders.reduce((acc, order) => acc + order.total, 0);
+    const orderCount = orders.length;
+
+    res.status(200).json({
+      success: true,
+      message: `${period} report generated successfully`,
+      data: {
+        period,
+        users: userCount,
+        products: productCount,
+        orders: orderCount,
+        revenue: totalRevenue,
+      },
+    });
+  } catch (error) {
+    console.error("Error generating report:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate report",
+      error: error.message,
+    });
+  }
+};
 export const getStatistics = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -79,54 +140,150 @@ export const getStatistics = async (req, res) => {
 
 export const getBestSellers = async (req, res) => {
   try {
-    const bestSellers = await Order.aggregate([
-      { $unwind: "$products" }, // Decompose products array
-      {
-        $group: {
-          _id: "$products.product_id",
-          totalQuantity: { $sum: "$products.quantity" },
-          totalRevenue: {
-            $sum: { $multiply: ["$products.quantity", "$products.price"] },
-          },
-        },
-      },
-      { $sort: { totalQuantity: -1 } }, // Sort by quantity sold
-      { $limit: 5 }, // Fetch top 5 best sellers
-      {
-        $lookup: {
-          from: "products", // Join with Product collection
-          localField: "_id",
-          foreignField: "_id",
-          as: "productInfo",
-        },
-      },
-      { $unwind: "$productInfo" }, // Decompose the joined array
-      {
-        $project: {
-          _id: 0,
-          product_id: "$_id",
-          name: "$productInfo.name",
-          generic_name: "$productInfo.generic_name",
-          manufacturer: "$productInfo.manufacturer",
-          country_of_origin: "$productInfo.country_of_origin",
-          dosage_form: "$productInfo.dosage_form",
-          categories: "$productInfo.categories",
-          product_images: "$productInfo.product_images",
-          manufacturer_image: "$productInfo.manufacturer_image",
-          description: "$productInfo.description",
-          information: "$productInfo.information",
-          pricing: "$productInfo.pricing",
-          prescription_required: "$productInfo.prescription_required",
-          rating: "$productInfo.rating",
-          totalQuantity: 1,
-          totalRevenue: 1,
-        },
-      },
-    ]);
+    const orders = await Order.find();
 
-    res.json({ bestSellers });
+    const productSales = {};
+    const productIds = new Set();
+
+    // Calculate sales from orders
+    orders.forEach((order) => {
+      order.products.forEach((product) => {
+        const productId = product.product_id;
+
+        productIds.add(productId); // Collect unique product IDs
+
+        if (!productSales[productId]) {
+          productSales[productId] = {
+            quantity: 0,
+            revenue: 0,
+          };
+        }
+
+        productSales[productId].quantity += product.quantity;
+        productSales[productId].revenue += product.price * product.quantity;
+      });
+    });
+
+    // Fetch product details using the collected product IDs
+    const products = await Product.find({
+      _id: { $in: Array.from(productIds) },
+    });
+
+    // Map products by ID for easy lookup
+    const productMap = products.reduce((acc, product) => {
+      acc[product._id.toString()] = product;
+      return acc;
+    }, {});
+
+    // Combine sales data with product details
+    const bestSellingProducts = Object.entries(productSales)
+      .map(([productId, data]) => {
+        const product = productMap[productId];
+        console.log(product)
+        if (product) {
+          return {
+            _id: productId,
+            product_code: product.product_code,
+            name: product.name,
+            generic_name: product.generic_name,
+            manufacturer: product.manufacturer,
+            categories: product.categories,
+            product_images: product.product_images,
+            quantity_sold: data.quantity,
+            total_revenue: data.revenue,
+            pricing: product.pricing,
+            unit_price: product.pricing[0]?.unit_price || 0,
+            rating: product.rating,
+            prescription_required: product.prescription_required,
+            best_seller: product.best_seller,
+            created_at: product.created_at,
+          };
+        }
+        return null;
+      })
+      .filter((item) => item !== null)
+      .sort((a, b) => b.quantity_sold - a.quantity_sold) // Sort by quantity sold
+      .slice(0, 10); // Limit to top 10 products
+
+    res.status(200).json({
+      success: true,
+      message: "Best-selling products fetched successfully",
+      products: bestSellingProducts,
+    });
   } catch (error) {
     console.error("Error fetching best-selling products:", error);
-    res.status(500).send("Server error");
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch best-selling products",
+      error: error.message,
+    });
+  }
+};
+
+export const getOrderStatusInfo = async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    // Aggregate order statuses
+    const orderStatusMap = orders.reduce((acc, order) => {
+      const status = order.order_status || "Unknown";
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Convert the object into an array
+    const orderStatusInfo = Object.entries(orderStatusMap).map(
+      ([status, count]) => ({
+        status,
+        count,
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Order status information fetched successfully",
+      orderStatusInfo: orderStatusInfo,
+    });
+  } catch (error) {
+    console.error("Error fetching order status info:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch order status info",
+      error: error.message,
+    });
+  }
+};
+
+export const getPaymentMethodsInfo = async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    // Aggregate payment methods
+    const paymentMethodMap = orders.reduce((acc, order) => {
+      const method = order.payment_method || "Unknown";
+      acc[method] = (acc[method] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Convert the object into an array
+    const paymentMethodInfo = Object.entries(paymentMethodMap).map(
+      ([method, count]) => ({
+        method,
+        count,
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Payment method information fetched successfully",
+      paymentMethodsInfo: paymentMethodInfo,
+    });
+  } catch (error) {
+    console.error("Error fetching payment method info:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch payment method info",
+      error: error.message,
+    });
   }
 };

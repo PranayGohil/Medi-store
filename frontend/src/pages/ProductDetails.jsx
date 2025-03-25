@@ -31,6 +31,7 @@ const ProductDetails = () => {
 
   const fetchCart = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
@@ -46,11 +47,14 @@ const ProductDetails = () => {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchReviews = async (product_id) => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${
           import.meta.env.VITE_APP_API_URL
@@ -92,17 +96,21 @@ const ProductDetails = () => {
             }
           })
         );
-        reviewsData = reviewsWithUserInfo.filter((review) => review.status === "approved");
+        reviewsData = reviewsWithUserInfo.filter(
+          (review) => review.status === "approved"
+        );
         setReviews(reviewsData);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchProduct = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${
           import.meta.env.VITE_APP_API_URL
@@ -123,6 +131,8 @@ const ProductDetails = () => {
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching product:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,10 +153,6 @@ const ProductDetails = () => {
       setIsProductInCart(productExists);
     }
   }, [cart, product, selectedPrice]);
-
-  if (!product || isLoading) {
-    return <LoadingSpinner />;
-  }
 
   const handleThumbnailClick = (image) => {
     setMainImage(image);
@@ -176,6 +182,7 @@ const ProductDetails = () => {
     }
 
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/add-to-cart`,
         {
@@ -203,8 +210,14 @@ const ProductDetails = () => {
     } catch (error) {
       console.error("Error adding to cart:", error);
       notifyError("An error occurred while adding to cart.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (!product || isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -270,7 +283,7 @@ const ProductDetails = () => {
                           </Link>
                         </span>
                       </div>
-                      <p className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
+                      <div className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                         <ul className="my-[-8px] pl-[18px]">
                           <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
                             <span className="font-Poppins text-[#777] text-[14px]">
@@ -297,7 +310,7 @@ const ProductDetails = () => {
                             {product.manufacturer}
                           </li>
                         </ul>
-                        <div className="my-[8px] w-[300px] h-[100px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                        <p className="my-[8px] w-[300px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
                           {product.manufacturer_image && (
                             <img
                               src={product.manufacturer_image}
@@ -305,8 +318,8 @@ const ProductDetails = () => {
                               className="w-full"
                             />
                           )}
-                        </div>
-                      </p>
+                        </p>
+                      </div>
                       <div className="bb-single-pro-weight mb-[24px]">
                         <div className="pro-title mb-[12px]">
                           <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
@@ -318,6 +331,7 @@ const ProductDetails = () => {
                             <div>
                               {product.pricing.map((price, index) => (
                                 <li
+                                  key={index}
                                   className={`my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer ${
                                     price.net_quantity ===
                                     selectedPrice.net_quantity

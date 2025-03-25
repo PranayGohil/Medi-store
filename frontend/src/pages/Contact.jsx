@@ -8,6 +8,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 
 const Contact = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
@@ -17,7 +18,6 @@ const Contact = () => {
     phone: "",
     feedback: "",
   });
-  const [loading, setLoading] = useState(false);
   const notifySuccess = (msg) => toast.success(msg);
   const notifyError = (msg) => toast.error(msg);
 
@@ -31,7 +31,7 @@ const Contact = () => {
         feedback: "",
       });
     }
-  })
+  }, [user]);
   // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,30 +40,31 @@ const Contact = () => {
   // Submit feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     console.log(formData);
 
-    if(!formData.first_name || !formData.last_name || !formData.email || !formData.phone || !formData.feedback){
+    if (
+      !formData.first_name ||
+      !formData.last_name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.feedback
+    ) {
       notifyError("All fields are required.");
-      setLoading(false);
       return;
     }
 
     if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
       notifyError("Invalid email format.");
-      setLoading(false);
       return;
     }
 
     if (!/^\d{10}$/.test(formData.phone)) {
       notifyError("Invalid phone number format.");
-      setLoading(false);
       return;
     }
-    
 
     try {
-      console.log("try");
+      setIsLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/feedback/add`,
         formData
@@ -87,9 +88,13 @@ const Contact = () => {
       notifyError("Something went wrong. Please try again.");
       console.error("Error submitting feedback:", error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -108,8 +113,6 @@ const Contact = () => {
 
           {/* Feedback Form */}
           <div className="w-full md:w-1/2 border border-[#eee] rounded-[20px] p-[30px]">
-      
-
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -156,10 +159,10 @@ const Contact = () => {
               ></textarea>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="w-full py-2 text-white bg-[#6c7fd8] rounded-[10px] border border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
               >
-                {loading ? <loadingSpinner /> : "Submit"}
+                Submit
               </button>
             </form>
           </div>

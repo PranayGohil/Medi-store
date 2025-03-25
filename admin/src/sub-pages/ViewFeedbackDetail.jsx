@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const ViewFeedbackDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [replyModal, setReplyModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -20,12 +20,15 @@ const ViewFeedbackDetail = () => {
   useEffect(() => {
     const fetchFeedback = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/feedback/single/${id}`
         );
         setFeedback(response.data.feedback);
       } catch (error) {
         console.error("Error fetching feedback:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -57,9 +60,23 @@ const ViewFeedbackDetail = () => {
   // Delete feedback function
   const deleteFeedback = async () => {
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_APP_API_URL}/api/feedback/delete/${id}`
+      setIsLoading(true);
+      const response = await axios.delete(
+        `${import.meta.env.VITE_APP_API_URL}/api/feedback/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       notifySuccess("Feedback deleted successfully!");
       navigate("/feedbacks"); // Redirect to the feedback list
     } catch (error) {
@@ -67,13 +84,16 @@ const ViewFeedbackDetail = () => {
       notifyError("Failed to delete feedback.");
     } finally {
       setDeleteModal(false);
+      setIsLoading(false);
     }
   };
 
-  if (!feedback) return <p className="text-center">Loading...</p>;
+  if (!feedback || isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen flex justify-center">
+    <div className="p-8 bg-gray-100 flex justify-center">
       <div className="w-full max-w-8xl bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-semibold mb-4">Feedback Details</h1>
         <hr className="mb-4" />

@@ -1,23 +1,29 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { ShopContext } from "../context/ShopContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Header = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
-  const { products } = useContext(ShopContext);
+  const { products, currency } = useContext(ShopContext);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [genericSearchQuery, setGenericSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [genericSuggestions, setGenericSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showGenericSuggestions, setShowGenericSuggestions] = useState(false);
 
   const [categories, setCategories] = useState([]);
+
+  const dropdownRef = useRef(null);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -29,13 +35,15 @@ const Header = () => {
 
   const fetchCategories = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/category/all`
       );
-      console.log("Data : ", response.data);
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,30 +70,89 @@ const Header = () => {
     );
   }
 
-  // 🔥 Auto-suggest logic
-  const handleGenericSearchChange = (e) => {
+  const handleSearchChange = (e) => {
     const query = e.target.value;
-    setGenericSearchQuery(query);
+    setSearchQuery(query);
 
-    if (query.length > 1) {
+    if (query) {
       const filteredSuggestions = products
         .filter((product) =>
-          product.generic_name.toLowerCase().includes(query.toLowerCase())
+          product.name.toLowerCase().includes(query.toLowerCase().trim()) ||
+          product.manufacturer.toLowerCase().includes(query.toLowerCase().trim()) ||
+          product.product_code.toLowerCase().includes(query.toLowerCase().trim())
         )
-        .map((product) => product.generic_name);
+        .map((product) => ({
+          id: product._id,
+          name: product.name,
+          image: product.product_images[0], 
+          manufacturer: product.manufacturer,
+          dosage_form: product.dosage_form,
+          price: product.pricing[0]?.unit_price || "N/A", 
+        }));
 
-      // Remove duplicates
-      const uniqueSuggestions = [...new Set(filteredSuggestions)];
-      setSuggestions(uniqueSuggestions);
+      setSuggestions(filteredSuggestions);
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setGenericSearchQuery(suggestion);
+  const handleSearchClick = (suggestion) => {
+    setSearchQuery(suggestion.name);
     setShowSuggestions(false);
+    window.location.href = `/product/${suggestion.id}`; // Redirect to product page
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+
+  const handleGenericSearchChange = (e) => {
+    const query = e.target.value;
+    setGenericSearchQuery(query);
+
+    if (query) {
+      const filteredSuggestions = products
+        .filter((product) =>
+          product.generic_name
+            .toLowerCase()
+            .includes(query.toLowerCase().trim())
+        )
+        .map((product) => product.generic_name);
+
+      const uniqueSuggestions = [...new Set(filteredSuggestions)];
+      const sortedSuggestions = uniqueSuggestions.sort(
+        (a, b) => new Date(b.generic_name) - new Date(a.generic_name)
+      );
+      setGenericSuggestions(sortedSuggestions);
+    } else {
+      // Show all suggestions if input is empty
+      const allGenericNames = [
+        ...new Set(products.map((product) => product.generic_name)),
+      ];
+      const sortedSuggestions = allGenericNames.sort(
+        (a, b) => new Date(b.generic_name) - new Date(a.generic_name)
+      );
+      setGenericSuggestions(sortedSuggestions);
+    }
+  };
+
+  // 🔥 Show all suggestions on click
+  const handleGenericSearchClick = () => {
+    const allGenericNames = [
+      ...new Set(products.map((product) => product.generic_name)),
+    ];
+    setGenericSuggestions(allGenericNames);
+    setShowSuggestions(false);
+    setShowGenericSuggestions(true);
+  };
+
+  const handleGenericSuggestionClick = (suggestion) => {
+    setGenericSearchQuery(suggestion);
+    setShowGenericSuggestions(false);
   };
 
   const handleGenericSearchSubmit = (e) => {
@@ -97,13 +164,31 @@ const Header = () => {
     }
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
-    }
+  const handleCategoryClick = (category) => {
+    window.location.href = `/search?category=${category}`;
   };
 
+  const handleSubCategoryClick = (category, subcategory) => {
+    window.location.href = `/search?category=${category}&subcategory=${subcategory}`;
+  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+        setShowGenericSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+   
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
   return (
     <header className="bb-header relative z-[5] border-b-[1px] border-solid border-[#eee]">
       <div className="bottom-header py-[20px] max-[991px]:py-[15px]">
@@ -132,28 +217,59 @@ const Header = () => {
                 {/* Search forms */}
                 <div className="cols flex justify-center">
                   <div className="header-search flex flex-wrap justify-between align-middle w-[600px] max-[1399px]:w-[500px] max-[1199px]:w-[400px] max-[991px]:w-full max-[991px]:min-w-[300px] max-[767px]:py-[15px] max-[480px]:min-w-[auto]">
-                    {/* Product Search */}
-                    <form
-                      className="w-1/2 bb-btn-group-form flex relative max-[991px]:ml-[20px] max-[767px]:m-[0] px-2"
-                      onSubmit={handleSearchSubmit}
-                    >
-                      <input
-                        type="text"
-                        className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee]"
-                        placeholder="Search products..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      <button
-                        className="submit absolute top-[0] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px]"
-                        type="submit"
+                    <div className="w-full sm:w-1/2 mt-[5px] relative px-2" ref={dropdownRef}>
+                      <form
+                        className="w-full bb-btn-group-form flex relative"
+                        onSubmit={handleSearchSubmit}
                       >
-                        <i className="ri-search-line text-[18px] text-[#555]" />
-                      </button>
-                    </form>
+                        <input
+                          type="text"
+                          className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee]"
+                          placeholder="Search products..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
+                        />
+                        <button
+                          className="submit absolute top-[0] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px]"
+                          type="submit"
+                        >
+                          <i className="ri-search-line text-[18px] text-[#555]" />
+                        </button>
+                      </form>
+
+                      {/* Suggestions with Image, Manufacturer, and Price */}
+                      {showSuggestions && (
+                        <ul className="absolute top-[100%] p-2 left-0 w-full min-w-[350px] max-h-[500px] overflow-scroll no-scrollbar bg-white border border-gray-300 shadow-lg rounded-md z-10">
+                          {suggestions.map((suggestion, index) => (
+                            <li
+                              key={index}
+                              className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
+                              onClick={() => handleSearchClick(suggestion)}
+                            >
+                              <img
+                                src={suggestion.image}
+                                alt={suggestion.name}
+                                className="w-12 h-12 rounded-md object-cover mr-3"
+                              />
+                              <div>
+                                <p className="text-sm font-semibold">
+                                  {suggestion.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Mfg. by  {suggestion.manufacturer}
+                                </p>
+                                <p className="text-xs font-semibold text-gray-600">
+                                  {currency + " " + suggestion.price + " per " + suggestion.dosage_form}
+                                </p>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
 
                     {/* Generic Name Search with Auto-Suggest */}
-                    <div className="w-1/2 relative px-2">
+                    <div className="w-full md:w-1/2 mt-[5px] relative px-2" ref={dropdownRef}>
                       <form
                         className="bb-btn-group-form flex relative"
                         onSubmit={handleGenericSearchSubmit}
@@ -164,6 +280,7 @@ const Header = () => {
                           placeholder="Search by generic name..."
                           value={genericSearchQuery}
                           onChange={handleGenericSearchChange}
+                          onClick={handleGenericSearchClick}
                         />
                         <button
                           className="submit absolute top-[0] right-[0] flex items-center justify-center w-[45px] h-full bg-transparent text-[#555] text-[16px]"
@@ -174,13 +291,15 @@ const Header = () => {
                       </form>
 
                       {/* Auto-suggest dropdown */}
-                      {showSuggestions && suggestions.length > 0 && (
-                        <ul className="absolute top-[100%] left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md z-10">
-                          {suggestions.map((suggestion, index) => (
+                      {showGenericSuggestions && (
+                        <ul className="absolute top-[100%] left-0 w-full bg-white border max-h-[500px] overflow-scroll no-scrollbar border-gray-300 shadow-lg rounded-md z-10">
+                          {genericSuggestions.map((suggestion, index) => (
                             <li
                               key={index}
                               className="p-2 cursor-pointer hover:bg-gray-100"
-                              onClick={() => handleSuggestionClick(suggestion)}
+                              onClick={() =>
+                                handleGenericSuggestionClick(suggestion)
+                              }
                             >
                               {suggestion}
                             </li>
@@ -342,64 +461,54 @@ const Header = () => {
                     </li>
                     <li className="nav-item bb-main-dropdown flex items-center mr-[45px]">
                       <Link
-                        to="/products"
+                        to="/all-categories"
                         className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
                       >
-                        Categories
+                        All Categories
                       </Link>
-                      <ul className="mega-menu min-w-3/4 transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[0] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] flex flex-col rounded-[10px]">
-                        <li className="m-[0] flex items-center w-full">
-                          <ul className="mega-block mr-[30px] py-[15px] w-full">
-                            {/* <li className="menu_title border-b-[1px] border-solid border-[#eee] mb-[10px] pb-[5px] flex items-center leading-[28px]">
-                              <a
-                                href="javascript:void(0)"
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins h-[auto] text-[#6c7fd8] text-[15px] font-medium tracking-[0.03rem] block py-[10px] leading-[22px] capitalize"
-                              >
-                                Classic
-                              </a>
-                            </li> */}
-                            {categories.map((category) => (
-                              <div key={category._id}>
-                                {category.navbar_active && (
-                                  <li className="flex items-center leading-[28px]">
-                                    <a
-                                      href="shop-left-sidebar-col-3.html"
-                                      className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
+                    </li>
+                    {categories.map(
+                      (category) =>
+                        category.navbar_active && (
+                          <li
+                            key={category._id}
+                            className="nav-item bb-main-dropdown flex items-center mr-[45px]"
+                          >
+                            <button
+                              onClick={() =>
+                                handleCategoryClick(category.category)
+                              }
+                              className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
+                            >
+                              {category.category}
+                            </button>
+                            <ul className="mega-menu min-w-3/4 transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[auto] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] flex flex-col rounded-[10px]">
+                              <li className="m-[0] flex items-center w-full">
+                                <ul className="mega-block mr-[30px] py-[15px] w-full">
+                                  {category.subcategory.map((subCategory) => (
+                                    <li
+                                      className="flex items-center leading-[28px]"
+                                      key={subCategory}
                                     >
-                                      {category.category}
-                                    </a>
-                                  </li>
-                                )}
-                              </div>
-                            ))}
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                    <li className="nav-item bb-dropdown flex items-center relative mr-[45px]">
-                      <Link
-                        to="/products"
-                        className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
-                      >
-                        Explore Products
-                      </Link>
-                    </li>
-                    <li className="nav-item bb-dropdown flex items-center relative mr-[45px]">
-                      <Link
-                        to="/about"
-                        className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
-                      >
-                        About
-                      </Link>
-                    </li>
-                    <li className="nav-item bb-dropdown flex items-center relative mr-[45px]">
-                      <Link
-                        to="/contact"
-                        className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
-                      >
-                        Contact
-                      </Link>
-                    </li>
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize"
+                                      >
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        )
+                    )}
                     <li className="nav-item flex items-center">
                       <Link
                         to="/offers"

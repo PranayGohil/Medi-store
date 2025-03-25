@@ -1,14 +1,17 @@
 // WebsiteSettings.jsx (Frontend)
 
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {ShopContext} from "../context/ShopContext";
+import { ShopContext } from "../context/ShopContext";
 
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const WebsiteSettings = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [banners, setBanners] = useState([]);
   const [newBanner, setNewBanner] = useState({
     discription: "",
@@ -19,7 +22,6 @@ const WebsiteSettings = () => {
   });
   const [bannerGuide, setBannerGuide] = useState(false);
   const [showAddBannerForm, setShowAddBannerForm] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [newDeliveryCharge, setNewDeliveryCharge] = useState("");
@@ -30,6 +32,7 @@ const WebsiteSettings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/site`
         );
@@ -43,6 +46,8 @@ const WebsiteSettings = () => {
         }
       } catch (error) {
         toast.error("Failed to fetch settings");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchSettings();
@@ -64,7 +69,6 @@ const WebsiteSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     const formData = new FormData();
     formData.append("discription", newBanner.discription);
     formData.append("title1", newBanner.title1);
@@ -73,6 +77,7 @@ const WebsiteSettings = () => {
     formData.append("image", newBanner.image);
 
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/site/add-banner`,
         formData,
@@ -80,8 +85,19 @@ const WebsiteSettings = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       if (response.data && response.data.success) {
         const settingsResponse = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/site`
@@ -108,15 +124,31 @@ const WebsiteSettings = () => {
     } catch (error) {
       toast.error("Failed to add banner");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleRemoveBanner = async (bannerId) => {
     try {
+      setIsLoading(true);
       const response = await axios.delete(
-        `${import.meta.env.VITE_APP_API_URL}/api/site/remove-banner/${bannerId}`
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/site/remove-banner/${bannerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       if (response.data && response.data.success) {
         const settingsResponse = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/site`
@@ -134,6 +166,8 @@ const WebsiteSettings = () => {
       }
     } catch (error) {
       toast.error("Failed to remove banner");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -158,10 +192,24 @@ const WebsiteSettings = () => {
   const handleAddDeliveryCharge = async () => {
     console.log(newDeliveryCharge);
     try {
+      setIsLoading(true);
       const response = await axios.put(
         `${import.meta.env.VITE_APP_API_URL}/api/site/set-delivery-charge`,
-        { delivery_charge: newDeliveryCharge }
+        { delivery_charge: newDeliveryCharge },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       if (response.data && response.data.success) {
         toast.success(response.data.message);
         setDeliveryCharges(newDeliveryCharge);
@@ -172,8 +220,14 @@ const WebsiteSettings = () => {
       }
     } catch (error) {
       toast.error("Failed to set delivery charge");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="p-8 bg-gray-100">
@@ -328,9 +382,9 @@ const WebsiteSettings = () => {
             <button
               type="submit"
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? <LoadingSpinner /> : "Add Banner"}
+              Add Banner
             </button>
           </form>
         )}
@@ -369,7 +423,7 @@ const WebsiteSettings = () => {
           </label>
           {changeDeliveryCharge || deliveryCharges === "" ? (
             <div>
-              { currency }
+              {currency}
               <input
                 type="number"
                 name="delivery_charge"
@@ -395,7 +449,7 @@ const WebsiteSettings = () => {
           ) : (
             <div className="flex align-center">
               <label className="block text-base font-medium text-gray-700 mx-3">
-              { currency } {deliveryCharges}
+                {currency} {deliveryCharges}
               </label>
               <button
                 type="button"

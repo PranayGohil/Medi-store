@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaSearch,
   FaStar,
@@ -9,8 +10,11 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Reviews = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [ratingFilter, setRatingFilter] = useState("");
@@ -27,9 +31,23 @@ const Reviews = () => {
 
   const fetchReviews = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/product/all-reviews`
+        `${import.meta.env.VITE_APP_API_URL}/api/product/all-reviews`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
 
       if (response.data.success) {
         let reviewsData = response.data.reviews;
@@ -37,6 +55,7 @@ const Reviews = () => {
         const reviewsWithUserInfo = await Promise.all(
           reviewsData.map(async (review) => {
             try {
+              setIsLoading(true);
               const userinfo = await axios.get(
                 `${import.meta.env.VITE_APP_API_URL}/api/user/get-user/${
                   review.user_id
@@ -62,33 +81,53 @@ const Reviews = () => {
                 email: "-",
                 phone: "-",
               };
+            } finally {
+              setIsLoading(false);
             }
           })
         );
         // Sort Reviews by created_at (newest first)
-      const sortedReviews = reviewsWithUserInfo.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-      );
+        const sortedReviews = reviewsWithUserInfo.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
         setReviews(sortedReviews);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleReviewStatus = async (productId, reviewId, status) => {
     try {
-      await axios.put(
+      setIsLoading(true);
+      const response = await axios.put(
         `${
           import.meta.env.VITE_APP_API_URL
         }/api/product/change-review-status/${productId}/${reviewId}`,
         {
           status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       fetchReviews();
     } catch (error) {
       console.error("Error updating review:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,8 +220,12 @@ const Reviews = () => {
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Product Reviews
@@ -364,8 +407,8 @@ const Reviews = () => {
           </table>
         </div>
         <ReactPaginate
-          previousLabel={"previous"}
-          nextLabel={"next"}
+          previousLabel={"← Previous"}
+          nextLabel={"Next →"}
           breakLabel={"..."}
           breakClassName={"break-me"}
           pageCount={pageCount}

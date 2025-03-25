@@ -15,6 +15,8 @@ const SearchResults = () => {
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get("q");
   const genericSearchQuery = searchParams.get("generic");
+  const category = searchParams.get("category");
+  const subcategory = searchParams.get("subcategory");
 
   useEffect(() => {
     let filtered = products;
@@ -38,6 +40,18 @@ const SearchResults = () => {
       );
     }
 
+    if (category) {
+      filtered = filtered.filter((product) =>
+        product.categories.some((cat) => cat.category === category)
+      );
+    }
+
+    if (category && subcategory) {
+      filtered = filtered.filter((product) =>
+        product.categories.some((cat) => (cat.subcategory === subcategory && cat.category === category))
+      );
+    }
+
     // Apply sorting logic
     if (sortOption === "name-asc") {
       filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
@@ -58,7 +72,7 @@ const SearchResults = () => {
     if (loading || visibleProducts >= filteredProducts.length) return;
     setLoading(true);
     setTimeout(() => {
-      setVisibleProducts((prev) => prev + 9); 
+      setVisibleProducts((prev) => prev + 9);
       setLoading(false);
     }, 1000);
   };

@@ -1,52 +1,118 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaSearch, FaReply } from "react-icons/fa";
+import {
+  FaSearch,
+  FaReply,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
+import ReactPaginate from "react-paginate";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Feedbacks = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [replyModal, setReplyModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [replyMessage, setReplyMessage] = useState("");
   const [feedbacks, setFeedbacks] = useState([]);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(0);
+  const feedbacksPerPage = 10;
+
+  // Sorting
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+
   const notifySuccess = (message) => toast.success(message);
   const notifyError = (message) => toast.error(message);
 
   const fetchFeedbacks = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/feedback/all`
+        `${import.meta.env.VITE_APP_API_URL}/api/feedback/all`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
-      console.log("Data : ", response.data.feedbacks);
-      // Sort feedbacks by created_at (newest first)
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       const sortedFeedbacks = response.data.feedbacks.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
       setFeedbacks(sortedFeedbacks);
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchFeedbacks();
-  });
-  
-  // Filtered feedbacks
-  const filteredFeedbacks = feedbacks.filter(
-    (feedback) =>
-      feedback.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      feedback.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      feedback.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      feedback.feedback.toLowerCase().includes(searchQuery.toLowerCase())
+  }, []);
+
+  // Filtered feedbacks based on search query
+  const filteredFeedbacks = feedbacks.filter((feedback) =>
+    ["first_name", "last_name", "email", "feedback"].some((key) =>
+      feedback[key]?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
+
+  // Sort Feedbacks
+  const sortedFeedbacks = [...filteredFeedbacks].sort((a, b) => {
+    if (sortConfig.key) {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue < bValue) {
+        return sortConfig.direction === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "asc" ? 1 : -1;
+      }
+    }
+    return 0;
+  });
+
+  // Pagination: Get current page's feedbacks
+  const offset = currentPage * feedbacksPerPage;
+  const currentPageFeedbacks = sortedFeedbacks.slice(
+    offset,
+    offset + feedbacksPerPage
+  );
+
+  // Handle page change
+  const handlePageChange = ({ selected }) => {
+    setCurrentPage(selected);
+  };
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   // Open reply modal
   const handleReply = (feedback) => {
     setSelectedFeedback(feedback);
-    setReplyMessage(""); // Reset reply message
+    setReplyMessage("");
     setReplyModal(true);
   };
 
@@ -57,12 +123,18 @@ const Feedbacks = () => {
       return;
     }
 
-    notifySuccess(`Reply sent to ${selectedFeedback.email}: \n\n"${replyMessage}"`);
+    notifySuccess(
+      `Reply sent to ${selectedFeedback.email}: \n\n"${replyMessage}"`
+    );
     setReplyModal(false);
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Feedbacks</h1>
 
@@ -83,18 +155,51 @@ const Feedbacks = () => {
           <table className="w-full border-collapse bg-white shadow-md rounded-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
-                <th className="p-3 text-left">Name</th>
-                <th className="p-3 text-left">Email</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("first_name")}
+                >
+                  Name
+                  {sortConfig.key === "first_name" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("email")}
+                >
+                  Email
+                  {sortConfig.key === "email" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Phone</th>
                 <th className="p-3 text-left">Message</th>
-                <th className="p-3 text-left">Date</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("created_at")}
+                >
+                  Date
+                  {sortConfig.key === "created_at" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
                 <th className="p-3 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
-              {filteredFeedbacks.length > 0 ? (
-                filteredFeedbacks.map((feedback) => (
-                  <tr key={feedback.id} className="border-b">
+              {currentPageFeedbacks.length > 0 ? (
+                currentPageFeedbacks.map((feedback) => (
+                  <tr key={feedback._id} className="border-b">
                     <td className="p-3">
                       {feedback.first_name} {feedback.last_name}
                     </td>
@@ -111,12 +216,12 @@ const Feedbacks = () => {
                     <td className="p-3 text-center flex justify-center gap-2">
                       <Link to={`/feedback-details/${feedback._id}`}>
                         <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                          View Full Details
+                          View
                         </button>
                       </Link>
                       <button
                         onClick={() => handleReply(feedback)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center justify-center"
+                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center"
                       >
                         <FaReply className="mr-2" /> Reply
                       </button>
@@ -125,7 +230,7 @@ const Feedbacks = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center text-gray-500 p-3">
+                  <td colSpan="6" className="text-center text-gray-500 p-3">
                     No feedbacks found
                   </td>
                 </tr>
@@ -133,46 +238,26 @@ const Feedbacks = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Reply Modal */}
-      {replyModal && selectedFeedback && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
-          <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              Reply to {selectedFeedback.first_name}{" "}
-              {selectedFeedback.last_name}
-            </h2>
-            <p className="text-gray-700 mb-2">
-              Email: {selectedFeedback.email}
-            </p>
-            <p className="text-gray-700 mb-4">
-              Message: {selectedFeedback.feedback}
-            </p>
-            <textarea
-              value={replyMessage}
-              onChange={(e) => setReplyMessage(e.target.value)}
-              className="w-full p-3 border rounded-md mb-4"
-              rows="4"
-              placeholder="Type your reply here..."
-            ></textarea>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setReplyModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={sendReply}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-              >
-                Send Reply
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Pagination */}
+        <ReactPaginate
+          previousLabel={"← Previous"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          pageCount={Math.ceil(filteredFeedbacks.length / feedbacksPerPage)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageChange}
+          containerClassName={"pagination flex justify-center mt-4"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active bg-blue-500 text-white"}
+          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+        />
+      </div>
     </div>
   );
 };

@@ -21,15 +21,17 @@ const productRouter = express.Router();
 
 productRouter.post(
   "/add",
+  adminAuth,
   upload.fields([
     { name: "product_images", maxCount: 500 },
     { name: "manufacturer_image", maxCount: 1 },
   ]),
   addProduct
 );
-productRouter.delete("/remove/:id", removeProduct);
+productRouter.delete("/remove/:id", adminAuth, removeProduct);
 productRouter.put(
   "/edit/:id",
+  adminAuth,
   upload.fields([
     { name: "product_images", maxCount: 10 },
     { name: "manufacturer_image", maxCount: 1 },
@@ -43,9 +45,13 @@ productRouter.get("/suggestions", productSuggestions);
 
 productRouter.post("/add-review/:productId", addReview);
 productRouter.delete("/delete-review/:productId/:reviewId", deleteReview);
-productRouter.put("/change-review-status/:productId/:reviewId", changeReviewStatus);
+productRouter.put(
+  "/change-review-status/:productId/:reviewId",
+  adminAuth,
+  changeReviewStatus
+);
 productRouter.get("/get-review/:productId/:userId", getUserReviews);
 productRouter.get("/get-review/:productId", getProductReviews);
-productRouter.get("/all-reviews", getAllReviews);
+productRouter.get("/all-reviews", adminAuth, getAllReviews);
 
 export default productRouter;

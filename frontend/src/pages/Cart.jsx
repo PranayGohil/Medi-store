@@ -8,9 +8,11 @@ import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { LocationContext } from "../context/LocationContext";
 import { CartContext } from "../context/CartContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Cart = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -26,6 +28,7 @@ const Cart = () => {
 
   const fetchCartData = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
@@ -39,6 +42,8 @@ const Cart = () => {
       setTotalCartPrice(response.data.totalCartPrice);
     } catch (error) {
       console.error("Error fetching cart data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,6 +66,7 @@ const Cart = () => {
 
   const handleRemove = async (id) => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.delete(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/remove-from-cart/${id}`,
@@ -76,7 +82,11 @@ const Cart = () => {
         removeItemFromCart(id);
         fetchCartData();
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const calculateTotal = () => {
@@ -103,6 +113,10 @@ const Cart = () => {
     ? City.getCitiesOfState(selectedCountry, selectedState)
     : [];
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <>
       <Breadcrumb title="Cart" destination1="Home" destination2="Cart" />
@@ -117,94 +131,6 @@ const Cart = () => {
                   </h3>
                 </div>
                 <div className="bb-sb-blok-contact">
-                  <form action="#" method="post">
-                    <div className="input-box mb-[30px]">
-                      <label className="mb-[12px] inline-block text-[14px] font-medium text-[#3d4750] leading-[26px]">
-                        Country *
-                      </label>
-                      <div className="py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
-                        <select
-                          className="block w-full"
-                          value={selectedCountry}
-                          onChange={(e) => {
-                            setSelectedCountry(e.target.value);
-                            handleLocationChange();
-                          }}
-                        >
-                          <option value="">Select a Country</option>
-                          {countries.map((country) => (
-                            <option
-                              key={country.isoCode}
-                              value={country.isoCode}
-                            >
-                              {country.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="input-box mb-[30px]">
-                      <label className="mb-[12px] inline-block text-[14px] font-medium text-[#3d4750] leading-[26px]">
-                        State/Province *
-                      </label>
-                      <div className="custom-select py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
-                        <select
-                          className="block w-full"
-                          value={selectedState}
-                          onChange={(e) => {
-                            setSelectedState(e.target.value);
-                            handleLocationChange();
-                          }}
-                        >
-                          <option value="">
-                            Please Select a region, state
-                          </option>
-                          {states.map((state) => (
-                            <option key={state.isoCode} value={state.isoCode}>
-                              {state.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="input-box mb-[30px]">
-                      <label className="mb-[12px] inline-block text-[14px] font-medium text-[#3d4750] leading-[26px]">
-                        City *
-                      </label>
-                      <div className="custom-select py-[10px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] bg-[#fff] leading-[26px]">
-                        <select
-                          className="block w-full"
-                          value={selectedCity}
-                          onChange={(e) => {
-                            setSelectedCity(e.target.value);
-                            handleLocationChange();
-                          }}
-                        >
-                          <option value="">Please Select a city</option>
-                          {cities.map((city) => (
-                            <option key={city.name} value={city.name}>
-                              {city.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="input-box mb-[30px]">
-                      <label
-                        htmlFor="Zip-code"
-                        className="mb-[12px] inline-block text-[14px] font-medium text-[#3d4750] leading-[26px]"
-                      >
-                        Zip/Postal Code *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Zip/Postal Code"
-                        className="w-full py-[10px] px-[15px]  leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
-                        id="Zip-code"
-                        onChange={handleLocationChange}
-                      />
-                    </div>
-                  </form>
                   <div className="bb-cart-summary">
                     <div className="inner-summary">
                       <ul>
@@ -225,35 +151,6 @@ const Cart = () => {
                             {currency}
                             {delivery_fee}
                           </span>
-                        </li>
-                        <li className="mb-[12px] flex justify-between leading-[28px]">
-                          <span className="text-left font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-medium">
-                            Coupon Discount
-                          </span>
-                          <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            <a className="bb-coupon drop-coupon font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#ff0000] cursor-pointer">
-                              Apply Coupon
-                            </a>
-                          </span>
-                        </li>
-                        <li className="mb-[12px] flex justify-between leading-[28px]">
-                          <div className="coupon-down-box w-full">
-                            <form method="post" className="relative mb-[15px]">
-                              <input
-                                className="bb-coupon w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px]"
-                                type="text"
-                                placeholder="Enter Your coupon Code"
-                                name="bb-coupon"
-                                required=""
-                              />
-                              <button
-                                className="bb-btn-2 transition-all duration-[0.3s] ease-in-out my-[8px] mr-[8px] flex justify-center items-center absolute right-[0] top-[0] bottom-[0] font-Poppins leading-[28px] tracking-[0.03rem] py-[2px] px-[12px] text-[13px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                                type="submit"
-                              >
-                                Apply
-                              </button>
-                            </form>
-                          </div>
                         </li>
                       </ul>
                     </div>

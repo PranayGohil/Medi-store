@@ -14,9 +14,9 @@ import LoadingSpinner from "../components/LoadingSpinner";
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [order, setOrder] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
 
@@ -25,25 +25,19 @@ const OrderDetails = () => {
 
   const { user } = useContext(AuthContext);
   const { currency } = useContext(ShopContext);
-  const trackingSteps = [
-    "Order Confirmed",
-    "Processing Order",
-    "Quality Check",
-    "Product Dispatched",
-    "Product Delivered",
-  ];
 
   const notifyError = (message) => toast.error(message);
   const notifySuccess = (message) => toast.success(message);
 
   const fetchOrder = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/order/single-by-order-id/${id}`
       );
       setOrder(response.data.order);
       setSelectedStatus(response.data.order.order_status);
+      console.log(response.data.order.status_history);
 
       // Fetch product details along with reviews
       const productDetails = await Promise.all(
@@ -127,6 +121,7 @@ const OrderDetails = () => {
   const handleReviewSubmit = (id) => {
     console.log("Review Submitted for Product ID:", id, reviews[id]);
     try {
+      setIsLoading(true);
       const response = axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/product/add-review/${id}`,
         {
@@ -140,9 +135,15 @@ const OrderDetails = () => {
       fetchOrder();
     } catch (error) {
       console.error("Error submitting review:", error);
+    } finally {
+      setIsLoading(false);
     }
     setOpenReview(null);
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -151,25 +152,25 @@ const OrderDetails = () => {
         destination1="Home"
         destination2="Order Details"
       />
-      <section className="section-track py-[25px] max-[1199px]:py-[35px]">
-        <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
-          <div className="flex flex-wrap w-full">
-            <Title
-              title1="Track"
-              title2="Order"
-              description="Check your arriving order."
-            />
-            <div className="w-full px-[12px]">
-              <div className="track p-[30px] border-[1px] border-solid border-[#eee] rounded-[30px] max-[480px]:p-[15px]">
-                <div className="flex flex-wrap mx-[-12px] mb-[-24px]">
-                  <div className="w-full px-[12px] mb-[24px]">
-                    <ul className="bb-progress m-[-12px] flex flex-wrap justify-center">
-                      {trackingSteps.map((stage, index) => (
+      <section className="section-track py-[25px]">
+        <div className="container mx-auto">
+          <Title
+            title1="Track"
+            title2="Order"
+            description="Check your arriving order."
+          />
+
+          <div className="w-full px-[12px]">
+            <div className="track p-[30px] border-[1px] border-solid border-[#eee] rounded-[30px] max-[480px]:p-[15px]">
+              <div className="flex flex-wrap mx-[-12px] mb-[-24px]">
+                <div className="w-full px-[12px] mb-[24px]">
+                  <ul className="bb-progress m-[-12px] flex flex-wrap justify-center">
+                    {order?.status_history &&
+                    order.status_history.length > 0 ? (
+                      order.status_history.map((history, index) => (
                         <li
                           key={index}
-                          className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-col items-center justify-center border-[1px] border-solid border-[#eee] rounded-[30px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${
-                            index < 3 ? "active" : ""
-                          }`}
+                          className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-wrap gap-4 items-center justify-center border-[1px] border-solid border-[#eee] rounded-[30px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
                         >
                           <span className="number w-[30px] h-[30px] bg-[#686e7d66] text-[#fff] absolute top-[10px] right-[10px] flex items-center justify-center rounded-[30px] font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                             {index + 1}
@@ -188,14 +189,18 @@ const OrderDetails = () => {
                             ></i>
                           </span>
                           <span className="title text-center font-Poppins text-[15px] leading-[22px] tracking-[0.03rem] font-normal text-[#a5a8b1]">
-                            {stage.split(" ")[0]}
+                            {history.status}
                             <br />
-                            {stage.split(" ")[1]}
+                            {new Date(history.changed_at).toLocaleString()}
                           </span>
                         </li>
-                      ))}
-                    </ul>
-                  </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500">
+                        No status history available.
+                      </p>
+                    )}
+                  </ul>
                 </div>
               </div>
             </div>

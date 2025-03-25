@@ -10,9 +10,10 @@ import { ShopContext } from "../context/ShopContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const EditProducts = () => {
-  const { fetchProducts } = useContext(ShopContext);
-  const navigate = useNavigate();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const { fetchProducts } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const notifySuccess = () => toast.success("Product Edited Successfully");
   const notifyError = (error) => toast.error("Error Editing Product: " + error);
@@ -21,7 +22,6 @@ const EditProducts = () => {
   const [manufacturerImage, setManufacturerImage] = useState(null);
   const [newProductImages, setNewProductImages] = useState([]);
   const [newManufacturerImage, setNewManufacturerImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const steps = [
     { name: "Basic Info", icon: "1" },
@@ -40,12 +40,11 @@ const EditProducts = () => {
           setProductData(product);
           setProductImages(product.product_images || []);
           setManufacturerImage(product.manufacturer_image || null);
-        })
-        .catch((error) => {
-          console.error("Error fetching product data:", error);
-        }).finally(() => setIsLoading(false));
+        });
     } catch (error) {
       console.error("Error fetching product data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -161,21 +160,33 @@ const EditProducts = () => {
             headers: {
               "Content-Type": "multipart/form-data",
             },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         )
-        .then((res) => {
+        .then((response) => {
+          if (
+            response.data.success === false &&
+            response.data.message === "Unauthorized"
+          ) {
+            toast.error(response.data.message);
+            navigate("/login");
+            return;
+          }
           fetchProducts();
           notifySuccess();
           navigate("/products");
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error("Error editing product:", error);
           notifyError(error.message || "Something went wrong.");
-        }).finally(() => {
-          setIsLoading(false);
-        });
+        })
     } catch (error) {
       console.error("Error editing product:", error);
       notifyError(error.message || "Something went wrong.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

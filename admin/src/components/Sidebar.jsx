@@ -137,6 +137,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </li>
           <li>
             <NavLink
+              to="/discount-coupons"
+              className={({ isActive }) =>
+                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
+                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                }`
+              }
+            >
+              <UserIcon className="w-6 h-6" /> Discount Coupons
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/website-settings"
               className={({ isActive }) =>
                 `flex items-center gap-3 text-base rounded-lg p-2 transition ${

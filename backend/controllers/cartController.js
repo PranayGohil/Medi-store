@@ -82,7 +82,7 @@ const getCartItems = async (req, res) => {
   }
 };
 
-const gwtCartItemsById = async (req, res) => {
+const getCartItemsById = async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
@@ -188,4 +188,4 @@ const clearCart = async (req, res) => {
   }
 };
 
-export { addToCart, getCartItems, gwtCartItemsById, removeCartItem, clearCart };
+export { addToCart, getCartItems, getCartItemsById, removeCartItem, clearCart };

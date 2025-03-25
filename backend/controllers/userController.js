@@ -39,7 +39,10 @@ const loginUser = async (req, res) => {
       user: userWithoutPassword,
       cartData,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
 };
 
 const registerUser = async (req, res) => {
@@ -253,38 +256,11 @@ const removeAddress = async (req, res) => {
   }
 };
 
-const adminLogin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (
-      email === process.env.ADMIN_EMAIL &&
-      password === process.env.ADMIN_PASSWORD
-    ) {
-      const token = jwt.sign("Admin" + email, process.env.JWT_SECRET_KEY);
-      return res.json({
-        success: true,
-        message: "Admin logged in successfully",
-        token,
-      });
-    } else {
-      return res.json({
-        success: false,
-        message: "Incorrect email or password",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.json({ success: false, message: error.message });
-  }
-};
-
 export {
   loginUser,
   registerUser,
   getUser,
   getAllUsers,
-  adminLogin,
   updateUser,
   addAddress,
   getAddresses,

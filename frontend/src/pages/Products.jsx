@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import Breadcrumb from "../components/Breadcrumb";
 import ProductCard from "../components/ProductCard";
@@ -7,14 +8,21 @@ const Products = () => {
   const { products } = useContext(ShopContext);
   const [listView, setListView] = useState(false);
   const [sortOption, setSortOption] = useState("Sort by");
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [visibleProducts, setVisibleProducts] = useState(9); // Initial count
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Group products by category
+  // ✅ Extract category and subcategory from state
+  const { category, subcategory } = location.state || {};
+
+  const [selectedCategory, setSelectedCategory] = useState(category || "");
+  const [selectedSubcategory, setSelectedSubcategory] = useState(
+    subcategory || ""
+  );
+
   const categoryGroups = products.reduce((acc, product) => {
     product.categories.forEach((cat) => {
       if (!acc[cat.category]) {
@@ -30,22 +38,23 @@ const Products = () => {
   }, {});
 
   useEffect(() => {
-    // Filter products based on selected categories and subcategories
-    let filtered = products.filter((product) => {
-      const categoryMatch =
-        selectedCategories.length === 0 ||
-        product.categories.some((cat) =>
-          selectedCategories.includes(cat.category)
-        );
+    let filtered = products;
 
-      const subcategoryMatch =
-        selectedSubcategories.length === 0 ||
-        product.categories.some((cat) =>
-          selectedSubcategories.includes(cat.subcategory)
-        );
+    if (selectedCategory) {
+      filtered = filtered.filter((product) =>
+        product.categories.some((cat) => cat.category === selectedCategory)
+      );
+    }
 
-      return categoryMatch && subcategoryMatch;
-    });
+    if (selectedCategory && selectedSubcategory) {
+      filtered = filtered.filter((product) =>
+        product.categories.some(
+          (cat) =>
+            cat.subcategory === selectedSubcategory &&
+            cat.category === selectedCategory
+        )
+      );
+    }
 
     // Sorting Logic
     if (sortOption === "name-asc") {
@@ -53,38 +62,34 @@ const Products = () => {
     } else if (sortOption === "name-desc") {
       filtered = [...filtered].sort((a, b) => b.name.localeCompare(a.name));
     } else if (sortOption === "price-low") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price);
+      filtered = [...filtered].sort(
+        (a, b) => a.pricing[0].unit_price - b.pricing[0].unit_price
+      );
     } else if (sortOption === "price-high") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price);
+      filtered = [...filtered].sort(
+        (a, b) => b.pricing[0].unit_price - a.pricing[0].unit_price
+      );
     }
 
     setFilteredProducts(filtered);
     setVisibleProducts(9);
-  }, [products, selectedCategories, selectedSubcategories, sortOption]);
+  }, [products, selectedCategory, selectedSubcategory, sortOption]);
 
-  // Handle category filter change
-  const handleCategoryChange = (category) => {
-    setSelectedCategories((prevCategories) =>
-      prevCategories.includes(category)
-        ? prevCategories.filter((c) => c !== category)
-        : [...prevCategories, category]
-    );
-  };
-
-  // Handle subcategory filter change
-  const handleSubcategoryChange = (subcategory) => {
-    setSelectedSubcategories((prevSubcategories) =>
-      prevSubcategories.includes(subcategory)
-        ? prevSubcategories.filter((s) => s !== subcategory)
-        : [...prevSubcategories, subcategory]
-    );
+  const setCategoryAndSubcategory = (cat, subcat) => {
+    if (cat === selectedCategory && !subcat) {
+      setSelectedCategory(null);
+      setSelectedSubcategory(null);
+    } else {
+      setExpandedCategories({ [cat]: true });
+      setSelectedCategory(cat);
+      setSelectedSubcategory(subcat || "");
+    }
   };
 
   const toggleCategory = (category) => {
-    setExpandedCategories((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
+    setExpandedCategories({
+      [category]: !expandedCategories[category],
+    });
   };
 
   // Lazy loading function
@@ -127,9 +132,9 @@ const Products = () => {
             <div className="min-[992px]:w-[25%] w-full px-[12px] mb-[24px]">
               <div className="bb-shop-wrap bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] sticky top-[0]">
                 {/* Sidebar */}
-                <div className="bb-sidebar-block p-[20px] border-b-[1px] border-solid border-[#eee]">
+                <div className="bb-sidebar-block border-b-[1px] border-solid border-[#eee]">
                   <div className="bb-sidebar-title mb-[20px]">
-                    <h3 className="font-quicksand text-[18px] tracking-[0.03rem] leading-font-bold text-[#3d4750]">
+                    <h3 className="font-quicksand text-[18px] px-[20px] pt-[20px] tracking-[0.03rem] leading-font-bold text-[#3d4750]">
                       Category
                     </h3>
                   </div>
@@ -137,27 +142,22 @@ const Products = () => {
                     <ul>
                       {Object.entries(categoryGroups).map(
                         ([category, { subcategories }]) => (
-                          <li
-                            className="relative block mb-[14px]"
-                            key={category}
-                          >
+                          <li className="relative block" key={category}>
                             <div className="bb-sidebar-block-item relative">
                               <div
-                                className="flex items-center justify-between cursor-pointer"
-                                onClick={() => toggleCategory(category)}
+                                className={`flex items-center justify-between cursor-pointer py-[10px] px-[20px] ${
+                                  category === selectedCategory
+                                    ? "bg-[#6c7fd8] text-white"
+                                    : "text-[#777]"
+                                }`}
+                                onClick={() =>
+                                  setCategoryAndSubcategory(category)
+                                }
                               >
                                 <label className="flex items-center">
-                                  <input
-                                    type="checkbox"
-                                    className="w-[25px] mr-2"
-                                    checked={selectedCategories.includes(
-                                      category
-                                    )}
-                                    onChange={() =>
-                                      handleCategoryChange(category)
-                                    }
-                                  />
-                                  <span className="text-[#777] text-[14px] leading-[20px] font-normal capitalize cursor-pointer">
+                                  <span
+                                    className={`text-[14px] leading-[20px] font-normal capitalize cursor-pointer`}
+                                  >
                                     {category}
                                   </span>
                                 </label>
@@ -167,31 +167,32 @@ const Products = () => {
                                       ? "down"
                                       : "right"
                                   }-s-line`}
-                                ></i>
+                                  onClick={() => toggleCategory(category)}
+                                />
                               </div>
 
                               {expandedCategories[category] && (
-                                <ul className="ml-6 mt-2">
+                                <ul>
                                   {Array.from(subcategories).map(
                                     (subcategory) => (
-                                      <li key={subcategory} className="mb-2">
-                                        <label className="flex items-center">
-                                          <input
-                                            type="checkbox"
-                                            className="w-[25px] mr-2"
-                                            checked={selectedSubcategories.includes(
-                                              subcategory
-                                            )}
-                                            onChange={() =>
-                                              handleSubcategoryChange(
-                                                subcategory
-                                              )
-                                            }
-                                          />
-                                          <span className="text-sm text-[#777]">
-                                            {subcategory}
-                                          </span>
-                                        </label>
+                                      <li
+                                        key={subcategory}
+                                        className={`pl-10 py-2 cursor-pointer ${
+                                          category === selectedCategory &&
+                                          subcategory === selectedSubcategory
+                                            ? "bg-[#6c7fd8] text-white"
+                                            : "text-[#777]"
+                                        }`}
+                                        onClick={() =>
+                                          setCategoryAndSubcategory(
+                                            category,
+                                            subcategory
+                                          )
+                                        }
+                                      >
+                                        <div className="flex items-center">
+                                          <span>- {subcategory}</span>
+                                        </div>
                                       </li>
                                     )
                                   )}

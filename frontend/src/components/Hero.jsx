@@ -7,30 +7,6 @@ import "swiper/css/pagination";
 import "./Hero.css";
 import { SitePreferencesContext } from "../context/SitePreferencesContext";
 
-const slides = [
-  {
-    discount: "",
-    title1: "Genuine",
-    title2: "Medicines,",
-    title3: "Trusted by Doctors!",
-    image: "../assets/img/hero/hero-1.png",
-  },
-  {
-    discount: "Flat 20% Off",
-    title1: "Bringing ",
-    title2: "Quality",
-    title3: "Healthcare to Your Doorstep!",
-    image: "../assets/img/hero/hero-2.png",
-  },
-  {
-    discount: "Flat 30% Off",
-    title1: "Best,",
-    title2: "Prices",
-    title3: "Shop Smart, Stay Healthy!",
-    image: "../assets/img/hero/hero-3.png",
-  },
-];
-
 const Hero = () => {
   const { banners } = useContext(SitePreferencesContext);
   return (

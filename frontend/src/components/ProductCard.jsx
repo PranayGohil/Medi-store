@@ -24,8 +24,7 @@ const ProductCard = (product) => {
 
   if (!product.listView) {
     return (
-      <Link
-        to={`/product/${product.alias}`}
+      <div
         className="bb-pro-box rounded-[20px] overflow-hidden"
       >
         {/* Product Image */}
@@ -65,11 +64,11 @@ const ProductCard = (product) => {
             View Details
           </Link>
         </div>
-      </Link>
+      </div>
     );
   } else {
     return (
-      <Link to={`/product/${product.alias}`} className="flex items-center border border-[#eee] rounded-[20px] mb-4 p-4">
+      <div className="flex items-center border border-[#eee] rounded-[20px] mb-4 p-4">
         {/* Product Image */}
         <div className="w-1/4 mr-4">
           <img
@@ -81,7 +80,6 @@ const ProductCard = (product) => {
 
         {/* Product Details */}
         <div className="flex-grow">
-          <span className="text-sm text-gray-500">{product.product_code}</span>
           <p className="text-sm text-gray-700">{product.categories[0].category}</p>
           <h4 className="text-lg font-semibold">{product.name}</h4>
           <div className="bb-pro-rating">{displayRating()}</div>
@@ -96,7 +94,7 @@ const ProductCard = (product) => {
             View Details
           </Link>
         </div>
-      </Link>
+      </div>
     );
   }
 };

@@ -5,8 +5,10 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,6 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
   const { cartItems, addItemToCart } = useContext(CartContext);
+  const [showPassword, setShowPassword] = useState(false);
 
   const notifySuccess = (message) => toast.success(message);
 
@@ -27,6 +30,7 @@ const Login = () => {
     setError("");
 
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/user/login`,
         {
@@ -61,8 +65,18 @@ const Login = () => {
     } catch (err) {
       setError("An error occurred during login.");
       console.error("Login error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -100,15 +114,27 @@ const Login = () => {
                     >
                       Password*
                     </label>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      placeholder="Enter Your Password"
-                      className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
-                      value={formData.password}
-                      onChange={handleChange}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        placeholder="Enter Your Password"
+                        className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                        value={formData.password}
+                        onChange={handleChange}
+                      />
+                      <span
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <i className="ri-eye-fill"></i>
+                        ) : (
+                          <i className="ri-eye-off-fill"></i>
+                        )}
+                      </span>
+                    </div>
                   </div>
                   <div className="bb-login-wrap mb-[24px]">
                     <Link

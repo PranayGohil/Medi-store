@@ -1,47 +1,36 @@
-import React from "react";
+import { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 const Dashboard = () => {
-  // Sample Best Selling Products (with images)
-  const bestSellingProducts = [
-    {
-      id: 1,
-      name: "Smartphone X",
-      category: "Electronics",
-      sales: 150,
-      image: "https://picsum.photos/60?random=1", // Replace with actual image URL
-    },
-    {
-      id: 2,
-      name: "Wireless Headphones",
-      category: "Electronics",
-      sales: 120,
-      image: "https://picsum.photos/60?random=2",
-    },
-    {
-      id: 3,
-      name: "Running Shoes",
-      category: "Sports",
-      sales: 100,
-      image: "https://picsum.photos/60?random=3",
-    },
-    {
-      id: 4,
-      name: "Smartwatch Pro",
-      category: "Electronics",
-      sales: 95,
-      image: "https://picsum.photos/60?random=4",
-    },
-    {
-      id: 5,
-      name: "Gaming Laptop",
-      category: "Electronics",
-      sales: 80,
-      image: "https://picsum.photos/60?random=5",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
+
+  const { currency } = useContext(ShopContext);
+  const fetchBestSellingProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/statistics/best-sellers`
+      );
+      setBestSellingProducts(response.data.products);
+    } catch (error) {
+      console.error("Error fetching best selling products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchBestSellingProducts();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100">
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
       <div className="w-full flex flex-wrap">
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
@@ -92,39 +81,52 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold">Manage Feedback</h2>
           </Link>
         </div>
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
+          <Link
+            to={"/statistics"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Watch Statistics</h2>
+          </Link>
+        </div>
+        <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
+          <Link
+            to={"/discount-coupons"}
+            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+          >
+            <h2 className="text-lg font-semibold">Manage Coupons</h2>
+          </Link>
+        </div>
       </div>
 
-      {/* Best Selling Products Table */}
-      <div className="bg-white p-6 shadow-lg rounded-lg mt-6">
-        <h2 className="text-lg font-semibold mb-4">Best Selling Products</h2>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200 text-gray-700">
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Image</th>
-              <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Sales</th>
+      {/* Best Selling Products */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4 py-4">
+          Best Selling Products
+        </h2>
+        <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="p-3 text-center">Product Image</th>
+              <th className="p-3 text-left">Product Name</th>
+              <th className="p-3 text-left">Quantity Sold</th>
+              <th className="p-3 text-left">Revenue</th>
             </tr>
           </thead>
           <tbody>
-            {bestSellingProducts.map((product, index) => (
-              <tr
-                key={product.id}
-                className="border-t bg-white hover:bg-gray-50 transition"
-              >
-                <td className="p-3">{index + 1}</td>
-                <td className="p-3">
+            {bestSellingProducts.map((product) => (
+              <tr key={product._id} className="border-b">
+                <td className="p-3 flex justify-center">
                   <img
-                    src={product.image}
+                    src={product.product_images[0]}
                     alt={product.name}
-                    className="w-12 h-12 rounded-md shadow-sm"
+                    className="w-16 h-16 object-cover rounded-md"
                   />
                 </td>
-                <td className="p-3 font-medium">{product.name}</td>
-                <td className="p-3">{product.category}</td>
-                <td className="p-3 font-semibold text-blue-600">
-                  {product.sales}
+                <td className="p-3">{product.name}</td>
+                <td className="p-3">{product.quantity_sold}</td>
+                <td className="p-3">
+                  {currency} {product.total_revenue.toFixed(2)}
                 </td>
               </tr>
             ))}

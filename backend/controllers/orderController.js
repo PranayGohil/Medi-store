@@ -34,25 +34,48 @@ export const getSingleOrderByOrderId = async (req, res) => {
     console.log(error);
     return res.json({ success: false, message: error.message });
   }
-}
+};
 
 export const getUserOrders = async (req, res) => {
   try {
-    console.log("User Orders");
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized: No token provided" });
     }
+
+    const token = authHeader.split(" ")[1];
+
+    console.log("Token:", token); // Check if token is received
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decoded.id;
+
     const orders = await Order.find({ user_id: userId });
 
-    // Fetch product details for each order
     const ordersWithProducts = await Promise.all(
       orders.map(async (order) => {
         const productsWithDetails = await Promise.all(
           order.products.map(async (productItem) => {
             const product = await Product.findById(productItem.product_id);
+
+            if (!product) {
+              console.warn(
+                `Product not found for ID: ${productItem.product_id}`
+              );
+              return {
+                _id: productItem.product_id, // Return only ID if product not found
+                name: "Product not available",
+                dosage_form: "N/A",
+                net_quantity: productItem.net_quantity,
+                quantity: productItem.quantity,
+                price: productItem.price,
+                product_images: [], // Empty array if product missing
+              };
+            }
+
             return {
               _id: product._id,
               name: product.name,
@@ -60,7 +83,7 @@ export const getUserOrders = async (req, res) => {
               net_quantity: productItem.net_quantity,
               quantity: productItem.quantity,
               price: productItem.price,
-              product_images: product.product_images, // Include product_images
+              product_images: product.product_images,
             };
           })
         );
@@ -71,10 +94,12 @@ export const getUserOrders = async (req, res) => {
       })
     );
 
+    console.log("Orders with products:", ordersWithProducts);
+
     return res.json({ success: true, orders: ordersWithProducts });
   } catch (error) {
-    console.log(error);
-    return res.json({ success: false, message: error.message });
+    console.log("Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -85,25 +110,27 @@ export const addOrder = async (req, res) => {
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decoded.id;
 
-    const order_id = "ORD-" + Date.now() + Math.floor(Math.random() * 1000);
-    // const order_id = "ORD-" + Math.floor(Math.random() * 1000000);
-
-    console.log("Order ID : ", order_id);
-    console.log("User ID : ", userId);
-    console.log("Order Info : ", orderData);
+    console.log("User ID:", userId);
+    console.log("Order Info:", orderData);
 
     const order = await Order.create({
       ...orderData,
       user_id: userId,
-      order_id,
+      status_history: {
+        status: orderData.order_status,
+        changed_at: new Date(),
+      },
+      payment_status: "pending", // Mark it pending initially
     });
+
     return res.json({ success: true, order });
   } catch (error) {
     console.log(error);
-    return res.json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -126,6 +153,10 @@ export const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
+    order.status_history.push({
+      status: order_status,
+      changed_at: new Date(),
+    });
     order.order_status = order_status;
     await order.save();
     return res.json({ success: true, order });

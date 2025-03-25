@@ -1,79 +1,112 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaSearch, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
-import LoadingSpinner from "../components/LoadingSpinner";
 import ReactPaginate from "react-paginate";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Users = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [users, setUsers] = useState([]);
 
-  const notifySuccess = (message) => toast.success(message);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(0);
+  const usersPerPage = 10;
+
+  // Sorting
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+
   const notifyError = (message) => toast.error(message);
 
   const fetchUsers = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}/api/user/get-all-users`
+        `${import.meta.env.VITE_APP_API_URL}/api/user/get-all-users`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
-      // Sort Users by created_at (newest first)
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       const sortedUsers = response.data.users.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
       setUsers(sortedUsers);
-      console.log("Data : ", sortedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
+      notifyError("Failed to fetch users");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
-  // Sample Users Data
-  // const users = [
-  //   {
-  //     id: 1,
-  //     name: "John Doe",
-  //     email: "john.doe@example.com",
-  //     phone: "+91 8345678901",
-  //     registeredAt: "2025-02-20",
-  //     status: "Active",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Jane Smith",
-  //     email: "jane.smith@example.com",
-  //     phone: "+91 7894567123",
-  //     registeredAt: "2025-02-22",
-  //     status: "Inactive",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Alice Brown",
-  //     email: "alice.brown@example.com",
-  //     phone: "+91 9876543210",
-  //     registeredAt: "2025-02-25",
-  //     status: "Active",
-  //   },
-  // ];
 
   // Filter Users
-  const filteredUsers = users.filter((user) => {
-    return (
+  const filteredUsers = users.filter(
+    (user) =>
       (user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.phone.includes(searchQuery)) &&
       (statusFilter === "" || user.status === statusFilter)
-    );
+  );
+
+  // Sort Users
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (sortConfig.key) {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue < bValue) {
+        return sortConfig.direction === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "asc" ? 1 : -1;
+      }
+    }
+    return 0;
   });
 
+  // Pagination Logic
+  const offset = currentPage * usersPerPage;
+  const currentPageUsers = sortedUsers.slice(offset, offset + usersPerPage);
+
+  // Handle Page Change
+  const handlePageChange = ({ selected }) => {
+    setCurrentPage(selected);
+  };
+
+  // Handle Sorting
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Users</h1>
 
@@ -108,26 +141,75 @@ const Users = () => {
           <table className="w-full border-collapse bg-white shadow-md rounded-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
-                <th className="p-3 text-left">First Name</th>
-                <th className="p-3 text-left">Last Name</th>
-                <th className="p-3 text-left">Email</th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("first_name")}
+                >
+                  First Name
+                  {sortConfig.key === "first_name" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("last_name")}
+                >
+                  Last Name
+                  {sortConfig.key === "last_name" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("email")}
+                >
+                  Email
+                  {sortConfig.key === "email" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Phone</th>
-                <th className="p-3 text-left">Registered At</th>
-                {/* <th className="p-3 text-left">Status</th> */}
+                <th
+                  className="p-3 text-left cursor-pointer"
+                  onClick={() => handleSort("created_at")}
+                >
+                  Registered At
+                  {sortConfig.key === "created_at" &&
+                    (sortConfig.direction === "asc" ? (
+                      <FaSortUp />
+                    ) : (
+                      <FaSortDown />
+                    ))}
+                </th>
                 <th className="p-3 text-left">Action</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
-                  <tr key={user.id} className="border-b">
+              {currentPageUsers.length > 0 ? (
+                currentPageUsers.map((user) => (
+                  <tr key={user._id} className="border-b">
                     <td className="p-3">{user.first_name}</td>
                     <td className="p-3">{user.last_name}</td>
                     <td className="p-3">{user.email}</td>
                     <td className="p-3">{user.phone}</td>
-                    <td className="p-3">{new Date(user.created_at).getDate() + "-" + new Date(user.created_at).getMonth() + "-" + new Date(user.created_at).getFullYear()} - {new Date(user.created_at).getHours() + ":" + new Date(user.created_at).getMinutes() + ":" + new Date(user.created_at).getSeconds()}</td>
                     <td className="p-3">
-                      <Link to={`/user/user-details/${user._id}`} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                      {new Date(user.created_at).toLocaleDateString()}{" "}
+                      {new Date(user.created_at).toLocaleTimeString()}
+                    </td>
+                    <td className="p-3">
+                      <Link
+                        to={`/user/user-details/${user._id}`}
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                      >
                         View Details
                       </Link>
                     </td>
@@ -135,7 +217,7 @@ const Users = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center text-gray-500 p-3">
+                  <td colSpan="6" className="text-center text-gray-500 p-3">
                     No users found
                   </td>
                 </tr>
@@ -143,6 +225,24 @@ const Users = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <ReactPaginate
+          previousLabel={"← Previous"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          pageCount={Math.ceil(filteredUsers.length / usersPerPage)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageChange}
+          containerClassName={"pagination flex justify-center mt-4"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active bg-blue-500 text-white"}
+          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+        />
       </div>
     </div>
   );

@@ -15,55 +15,55 @@ const ViewOrderDetails = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    const fetchOrder = async () => {
+  const fetchOrder = async () => {
+    try {
       setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/api/order/single/${id}`
-        );
-        setOrder(response.data.order);
-        setSelectedStatus(response.data.order.order_status);
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/order/single/${id}`
+      );
+      setOrder(response.data.order);
+      setSelectedStatus(response.data.order.order_status);
 
-        // Fetch product details
-        const productDetails = await Promise.all(
-          response.data.order.products.map(async (productItem) => {
-            try {
-              const productResponse = await axios.get(
-                `${import.meta.env.VITE_APP_API_URL}/api/product/single/${
-                  productItem.product_id
-                }`
-              );
-              return {
-                ...productResponse.data.product,
-                net_quantity: productItem.net_quantity,
-                quantity: productItem.quantity,
-                price: productItem.price,
-              };
-            } catch (productError) {
-              console.error(
-                `Error fetching product ${productItem.product_id}:`,
-                productError
-              );
-              return {
-                _id: productItem.product_id,
-                name: "Product Not Found",
-                generic_name: "N/A",
-                product_code: "N/A",
-                quantity: productItem.quantity,
-                price: productItem.price,
-              };
-            }
-          })
-        );
-        setProducts(productDetails);
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      // Fetch product details
+      const productDetails = await Promise.all(
+        response.data.order.products.map(async (productItem) => {
+          try {
+            const productResponse = await axios.get(
+              `${import.meta.env.VITE_APP_API_URL}/api/product/single/${
+                productItem.product_id
+              }`
+            );
+            return {
+              ...productResponse.data.product,
+              net_quantity: productItem.net_quantity,
+              quantity: productItem.quantity,
+              price: productItem.price,
+            };
+          } catch (productError) {
+            console.error(
+              `Error fetching product ${productItem.product_id}:`,
+              productError
+            );
+            return {
+              _id: productItem.product_id,
+              name: "Product Not Found",
+              generic_name: "N/A",
+              product_code: "N/A",
+              quantity: productItem.quantity,
+              price: productItem.price,
+            };
+          }
+        })
+      );
+      setProducts(productDetails);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchOrder();
   }, [id]);
 
@@ -77,16 +77,33 @@ const ViewOrderDetails = () => {
 
   const handleSaveStatus = async () => {
     try {
-      await axios.put(
+      setIsLoading(true);
+      const response = await axios.put(
         `${import.meta.env.VITE_APP_API_URL}/api/order/update-status/${id}`,
         {
           order_status: selectedStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       setOrder({ ...order, order_status: selectedStatus });
       setShowEditModal(false);
+      fetchOrder();
     } catch (error) {
       console.error("Error updating order status:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,6 +113,7 @@ const ViewOrderDetails = () => {
 
   const confirmDeleteOrder = async () => {
     try {
+      setIsLoading(true);
       await axios.delete(
         `${import.meta.env.VITE_APP_API_URL}/api/order/remove/${id}`
       );
@@ -103,7 +121,8 @@ const ViewOrderDetails = () => {
     } catch (error) {
       console.error("Error deleting order:", error);
     } finally {
-      setShowDeleteModal(false); // Close modal after action
+      setShowDeleteModal(false);
+      setIsLoading(false);
     }
   };
 
@@ -112,13 +131,31 @@ const ViewOrderDetails = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100">
       <div className="bg-white p-6 shadow-lg rounded-lg">
-        <h1 className="text-3xl font-bold mb-6 border-b pb-2">Order Details</h1>
+        <div className="flex flex-wrap justify-between border-b-2">
+          <h1 className="text-3xl font-bold mb-3 pb-2">Order Details</h1>
+          <div>
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white mx-2 py-2 px-4 rounded"
+              onClick={handleEditStatus}
+            >
+              Edit Order Status
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white mx-2 py-2 px-4 rounded"
+              onClick={handleDeleteOrder}
+            >
+              Delete Order
+            </button>
+          </div>
+        </div>
 
         {/* Order Summary */}
         <div className="mb-6 mt-10">
-          <h2 className="text-xl font-bold mb-5 border-b pb-2">Order Summary</h2>
+          <h2 className="text-xl font-bold mb-5 border-b pb-2">
+            Order Summary
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <strong>Order ID:</strong> {order.order_id}
@@ -144,7 +181,9 @@ const ViewOrderDetails = () => {
 
         {/* Delivery Address */}
         <div className="mb-6 mt-10">
-          <h2 className="text-xl font-bold mb-5 border-b pb-2">Delivery Address</h2>
+          <h2 className="text-xl font-bold mb-5 border-b pb-2">
+            Delivery Address
+          </h2>
           {order.delivery_address.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -224,21 +263,33 @@ const ViewOrderDetails = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex justify-end gap-4">
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-            onClick={handleEditStatus}
-          >
-            Edit Order Status
-          </button>
-          <button
-            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-            onClick={handleDeleteOrder}
-          >
-            Delete Order
-          </button>
+        <div className="mb-6 mt-10">
+          <h2 className="text-xl font-bold mb-5 border-b pb-2">
+            Track Order Status
+          </h2>
+          <div className="w-full px-[12px] mb-[24px]">
+            <ul className="bb-progress m-[-12px] flex flex-wrap justify-center">
+              {order?.status_history && order.status_history.length > 0 ? (
+                order.status_history.map((history, index) => (
+                  <li
+                    key={index}
+                    className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-col items-center justify-center border-[1px] border-solid border-[#000] rounded-[10px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
+                  >
+                    <span className="number w-[30px] h-[30px] bg-[#000000] text-[#fff] absolute top-[10px] right-[10px] flex items-center justify-center rounded-[30px] font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
+                      {index + 1}
+                    </span>
+                    <span className="title text-center font-Poppins text-[15px] leading-[22px] tracking-[0.03rem] font-normal text-[#000000]">
+                      {history.status}
+                      <br />
+                      {new Date(history.changed_at).toLocaleString()}
+                    </span>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-500">No status history available.</p>
+              )}
+            </ul>
+          </div>
         </div>
       </div>
       {showEditModal && (
@@ -284,8 +335,12 @@ const ViewOrderDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
             <div className="mb-4 text-center">
-              <span className="block mb-3">Are you sure you want to delete order </span>
-              <span className="font-semibold mb-5">Oder ID: {order.order_id}?</span>
+              <span className="block mb-3">
+                Are you sure you want to delete order{" "}
+              </span>
+              <span className="font-semibold mb-5">
+                Oder ID: {order.order_id}?
+              </span>
             </div>
             <div className="flex justify-end gap-4">
               <button

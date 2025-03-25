@@ -3,17 +3,19 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaArrowLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ViewUserDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL}/api/user/get-user/${id}`
         );
@@ -23,18 +25,18 @@ const ViewUserDetails = () => {
           `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items/${id}`
         );
         setCartItems(cartItems.data.cartItems);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching user details:", error);
         toast.error("Failed to fetch user details.");
-        setLoading(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUserDetails();
   }, [id]);
 
-  if (loading) return <p className="text-center text-gray-600">Loading...</p>;
+  if (isLoading) return <LoadingSpinner />;
   if (!user) return <p className="text-center text-red-500">User not found</p>;
 
   return (
@@ -158,7 +160,9 @@ const ViewUserDetails = () => {
                   </tr>
                 ))}
                 <tr className="border-b">
-                  <td className="p-3 font-bold text-right px-10" colSpan="4">Total:</td>
+                  <td className="p-3 font-bold text-right px-10" colSpan="4">
+                    Total:
+                  </td>
                   <td className="p-3 font-bold">
                     {cartItems.reduce(
                       (total, item) => total + item.price * item.quantity,
