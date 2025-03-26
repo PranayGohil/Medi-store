@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { ShopContext } from "../context/ShopContext";
+import { GoDotFill } from "react-icons/go";
 import LoadingSpinner from "./LoadingSpinner";
 
 const Header = () => {
@@ -76,18 +77,23 @@ const Header = () => {
 
     if (query) {
       const filteredSuggestions = products
-        .filter((product) =>
-          product.name.toLowerCase().includes(query.toLowerCase().trim()) ||
-          product.manufacturer.toLowerCase().includes(query.toLowerCase().trim()) ||
-          product.product_code.toLowerCase().includes(query.toLowerCase().trim())
+        .filter(
+          (product) =>
+            product.name.toLowerCase().includes(query.toLowerCase().trim()) ||
+            product.manufacturer
+              .toLowerCase()
+              .includes(query.toLowerCase().trim()) ||
+            product.product_code
+              .toLowerCase()
+              .includes(query.toLowerCase().trim())
         )
         .map((product) => ({
           id: product._id,
           name: product.name,
-          image: product.product_images[0], 
+          image: product.product_images[0],
           manufacturer: product.manufacturer,
           dosage_form: product.dosage_form,
-          price: product.pricing[0]?.unit_price || "N/A", 
+          price: product.pricing[0]?.unit_price || "N/A",
         }));
 
       setSuggestions(filteredSuggestions);
@@ -185,7 +191,7 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-   
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -217,7 +223,10 @@ const Header = () => {
                 {/* Search forms */}
                 <div className="cols flex justify-center">
                   <div className="header-search flex flex-wrap justify-between align-middle w-[600px] max-[1399px]:w-[500px] max-[1199px]:w-[400px] max-[991px]:w-full max-[991px]:min-w-[300px] max-[767px]:py-[15px] max-[480px]:min-w-[auto]">
-                    <div className="w-full sm:w-1/2 mt-[5px] relative px-2" ref={dropdownRef}>
+                    <div
+                      className="w-full sm:w-1/2 mt-[5px] relative px-2"
+                      ref={dropdownRef}
+                    >
                       <form
                         className="w-full bb-btn-group-form flex relative"
                         onSubmit={handleSearchSubmit}
@@ -256,10 +265,14 @@ const Header = () => {
                                   {suggestion.name}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  Mfg. by  {suggestion.manufacturer}
+                                  Mfg. by {suggestion.manufacturer}
                                 </p>
                                 <p className="text-xs font-semibold text-gray-600">
-                                  {currency + " " + suggestion.price + " per " + suggestion.dosage_form}
+                                  {currency +
+                                    " " +
+                                    suggestion.price +
+                                    " per " +
+                                    suggestion.dosage_form}
                                 </p>
                               </div>
                             </li>
@@ -269,7 +282,10 @@ const Header = () => {
                     </div>
 
                     {/* Generic Name Search with Auto-Suggest */}
-                    <div className="w-full md:w-1/2 mt-[5px] relative px-2" ref={dropdownRef}>
+                    <div
+                      className="w-full md:w-1/2 mt-[5px] relative px-2"
+                      ref={dropdownRef}
+                    >
                       <form
                         className="bb-btn-group-form flex relative"
                         onSubmit={handleGenericSearchSubmit}
@@ -503,6 +519,27 @@ const Header = () => {
                                       </button>
                                     </li>
                                   ))}
+                                  {category.special_subcategory.map(
+                                    (subCategory) => (
+                                      <li
+                                        className="flex items-center leading-[28px]"
+                                        key={subCategory}
+                                      >
+                                        <button
+                                          onClick={() =>
+                                            handleSubCategoryClick(
+                                              category.category,
+                                              subCategory
+                                            )
+                                          }
+                                          className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#6c7fd8] capitalize flex items-center"
+                                        >
+                                          <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#6c7fd8]" />
+                                          {subCategory}
+                                        </button>
+                                      </li>
+                                    )
+                                  )}
                                 </ul>
                               </li>
                             </ul>

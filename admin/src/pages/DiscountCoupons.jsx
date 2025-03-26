@@ -106,7 +106,7 @@ const DiscountCoupons = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">
@@ -119,7 +119,7 @@ const DiscountCoupons = () => {
               <input
                 type="text"
                 placeholder="Search by code..."
-                className="input input-bordered w-full pr-10"
+                className="input input-bordered w-full pr-10 rounded-none"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -130,7 +130,7 @@ const DiscountCoupons = () => {
 
             {/* Add Coupon Button */}
             <button
-              className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+              className="flex items-center bg-blue-400 text-white py-3 px-4 hover:bg-blue-500 transition"
               onClick={() => showAddModal()}
             >
               <FaPlus className="mr-2" /> Add Coupon
@@ -175,7 +175,7 @@ const DiscountCoupons = () => {
                     <td className="p-3">{coupon.used_count}</td>
                     <td className="p-3">
                       <span
-                        className={`px-2 py-1 rounded-lg ${
+                        className={`px-2 py-2 ${
                           coupon.status === "active"
                             ? "bg-green-500 text-white"
                             : "bg-red-500 text-white"
@@ -184,7 +184,7 @@ const DiscountCoupons = () => {
                         {coupon.status}
                       </span>
                     </td>
-                    <td className="p-3 flex gap-2">
+                    <td className="p-3 flex gap-2 text-center">
                       <button
                         className="text-red-500 hover:text-red-700"
                         onClick={() => handleDelete(coupon._id)}
@@ -240,7 +240,7 @@ const DiscountCoupons = () => {
                 value={formData.discount_type}
                 onChange={handleChange}
                 required
-                className="select select-bordered w-full"
+                className="select select-bordered w-full rounded-none"
               >
                 <option value="percentage">Percentage</option>
                 <option value="fixed">Fixed</option>
@@ -257,7 +257,7 @@ const DiscountCoupons = () => {
                 value={formData.code}
                 onChange={handleChange}
                 required
-                className="input input-bordered w-full"
+                className="input input-bordered w-full rounded-none"
               />
             </div>
             <div className="form-control w-full">
@@ -271,7 +271,7 @@ const DiscountCoupons = () => {
                 value={formData.discount_value}
                 onChange={handleChange}
                 required
-                className="input input-bordered w-full"
+                className="input input-bordered w-full rounded-none"
               />
             </div>
             <div className="form-control w-full">
@@ -284,19 +284,19 @@ const DiscountCoupons = () => {
                 value={formData.expiration_date}
                 onChange={handleChange}
                 required
-                className="input input-bordered w-full"
+                className="input input-bordered w-full rounded-none"
               />
             </div>
 
             <button
               type="submit"
-              className="btn bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition w-full"
+              className="btn bg-blue-600 text-white py-3 px-4 hover:bg-blue-700 transition w-full rounded-none"
             >
               Submit
             </button>
             <button
               type="button"
-              className="btn bg-gray-200 w-full"
+              className="btn bg-gray-200 w-full rounded-none"
               onClick={hideAddModal}
             >
               Close

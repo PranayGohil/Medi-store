@@ -13,7 +13,8 @@ const orderSchema = new mongoose.Schema({
   ],
   sub_total: { type: Number, required: true },
   delivery_charge: { type: Number, required: true },
-  discount: { type: Number, required: true },
+  discount: { type: Number },
+  discount_code: { type: String },
   total: { type: Number, required: true },
   delivery_address: [
     {

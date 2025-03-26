@@ -41,12 +41,12 @@ const ViewUserDetails = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="max-w-8xl mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="max-w-8xl mx-auto bg-white shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">User Details</h1>
           <Link
             to="/users"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center"
+            className="bg-blue-400 text-white px-4 py-3 hover:bg-blue-500 flex items-center"
           >
             <FaArrowLeft className="mr-2" /> Back to Users
           </Link>
@@ -90,7 +90,7 @@ const ViewUserDetails = () => {
             user.addresses.map((address, index) => (
               <div
                 key={index}
-                className="border p-4 rounded-md mb-4 bg-gray-50 shadow-sm"
+                className="border p-4 mb-4 bg-gray-50 shadow-sm"
               >
                 <p>
                   <strong>First Name:</strong> {address.first_name}
@@ -132,7 +132,7 @@ const ViewUserDetails = () => {
             Cart Data
           </h2>
           {cartItems.length > 0 ? (
-            <table className="w-full border-collapse bg-white shadow-md rounded-md">
+            <table className="w-full border-collapse bg-white shadow-md">
               <thead className="bg-gray-200">
                 <tr>
                   <th className="p-3 text-left">Product Name</th>
@@ -180,7 +180,7 @@ const ViewUserDetails = () => {
         <div className="mt-6">
           <button
             onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+            className="bg-gray-500 text-white px-8 py-3 hover:bg-gray-600"
           >
             Back
           </button>

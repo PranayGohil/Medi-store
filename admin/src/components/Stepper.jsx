@@ -8,14 +8,14 @@ const Stepper = ({ steps, currentStep, onStepClick }) => {
         <div key={index} className="flex flex-col items-center cursor-pointer">
           <div
             className={`w-12 h-12 flex items-center justify-center rounded-full text-white 
-              ${index === currentStep ? "bg-purple-500" : "bg-gray-400"}`}
+              ${index === currentStep ? "bg-blue-500" : "bg-gray-400"}`}
           >
             {step.icon}
           </div>
           <p
             className={`mt-2 text-sm font-semibold ${
               index === currentStep
-                ? "text-purple-500 font-bold"
+                ? "text-blue-500 font-bold"
                 : "text-gray-600"
             }`}
           >

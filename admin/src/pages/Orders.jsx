@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSearch, FaSortUp, FaSortDown, FaEdit, FaEye } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -238,7 +238,7 @@ const Orders = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Orders</h1>
 
         {/* Search and Filter Section */}
@@ -250,7 +250,7 @@ const Orders = () => {
               placeholder="Search by Order ID, Customer, Product"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-3 pl-10 border rounded-md"
+              className="w-full p-3 pl-10 border"
             />
             <FaSearch className="absolute top-3 left-3 text-gray-500" />
           </div>
@@ -259,7 +259,7 @@ const Orders = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-1/4 p-3 border rounded-md"
+            className="w-full md:w-1/4 p-3 border"
           >
             <option value="">All Statuses</option>
             <option value="Order Placed">Order Placed</option>
@@ -279,13 +279,13 @@ const Orders = () => {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full md:w-1/4 p-3 border rounded-md"
+            className="w-full md:w-1/4 p-3 border"
           />
         </div>
 
         {/* Orders Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th
@@ -368,7 +368,7 @@ const Orders = () => {
                         ))}
                       </div>
                     </td>
-                    <td className="p-3">${order.total}</td>
+                    <td className="p-3">${order.total.toFixed(2)}</td>
                     <td className="p-3">{formatDate(order.created_at)}</td>
                     <td
                       className={`p-3 font-semibold ${
@@ -383,17 +383,19 @@ const Orders = () => {
                     </td>
                     <td className="p-3 flex justify-center">
                       <button
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                        className="bg-blue-400 hover:bg-blue-500 text-white py-2 px-4"
                         onClick={() =>
                           navigate(`/order/order-details/${order._id}`)
                         }
                       >
+                        <FaEye className="inline mr-2" />
                         View
                       </button>
                       <button
-                        className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded ml-2"
+                        className="bg-green-400 hover:bg-green-500 text-white py-2 px-4 ml-2"
                         onClick={() => handleEditStatus(order)}
                       >
+                        <FaEdit className="inline mr-2" />
                         Edit Status
                       </button>
                     </td>
@@ -421,10 +423,10 @@ const Orders = () => {
           containerClassName={"pagination flex justify-center mt-4"}
           subContainerClassName={"pages pagination"}
           activeClassName={"active bg-blue-500 text-white"}
-          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          pageClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border cursor-pointer"}
         />
       </div>
       {showEditModal && (
@@ -435,7 +437,7 @@ const Orders = () => {
             <select
               value={selectedStatus}
               onChange={handleStatusChange}
-              className="w-full p-3 border rounded-md mb-4"
+              className="w-full p-3 border mb-4 "
             >
               <option value="" disabled>
                 Select Status
@@ -451,13 +453,13 @@ const Orders = () => {
             </select>
             <div className="flex justify-end gap-4">
               <button
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-gray-700 py-2 px-4 hover:bg-gray-400 transition"
                 onClick={() => setShowEditModal(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+                className="bg-blue-400 text-white py-2 px-4 hover:bg-blue-500 transition"
                 onClick={handleSaveStatus}
               >
                 Save

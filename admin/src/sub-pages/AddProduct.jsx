@@ -202,7 +202,7 @@ const AddProduct = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className=" mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className=" mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Add New Product
         </h1>
@@ -241,7 +241,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="product_code"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="product_code"
@@ -256,7 +256,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="name"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="name"
@@ -271,7 +271,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="generic_name"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="generic_name"
@@ -286,7 +286,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="manufacturer"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="manufacturer"
@@ -301,7 +301,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="country_of_origin"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="country_of_origin"
@@ -316,7 +316,7 @@ const AddProduct = () => {
                       <Field
                         type="text"
                         name="dosage_form"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="dosage_form"
@@ -341,7 +341,7 @@ const AddProduct = () => {
                               <Field
                                 as="select"
                                 name={`categories.${index}.category`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border rounded-none"
                                 onChange={(e) => {
                                   setFieldValue(
                                     `categories.${index}.category`,
@@ -353,7 +353,13 @@ const AddProduct = () => {
                                   );
                                 }}
                               >
-                                <option value="">Select Category</option>
+                                <option
+                                  value=""
+                                  disabled
+                                  className="text-center"
+                                >
+                                  Select Category
+                                </option>
                                 {categories.map((cat) => (
                                   <option key={cat._id} value={cat.category}>
                                     {cat.category}
@@ -373,9 +379,15 @@ const AddProduct = () => {
                               <Field
                                 as="select"
                                 name={`categories.${index}.subcategory`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border rounded-none"
                               >
-                                <option value="">Select Subcategory</option>
+                                <option
+                                  value=""
+                                  disabled
+                                  className="text-center"
+                                >
+                                  Select Subcategory
+                                </option>
                                 {categories
                                   .find(
                                     (cat) =>
@@ -387,6 +399,31 @@ const AddProduct = () => {
                                       {subcat}
                                     </option>
                                   ))}
+                                {categories
+                                  .find(
+                                    (cat) =>
+                                      cat.category ===
+                                      values.categories[index].category
+                                  )
+                                  ?.special_subcategory.map(
+                                    (subcat, subIndex) => (
+                                      <>
+                                        {subIndex === 0 && (
+                                          <option
+                                            value=""
+                                            disabled
+                                            className="text-center"
+                                          >
+                                            Special Subcategories
+                                          </option>
+                                        )}
+
+                                        <option key={subIndex} value={subcat}>
+                                          {subcat}
+                                        </option>
+                                      </>
+                                    )
+                                  )}
                               </Field>
                               <ErrorMessage
                                 name={`categories.${index}.subcategory`}
@@ -395,11 +432,11 @@ const AddProduct = () => {
                               />
                             </div>
                             {index > 0 && (
-                              <div>
+                              <div className="flex items-end h-full">
                                 <button
                                   type="button"
                                   onClick={() => remove(index)}
-                                  className="bg-red-500 text-white px-3 py-2 rounded"
+                                  className="bg-red-400 hover:bg-red-500 text-white px-3 py-3"
                                 >
                                   Remove
                                 </button>
@@ -412,7 +449,7 @@ const AddProduct = () => {
                           onClick={() =>
                             push({ category: "", subcategory: "" })
                           }
-                          className="bg-green-500 text-white px-4 py-2 rounded"
+                          className="bg-green-400 hover:bg-green-500 text-white px-4 py-3"
                         >
                           + Add More
                         </button>
@@ -439,7 +476,7 @@ const AddProduct = () => {
                   <div className="flex flex-wrap gap-4 mt-2">
                     <label
                       htmlFor="productImages"
-                      className="w-24 h-24 object-cover border rounded-md flex items-center justify-center cursor-pointer"
+                      className="w-24 h-24 object-cover border flex items-center justify-center cursor-pointer"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -478,12 +515,12 @@ const AddProduct = () => {
                         <img
                           src={image}
                           alt="Product Preview"
-                          className="w-24 h-24 object-cover border rounded-md"
+                          className="w-24 h-24 object-cover border"
                         />
                         <button
                           type="button"
                           onClick={() => removeProductImage(index)}
-                          className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                          className="absolute top-1 right-1 bg-red-400 text-white text-xs px-2 py-1 rounded-full"
                         >
                           X
                         </button>
@@ -500,7 +537,7 @@ const AddProduct = () => {
                   <div className="flex flex-wrap gap-4 mt-2">
                     <label
                       htmlFor="manufacturerImage"
-                      className="w-24 h-24 object-cover border rounded-md flex items-center justify-center cursor-pointer"
+                      className="w-24 h-24 object-cover border flex items-center justify-center cursor-pointer"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -524,7 +561,7 @@ const AddProduct = () => {
                         onChange={(event) => {
                           handleManufacturerImageChange(event, setFieldValue);
                         }}
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                         accept="image/*"
                         style={{ display: "none" }}
                       />
@@ -539,12 +576,12 @@ const AddProduct = () => {
                         <img
                           src={manufacturerImage}
                           alt="Manufacturer Preview"
-                          className="w-24 h-24 object-cover border rounded-md"
+                          className="w-24 h-24 object-cover border"
                         />
                         <button
                           type="button"
                           onClick={() => removeManufacturerImage()}
-                          className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                          className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
                         >
                           X
                         </button>
@@ -623,7 +660,7 @@ const AddProduct = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.net_quantity`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border"
                                 onChange={(e) => {
                                   const value = parseFloat(e.target.value) || 0;
                                   setFieldValue(
@@ -657,7 +694,7 @@ const AddProduct = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.total_price`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border"
                                 onChange={(e) => {
                                   const value = parseFloat(e.target.value) || 0;
                                   setFieldValue(
@@ -691,7 +728,7 @@ const AddProduct = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.unit_price`}
-                                className="w-full p-3 border rounded-md bg-gray-200"
+                                className="w-full p-3 border bg-gray-200"
                                 readOnly
                               />
                               <ErrorMessage
@@ -703,11 +740,11 @@ const AddProduct = () => {
 
                             {/* Remove Button */}
                             {index > 0 && (
-                              <div>
+                              <div className="flex items-end h-full">
                                 <button
                                   type="button"
                                   onClick={() => remove(index)}
-                                  className="bg-red-500 text-white px-3 py-2 rounded"
+                                  className="bg-red-400 hover:bg-red-500 text-white px-3 py-3"
                                 >
                                   Remove
                                 </button>
@@ -726,7 +763,7 @@ const AddProduct = () => {
                               unit_price: "",
                             })
                           }
-                          className="bg-green-500 text-white px-4 py-2 rounded"
+                          className="bg-green-500 text-white px-4 py-3 mt-2"
                         >
                           + Add More
                         </button>
@@ -759,7 +796,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setStep(step - 1)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded"
+                    className="bg-gray-500 text-white px-8 py-3"
                   >
                     Back
                   </button>
@@ -789,15 +826,15 @@ const AddProduct = () => {
                       }
                     }}
                     className={`${
-                      step === 4 ? "bg-green-600" : "bg-blue-500"
-                    } text-white px-4 py-2 rounded`}
+                      step === 4 ? "bg-green-400 hover:bg-green-500" : "bg-blue-400 hover:bg-blue-500"
+                    } text-white px-6 py-3`}
                   >
                     {step === 4 ? "Submit" : "Next"}
                   </button>
                 )}
                 <button
                   type="submit"
-                  className={`bg-green-600 text-white px-4 py-2 rounded ${
+                  className={`bg-green-400 hover:bg-green-500 text-white px-6 py-3 ${
                     step === 4 ? "" : "hidden"
                   }`}
                 >

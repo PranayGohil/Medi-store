@@ -1,9 +1,10 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
 
@@ -22,6 +23,10 @@ const Dashboard = () => {
     }
   };
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
     fetchBestSellingProducts();
   }, []);
 
@@ -36,7 +41,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/orders"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Orders</h2>
           </Link>
@@ -44,7 +49,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/categories"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Categories</h2>
           </Link>
@@ -52,7 +57,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/products"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Products</h2>
           </Link>
@@ -60,7 +65,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/reviews"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Reviews</h2>
           </Link>
@@ -68,7 +73,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/users"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage User</h2>
           </Link>
@@ -76,7 +81,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/feedbacks"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Feedback</h2>
           </Link>
@@ -84,7 +89,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/statistics"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Watch Statistics</h2>
           </Link>
@@ -92,7 +97,7 @@ const Dashboard = () => {
         <div className="w-full md:w-1/3 lg:w-1/4 sm:w-1/2 p-3">
           <Link
             to={"/discount-coupons"}
-            className="bg-white flex justify-center align-center p-6 shadow-lg rounded-lg mt-6"
+            className="bg-white flex justify-center align-center px-6 py-10 border shadow-lg mt-6"
           >
             <h2 className="text-lg font-semibold">Manage Coupons</h2>
           </Link>
@@ -104,7 +109,7 @@ const Dashboard = () => {
         <h2 className="text-2xl font-semibold mb-4 py-4">
           Best Selling Products
         </h2>
-        <table className="w-full border-collapse bg-white shadow-md rounded-md">
+        <table className="w-full border-collapse bg-white shadow-md">
           <thead className="bg-gray-200">
             <tr>
               <th className="p-3 text-center">Product Image</th>
@@ -120,7 +125,7 @@ const Dashboard = () => {
                   <img
                     src={product.product_images[0]}
                     alt={product.name}
-                    className="w-16 h-16 object-cover rounded-md"
+                    className="w-16 h-16 object-cover"
                   />
                 </td>
                 <td className="p-3">{product.name}</td>

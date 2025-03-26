@@ -11,8 +11,12 @@ export const getAllCategories = async (req, res) => {
 
 export const addCategory = async (req, res) => {
   try {
-    const { category, subcategory } = req.body;
-    const newCategory = new Category({ category, subcategory });
+    const { category, subcategory, special_subcategory } = req.body;
+    const newCategory = new Category({
+      category,
+      subcategory,
+      special_subcategory,
+    });
     await newCategory.save();
     res.status(201).json(newCategory);
   } catch (error) {
@@ -24,11 +28,18 @@ export const addCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { category, subcategory, navbar_active } = req.body;
+    const { category, subcategory, special_subcategory, navbar_active } =
+      req.body;
 
     const updatedCategory = await Category.findByIdAndUpdate(
       id,
-      { category, subcategory, navbar_active, updated_at: Date.now() },
+      {
+        category,
+        subcategory,
+        special_subcategory,
+        navbar_active,
+        updated_at: Date.now(),
+      },
       { new: true }
     );
 

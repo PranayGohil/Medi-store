@@ -29,22 +29,20 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       >
         {/* Logo Section */}
         <div className="flex items-center p-3 space-x-3 border-b">
-          <img
-            src="/assets/img/logo.jpg"
-            alt="Logo"
-            className="w-10 h-10"
-          />
+          <img src="/assets/img/logo.jpg" alt="Logo" className="w-10 h-10" />
           <h1 className="text-xl font-bold text-gray-800">Medi-Store</h1>
         </div>
 
         {/* Sidebar Menu */}
-        <ul className="menu p-5 space-y-2">
+        <ul className="menu p-2 space-y-2">
           <li>
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base font-semibold rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -55,8 +53,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/orders"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -67,8 +67,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/categories"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -79,8 +81,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/products"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -91,8 +95,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/reviews"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -103,8 +109,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/feedbacks"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -115,8 +123,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/statistics"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -127,8 +137,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/users"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -139,8 +151,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/discount-coupons"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >
@@ -151,8 +165,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <NavLink
               to="/website-settings"
               className={({ isActive }) =>
-                `flex items-center gap-3 text-base rounded-lg p-2 transition ${
-                  isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
                 }`
               }
             >

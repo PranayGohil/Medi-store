@@ -106,7 +106,7 @@ const Profile = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full max-w-8xl mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full max-w-8xl mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold mb-6">Admin Profile</h1>
 
         <div className="flex mb-4">
@@ -116,7 +116,7 @@ const Profile = () => {
               type="text"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
-              className="p-2 border rounded"
+              className="p-2 border"
             />
           ) : (
             <p>{admin.username}</p>
@@ -130,7 +130,7 @@ const Profile = () => {
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
-              className="p-2 border rounded"
+              className="p-2 border"
             />
           ) : (
             <p>{admin.email}</p>
@@ -148,7 +148,7 @@ const Profile = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-2 border rounded"
+                className="p-2 border"
               />
             </div>
           ) : (
@@ -166,13 +166,13 @@ const Profile = () => {
             <>
               <button
                 onClick={handleUpdate}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-4 py-3 hover:bg-blue-600"
               >
                 Save Changes
               </button>
               <button
                 onClick={() => setEditMode(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                className="bg-gray-500 text-white px-4 py-3 hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -181,13 +181,13 @@ const Profile = () => {
             <>
               <button
                 onClick={() => setEditMode(true)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                className="bg-yellow-500 text-white px-4 py-3 hover:bg-yellow-600"
               >
                 Edit Profile
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-4 py-3 hover:bg-red-600"
               >
                 Logout
               </button>

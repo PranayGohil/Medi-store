@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NestedDropdown from "../components/NestedDropdown";
 
 const ViewOrderDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -132,18 +133,18 @@ const ViewOrderDetails = () => {
 
   return (
     <div className="p-6 bg-gray-100">
-      <div className="bg-white p-6 shadow-lg rounded-lg">
+      <div className="bg-white p-6 shadow-lg">
         <div className="flex flex-wrap justify-between border-b-2">
           <h1 className="text-3xl font-bold mb-3 pb-2">Order Details</h1>
           <div>
             <button
-              className="bg-green-500 hover:bg-green-600 text-white mx-2 py-2 px-4 rounded"
+              className="bg-green-500 hover:bg-green-600 text-white mx-2 py-3 px-4"
               onClick={handleEditStatus}
             >
               Edit Order Status
             </button>
             <button
-              className="bg-red-500 hover:bg-red-600 text-white mx-2 py-2 px-4 rounded"
+              className="bg-red-500 hover:bg-red-600 text-white mx-2 py-3 px-4"
               onClick={handleDeleteOrder}
             >
               Delete Order
@@ -273,9 +274,9 @@ const ViewOrderDetails = () => {
                 order.status_history.map((history, index) => (
                   <li
                     key={index}
-                    className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-col items-center justify-center border-[1px] border-solid border-[#000] rounded-[10px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
+                    className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-col items-center justify-center border-[1px] border-solid border-gray-400 relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
                   >
-                    <span className="number w-[30px] h-[30px] bg-[#000000] text-[#fff] absolute top-[10px] right-[10px] flex items-center justify-center rounded-[30px] font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
+                    <span className="number w-[30px] h-[30px] bg-gray-500 text-[#fff] absolute top-[10px] right-[10px] flex items-center justify-center font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                       {index + 1}
                     </span>
                     <span className="title text-center font-Poppins text-[15px] leading-[22px] tracking-[0.03rem] font-normal text-[#000000]">
@@ -291,37 +292,45 @@ const ViewOrderDetails = () => {
             </ul>
           </div>
         </div>
+        <div className="mb-6 mt-10">
+          <h2 className="text-xl font-bold mb-5 border-b pb-2">
+            Payment Details
+          </h2>
+          <div className="w-full px-[12px] mb-[24px]">
+            <NestedDropdown data={order.payment_details} />
+          </div>
+        </div>
       </div>
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="bg-white p-6 shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">Edit Order Status</h2>
-            <p className="mb-4">Order ID: {order.order_id}</p>
             <select
               value={selectedStatus}
               onChange={handleStatusChange}
-              className="w-full p-3 border rounded-md mb-4"
+              className="w-full p-3 border mb-4 "
             >
+              <option value="" disabled>
+                Select Status
+              </option>
               <option value="Order Placed">Order Placed</option>
-              <option value="Order Confirmed">Order Confirmed</option>
               <option value="Order Processing">Order Processing</option>
               <option value="Dispatched">Dispatched</option>
-              <option value="In Transmit">In Transmit</option>
               <option value="Out for Delivery">Out for Delivery</option>
-              <option value="Order Delivered">Order Delivered</option>
+              <option value="Order Delivered">Delivered</option>
               <option value="Order Cancelled">Order Cancelled</option>
-              <option value="Return Request">Return Request</option>
+              <option value="Return Request">Return Request Confirmed</option>
               <option value="Returned">Returned</option>
             </select>
             <div className="flex justify-end gap-4">
               <button
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-gray-700 py-2 px-4 hover:bg-gray-400 transition"
                 onClick={() => setShowEditModal(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+                className="bg-blue-400 text-white py-2 px-6 hover:bg-blue-500 transition"
                 onClick={handleSaveStatus}
               >
                 Save
@@ -332,7 +341,7 @@ const ViewOrderDetails = () => {
       )}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="bg-white p-6 shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
             <div className="mb-4 text-center">
               <span className="block mb-3">
@@ -344,13 +353,13 @@ const ViewOrderDetails = () => {
             </div>
             <div className="flex justify-end gap-4">
               <button
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-gray-700 py-3 px-4 hover:bg-gray-400 transition"
                 onClick={() => setShowDeleteModal(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
+                className="bg-red-500 text-white py-3 px-4 hover:bg-red-600 transition"
                 onClick={confirmDeleteOrder}
               >
                 Delete

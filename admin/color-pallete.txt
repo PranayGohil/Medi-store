@@ -1,0 +1,9 @@
+#6f42c1 
+-------- #5e38a5
+#007bff
+-------- #0d6efd
+
+supporting colors
+#00cccc
+#0dcaf0
+#17a2b8

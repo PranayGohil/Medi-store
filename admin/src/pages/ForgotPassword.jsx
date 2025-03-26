@@ -84,11 +84,11 @@ const ForgotPassword = () => {
               type="email"
               value={email}
               readOnly
-              className="w-full p-3 border rounded-md mb-4 bg-gray-100 cursor-not-allowed"
+              className="w-full p-3 border  mb-4 bg-gray-100 cursor-not-allowed"
             />
             <button
               onClick={handleSendOtp}
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              className="w-full bg-blue-500 text-white py-3 hover:bg-blue-600"
             >
               Send OTP
             </button>
@@ -103,11 +103,11 @@ const ForgotPassword = () => {
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="w-full p-3 border rounded-md mb-4"
+              className="w-full p-3 border mb-4"
             />
             <button
               onClick={handleVerifyOtp}
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              className="w-full bg-blue-500 text-white py-3 hover:bg-blue-600"
             >
               Verify OTP
             </button>
@@ -122,11 +122,11 @@ const ForgotPassword = () => {
               placeholder="Enter new password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-3 border rounded-md mb-4"
+              className="w-full p-3 border mb-4"
             />
             <button
               onClick={handleResetPassword}
-              className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+              className="w-full bg-green-500 text-white py-3 hover:bg-green-600"
             >
               Reset Password
             </button>

@@ -48,7 +48,12 @@ const SearchResults = () => {
 
     if (category && subcategory) {
       filtered = filtered.filter((product) =>
-        product.categories.some((cat) => (cat.subcategory === subcategory && cat.category === category))
+        product.categories.some(
+          (cat) =>
+            (cat.subcategory === subcategory ||
+              cat.special_subcategory === subcategory) &&
+            cat.category === category
+        )
       );
     }
 

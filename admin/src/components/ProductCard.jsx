@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+import { FaEye, FaEdit } from "react-icons/fa";
 const ProductCard = ({ product, viewMode }) => {
   return (
     <div
-      className={`bg-white shadow-lg rounded-lg p-5 transition-all transform hover:scale-95 hover:shadow-xl ${
+      className={`bg-white shadow-lg p-5 transition-all transform hover:scale-95 hover:shadow-xl ${
         viewMode === "list" ? "flex items-center gap-6 p-4 justify-between" : ""
       }`}
     >
@@ -19,7 +20,7 @@ const ProductCard = ({ product, viewMode }) => {
         <img
           src={product.product_images[0]}
           alt={product.name}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-cover"
           loading="lazy"
         />
       </div>
@@ -41,12 +42,12 @@ const ProductCard = ({ product, viewMode }) => {
         }`}
       >
         <Link to={`/product/product-details/${product._id}`}>
-          <button className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition w-full">
+          <button className="bg-blue-400 text-white py-2 px-4 hover:bg-blue-500 transition w-full">
             View Details
           </button>
         </Link>
         <Link to={`/product/edit-product/${product._id}`}>
-          <button className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition w-full">
+          <button className="bg-green-400 text-white py-2 px-4 hover:bg-green-500 transition w-full">
             Edit Details
           </button>
         </Link>

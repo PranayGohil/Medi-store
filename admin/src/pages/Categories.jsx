@@ -20,6 +20,8 @@ const CategoryManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newSubcategories, setNewSubcategories] = useState([""]);
+  const [newSpecialSubcategories, setNewSpecialSubcategories] = useState([]);
+
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showEditCategoryModal, setShowEditCategoryModal] = useState(false);
@@ -27,6 +29,7 @@ const CategoryManagement = () => {
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editSubcategories, setEditSubcategories] = useState([]);
+  const [editSpecialSubcategories, setEditSpecialSubcategories] = useState([]);
   const [editNavbarActive, setEditNavbarActive] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -63,6 +66,7 @@ const CategoryManagement = () => {
     setNewCategoryName("");
     setSelectedCategory("");
     setNewSubcategories([""]);
+    setNewSpecialSubcategories([]);
     setShowNewCategoryInput(false);
     setShowAddCategoryModal(false);
     setShowEditCategoryModal(false);
@@ -70,6 +74,7 @@ const CategoryManagement = () => {
     setEditCategoryId(null);
     setEditCategoryName("");
     setEditSubcategories([]);
+    setEditSpecialSubcategories([]);
     setEditNavbarActive(false);
   };
 
@@ -87,12 +92,35 @@ const CategoryManagement = () => {
     });
   };
 
+  const handleSpecialSubcategoryChange = (index, value) => {
+    setNewSpecialSubcategories((prevSubcategories) => {
+      const updatedSubcategories = [...prevSubcategories];
+      updatedSubcategories[index] = value;
+      return updatedSubcategories;
+    });
+  };
+
   const addSubcategoryField = () => {
     setNewSubcategories((prevSubcategories) => [...prevSubcategories, ""]);
   };
 
+  const addSpecialSubcategoryField = () => {
+    setNewSpecialSubcategories((prevSubcategories) => [
+      ...prevSubcategories,
+      "",
+    ]);
+  };
+
   const removeSubcategoryField = (index) => {
     setNewSubcategories((prevSubcategories) => {
+      const updatedSubcategories = [...prevSubcategories];
+      updatedSubcategories.splice(index, 1);
+      return updatedSubcategories;
+    });
+  };
+
+  const removeSpecialSubcategoryField = (index) => {
+    setNewSpecialSubcategories((prevSubcategories) => {
       const updatedSubcategories = [...prevSubcategories];
       updatedSubcategories.splice(index, 1);
       return updatedSubcategories;
@@ -111,6 +139,7 @@ const CategoryManagement = () => {
           {
             category: newCategoryName,
             subcategory: newSubcategories,
+            special_subcategory: newSpecialSubcategories,
           },
           {
             headers: {
@@ -132,7 +161,10 @@ const CategoryManagement = () => {
           `${
             import.meta.env.VITE_APP_API_URL
           }/api/category/update/${selectedCategory}`,
-          { subcategory: newSubcategories },
+          {
+            subcategory: newSubcategories,
+            special_subcategory: newSpecialSubcategories,
+          },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -155,6 +187,7 @@ const CategoryManagement = () => {
       // Reset form fields
       setNewCategoryName("");
       setNewSubcategories([""]);
+      setNewSpecialSubcategories([]);
       setSelectedCategory("");
       setShowNewCategoryInput(false);
       setShowAddCategoryModal(false);
@@ -192,6 +225,7 @@ const CategoryManagement = () => {
       setEditCategoryId(categoryId);
       setEditCategoryName(categoryToEdit.category);
       setEditSubcategories([...categoryToEdit.subcategory]);
+      setEditSpecialSubcategories([...categoryToEdit.special_subcategory]);
       setShowAddCategoryModal(false); // Close add modal if open
       setShowEditCategoryModal(true);
     }
@@ -209,12 +243,35 @@ const CategoryManagement = () => {
     });
   };
 
+  const handleEditSpecialSubcategoryChange = (index, value) => {
+    setEditSpecialSubcategories((prevSubcategories) => {
+      const updatedSubcategories = [...prevSubcategories];
+      updatedSubcategories[index] = value;
+      return updatedSubcategories;
+    });
+  };
+
   const addEditSubcategoryField = () => {
     setEditSubcategories((prevSubcategories) => [...prevSubcategories, ""]);
   };
 
+  const addEditSpecialSubcategoryField = () => {
+    setEditSpecialSubcategories((prevSubcategories) => [
+      ...prevSubcategories,
+      "",
+    ]);
+  };
+
   const removeEditSubcategoryField = (index) => {
     setEditSubcategories((prevSubcategories) => {
+      const updatedSubcategories = [...prevSubcategories];
+      updatedSubcategories.splice(index, 1);
+      return updatedSubcategories;
+    });
+  };
+
+  const removeEditSpecialSubcategoryField = (index) => {
+    setEditSpecialSubcategories((prevSubcategories) => {
       const updatedSubcategories = [...prevSubcategories];
       updatedSubcategories.splice(index, 1);
       return updatedSubcategories;
@@ -233,6 +290,7 @@ const CategoryManagement = () => {
         {
           category: editCategoryName,
           subcategory: editSubcategories,
+          special_subcategory: editSpecialSubcategories,
           navbar_active: editNavbarActive,
         },
         {
@@ -319,7 +377,7 @@ const CategoryManagement = () => {
 
   return (
     <div className="p-6 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
@@ -331,7 +389,7 @@ const CategoryManagement = () => {
                 <input
                   type="text"
                   placeholder="Search categories..."
-                  className="input input-bordered w-full pr-10"
+                  className="input input-bordered w-full pr-10 rounded-none"
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -343,14 +401,14 @@ const CategoryManagement = () => {
             {/* Add Product Button */}
             {!showAddCategoryModal ? (
               <button
-                className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+                className="flex items-center bg-blue-400 text-white py-3 px-4 hover:bg-blue-500 transition"
                 onClick={handleOpenAddCategoryModal}
               >
                 <FaPlus className="mr-2" /> Add Category
               </button>
             ) : (
               <button
-                className="flex items-center bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition"
+                className="flex items-center bg-gray-600 text-white py-3 px-6 hover:bg-gray-700 transition"
                 onClick={handleCloseAddCategoryModal}
               >
                 <b> ✕ </b> &nbsp; Close
@@ -360,7 +418,6 @@ const CategoryManagement = () => {
         </div>
 
         <div className="w-full flex gap-4">
-          {/* Left side: Display existing categories */}
           <div className={`${sidebarOpen ? "w-1/2" : "w-full"} `}>
             <div className="p-4">
               <ul className="flex flex-wrap">
@@ -369,15 +426,15 @@ const CategoryManagement = () => {
                     key={category._id}
                     className={`mb-2 p-2 ${sidebarOpen ? "w-1/2" : "w-1/3"} `}
                   >
-                    <div className="bg-white rounded-lg shadow-md p-4 ">
+                    <div className="bg-white border border-gray-300 p-4 ">
                       <div
-                        className="flex justify-between text-lg font-bold text-gray-800 cursor-pointer"
+                        className="flex justify-between text-lg font-bold mb-3 text-gray-800 cursor-pointer"
                         onClick={() => toggleCategoryExpansion(category._id)}
                       >
                         {category.category}
                         <div className="flex items-center">
                           {category.navbar_active && (
-                            <TbLayoutNavbarExpand className="ml-2 bg-green-500 rounded-md p-1" />
+                            <TbLayoutNavbarExpand className="mx-2 bg-green-500 rounded-md p-1" />
                           )}
                           {expandedCategories[category._id] ? (
                             <FaChevronUp className="ml-2" />
@@ -386,7 +443,6 @@ const CategoryManagement = () => {
                           )}
                         </div>
                       </div>
-                      <hr />
                       {expandedCategories[category._id] && (
                         <div>
                           <ul className="pl-10 mt-2 list-disc">
@@ -398,21 +454,32 @@ const CategoryManagement = () => {
                                 {subcategory}
                               </li>
                             ))}
+                            {category.special_subcategory.map(
+                              (special_subcategory, index) => (
+                                <li
+                                  key={index}
+                                  className="text-base text-green-600"
+                                >
+                                  {special_subcategory}
+                                </li>
+                              )
+                            )}
                           </ul>
-                          <hr className="my-2" />
-                          <button
-                            className="flex items-center bg-blue-600 text-white mt-3 py-1 px-4 rounded-lg hover:bg-blue-700 transition"
-                            onClick={() => {
-                              handleEditCategory(category._id);
-                              if (category.navbar_active) {
-                                setEditNavbarActive(true);
-                              } else {
-                                setEditNavbarActive(false);
-                              }
-                            }}
-                          >
-                            <FaEdit className="mr-2" /> Edit
-                          </button>
+                          <div className="flex justify-end">
+                            <button
+                              className="flex items-center bg-blue-400 text-white mt-3 py-2 px-6 hover:bg-blue-500 transition"
+                              onClick={() => {
+                                handleEditCategory(category._id);
+                                if (category.navbar_active) {
+                                  setEditNavbarActive(true);
+                                } else {
+                                  setEditNavbarActive(false);
+                                }
+                              }}
+                            >
+                              <FaEdit className="mr-2" /> Edit
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -422,11 +489,11 @@ const CategoryManagement = () => {
             </div>
           </div>
 
-          {/* Right side: Add category div */}
+          {/* Add Category Modal */}
           {showAddCategoryModal && (
             <div className="md:w-1/2">
               <div className="flex flex-col h-full">
-                <div className="bg-white p-4 rounded-lg shadow-md flex-grow">
+                <div className="bg-white p-4 border border-gray-300 mt-6 flex-grow">
                   <h2 className="text-xl font-semibold mb-4">
                     Add New Category
                   </h2>
@@ -438,7 +505,7 @@ const CategoryManagement = () => {
                         </label>
                         <input
                           type="text"
-                          className="input input-bordered w-full"
+                          className="input input-bordered w-full rounded-none"
                           placeholder="New Category Name"
                           value={newCategoryName}
                           onChange={(e) => setNewCategoryName(e.target.value)}
@@ -454,7 +521,7 @@ const CategoryManagement = () => {
                           <input
                             type="text"
                             placeholder="New Subcategory Name"
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleSubcategoryChange(index, e.target.value)
@@ -462,7 +529,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-error text-white"
+                            className="btn btn-error text-white rounded-none"
                             onClick={() => removeSubcategoryField(index)}
                           >
                             Remove
@@ -473,16 +540,57 @@ const CategoryManagement = () => {
                       {/* Add more subcategories button */}
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline mt-2 w-full"
+                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
                         onClick={addSubcategoryField}
                       >
                         Add More Subcategories
+                      </button>
+
+                      {/* Special Subcategory fields */}
+                      {newSpecialSubcategories.length > 0 && (
+                        <label className="label">
+                          <span className="label-text">
+                            Special Subcategory
+                          </span>
+                        </label>
+                      )}
+                      {newSpecialSubcategories.map((subcategory, index) => (
+                        <div key={index} className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            placeholder="Special Subcategory Name"
+                            className="input input-bordered w-full rounded-none"
+                            value={subcategory}
+                            onChange={(e) =>
+                              handleSpecialSubcategoryChange(
+                                index,
+                                e.target.value
+                              )
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-error text-white rounded-none"
+                            onClick={() => removeSpecialSubcategoryField(index)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Add more subcategories button */}
+                      <button
+                        type="button"
+                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        onClick={addSpecialSubcategoryField}
+                      >
+                        Add Special Subcategories
                       </button>
                     </div>
 
                     <button
                       type="submit"
-                      className="btn btn-primary m-3  hover:bg-blue-700"
+                      className="btn bg-green-400 hover:bg-green-500 float-end text-white mt-2 rounded-none"
                     >
                       Submit
                     </button>
@@ -496,11 +604,11 @@ const CategoryManagement = () => {
           {showEditCategoryModal && (
             <div className="md:w-1/2">
               <div className="flex flex-col h-full">
-                <div className="bg-white p-4 rounded-lg shadow-md flex-grow">
+                <div className="bg-white p-4 border border-gray-300 mt-6 flex-grow">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Edit Category</h2>
                     <button
-                      className="btn btn-sm btn-circle"
+                      className="btn btn-sm btn-circle bg-gray-500 text-white"
                       onClick={handleCloseEditCategoryModal}
                     >
                       ✕
@@ -515,7 +623,7 @@ const CategoryManagement = () => {
                       <input
                         type="text"
                         placeholder="Category Name"
-                        className="input input-bordered w-full"
+                        className="input input-bordered w-full rounded-none"
                         value={editCategoryName}
                         onChange={(e) => setEditCategoryName(e.target.value)}
                       />
@@ -531,7 +639,7 @@ const CategoryManagement = () => {
                           <input
                             type="text"
                             placeholder="Subcategory Name"
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleEditSubcategoryChange(index, e.target.value)
@@ -539,7 +647,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-sm btn-error"
+                            className="btn btn-error text-white  rounded-none"
                             onClick={() => removeEditSubcategoryField(index)}
                           >
                             Remove
@@ -548,14 +656,51 @@ const CategoryManagement = () => {
                       ))}
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline mt-2"
+                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
                         onClick={addEditSubcategoryField}
                       >
                         Add More Subcategories
                       </button>
+                      <label className="label mt-5">
+                        <span className="label-text">
+                          Special Subcategories
+                        </span>
+                      </label>
+                      {editSpecialSubcategories.map((subcategory, index) => (
+                        <div key={index} className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            placeholder="Special Subcategory Name"
+                            className="input input-bordered w-full rounded-none"
+                            value={subcategory}
+                            onChange={(e) =>
+                              handleEditSpecialSubcategoryChange(
+                                index,
+                                e.target.value
+                              )
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-error text-white  rounded-none"
+                            onClick={() =>
+                              removeEditSpecialSubcategoryField(index)
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline mt-2"
+                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        onClick={addEditSpecialSubcategoryField}
+                      >
+                        Add Special Subcategories
+                      </button>
+                      <button
+                        type="button"
+                        className="btn bg-red-400 hover:bg-red-500 text-white mt-2 w-full rounded-none"
                         onClick={() => handleDeleteClick(editCategoryId)}
                       >
                         Remove Category
@@ -574,7 +719,10 @@ const CategoryManagement = () => {
                       </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary">
+                    <button
+                      type="submit"
+                      className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 float-end rounded-none"
+                    >
                       Save Changes
                     </button>
                   </form>

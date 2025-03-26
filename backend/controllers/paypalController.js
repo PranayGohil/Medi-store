@@ -10,7 +10,7 @@ const getAccessToken = async () => {
           grant_type: "client_credentials",
         },
         username: process.env.PAYPAL_CLIENT_ID,
-        password: process.env.PAYPAL_SECRET,
+        password: process.env.PAYPAL_CLIENT_SECRET,
         responseType: "json",
       }
     );
@@ -28,6 +28,7 @@ export const createOrder = async (req, res) => {
 
 
     const accessToken = await getAccessToken();
+    console.log("Access Token:", accessToken);
 
     const response = await got.post(
       `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`,
@@ -42,8 +43,7 @@ export const createOrder = async (req, res) => {
             {
               items: [
                 {
-                  name: "Pranay ki Company",
-                  description: "Pranay ki Company",
+                  name: "Products",
                   quantity: "1",
                   unit_amount: {
                     currency_code: "USD",
@@ -63,13 +63,6 @@ export const createOrder = async (req, res) => {
               },
             },
           ],
-          application_context: {
-            brand_name: "Medi-Store",
-            shipping_preference: "NO_SHIPPING",
-            user_action: "PAY_NOW",
-            return_url: `${process.env.PAYPAL_REDIRECT_URL}/complete`,
-            cancel_url: `${process.env.PAYPAL_REDIRECT_URL}/cancel`,
-          },
         },
         responseType: "json",
       }
@@ -95,8 +88,8 @@ export const captureOrder = async (req, res) => {
   }
 
   try {
-    const response = await got.get(
-      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${orderID}`,
+    const response = await got.post(
+      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${orderID}/capture`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -108,21 +101,11 @@ export const captureOrder = async (req, res) => {
 
     console.log("Order captured:", response.body);
 
-    // Check if PayPal responded with a successful status
     if (response.statusCode === 201 || response.statusCode === 200) {
       const captureData = response.body;
 
-      // Update MongoDB order status
-      await Order.findOneAndUpdate(
-        { order_id: orderID },
-        {
-          payment_status: "completed",
-          paypal_order_id: orderID,
-          payment_details: captureData,
-        }
-      );
-
       res.json({
+        success: true,
         message: "Payment captured successfully",
         data: captureData,
       });

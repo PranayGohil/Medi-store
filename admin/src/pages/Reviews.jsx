@@ -226,7 +226,7 @@ const Reviews = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Product Reviews
         </h1>
@@ -238,7 +238,7 @@ const Reviews = () => {
               placeholder="Search by User, Product, or Comment"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-3 pl-10 border rounded-md"
+              className="w-full p-3 pl-10 border"
             />
             <FaSearch className="absolute top-3 left-3 text-gray-500" />
           </div>
@@ -246,7 +246,7 @@ const Reviews = () => {
           <select
             value={ratingFilter}
             onChange={(e) => setRatingFilter(e.target.value)}
-            className="p-3 border rounded-md w-full md:w-1/3"
+            className="p-3 border w-full md:w-1/3"
           >
             <option value="">All Ratings</option>
             <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
@@ -258,7 +258,7 @@ const Reviews = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th
@@ -346,7 +346,7 @@ const Reviews = () => {
                     </td>
                     <td className="p-3 text-center">
                       <span
-                        className={`px-2 py-1 rounded ${
+                        className={`px-3 py-2 ${
                           review.status === "approved"
                             ? "bg-green-500 text-white"
                             : review.status === "rejected"
@@ -367,7 +367,7 @@ const Reviews = () => {
                               "approved"
                             )
                           }
-                          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center justify-center"
+                          className="bg-green-500 text-white px-4 py-3 hover:bg-green-600 flex items-center justify-center"
                         >
                           <FaCheck className="mr-2" /> Approve
                         </button>
@@ -379,7 +379,7 @@ const Reviews = () => {
                               "rejected"
                             )
                           }
-                          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center justify-center"
+                          className="bg-red-500 text-white px-4 py-3 hover:bg-red-600 flex items-center justify-center"
                         >
                           <FaTimes className="mr-2" /> Reject
                         </button>
@@ -388,7 +388,7 @@ const Reviews = () => {
                       <td className="p-3 flex justify-center gap-2">
                         <button
                           onClick={() => handleOpenModal(review)}
-                          className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 flex items-center justify-center"
+                          className="bg-gray-500 text-white px-4 py-3 hover:bg-gray-600 flex items-center justify-center"
                         >
                           Change Status
                         </button>
@@ -418,34 +418,34 @@ const Reviews = () => {
           containerClassName={"pagination flex justify-center mt-4"}
           subContainerClassName={"pages pagination"}
           activeClassName={"active bg-blue-500 text-white"}
-          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          pageClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border cursor-pointer"}
         />
       </div>
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-md">
+          <div className="bg-white p-6">
             <h2 className="text-lg font-semibold mb-4">Change Review Status</h2>
             <div className="flex justify-end gap-4">
               <button
                 onClick={handleModalApprove}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                className="bg-green-500 text-white px-4 py-3 hover:bg-green-600"
               >
                 Approve
               </button>
               <button
                 onClick={handleModalReject}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                className="bg-red-500 text-white px-4 py-3 hover:bg-red-600"
               >
                 Reject
               </button>
               <button
                 onClick={handleCloseModal}
-                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+                className="bg-gray-300 px-4 py-3 hover:bg-gray-400"
               >
                 Cancel
               </button>

@@ -113,14 +113,14 @@ const Statistics = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="max-w-8xl mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="max-w-8xl mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Reports</h1>
 
         {/* Stat Cards */}
         <div className="flex gap-4 mb-4">
           <button
             onClick={() => setPeriod("daily")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 ${
               period === "daily" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
@@ -128,7 +128,7 @@ const Statistics = () => {
           </button>
           <button
             onClick={() => setPeriod("weekly")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 ${
               period === "weekly" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
@@ -136,7 +136,7 @@ const Statistics = () => {
           </button>
           <button
             onClick={() => setPeriod("monthly")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 ${
               period === "monthly" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
@@ -144,7 +144,7 @@ const Statistics = () => {
           </button>
           <button
             onClick={() => setPeriod("yearly")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 ${
               period === "yearly" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
@@ -152,7 +152,7 @@ const Statistics = () => {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-blue-500 text-white p-6 rounded-lg shadow-md flex items-center">
+          <div className="bg-blue-500 text-white p-6 shadow-md flex items-center">
             <FaUser className="text-4xl mr-4" />
             <div>
               <h2 className="text-2xl font-bold">{report.users}</h2>
@@ -160,7 +160,7 @@ const Statistics = () => {
             </div>
           </div>
 
-          <div className="bg-green-500 text-white p-6 rounded-lg shadow-md flex items-center">
+          <div className="bg-green-500 text-white p-6 shadow-md flex items-center">
             <FaBox className="text-4xl mr-4" />
             <div>
               <h2 className="text-2xl font-bold">{report.orders}</h2>
@@ -168,7 +168,7 @@ const Statistics = () => {
             </div>
           </div>
 
-          <div className="bg-yellow-500 text-white p-6 rounded-lg shadow-md flex items-center">
+          <div className="bg-yellow-500 text-white p-6 shadow-md flex items-center">
             <FaChartBar className="text-4xl mr-4" />
             <div>
               <h2 className="text-2xl font-bold">{report.products}</h2>
@@ -176,7 +176,7 @@ const Statistics = () => {
             </div>
           </div>
 
-          <div className="bg-purple-500 text-white p-6 rounded-lg shadow-md flex items-center">
+          <div className="bg-purple-500 text-white p-6 shadow-md flex items-center">
             <FaDollarSign className="text-4xl mr-4" />
             <div>
               <h2 className="text-2xl font-bold">
@@ -186,11 +186,11 @@ const Statistics = () => {
             </div>
           </div>
         </div>
-
+        <hr className="my-4" />
         {/* Payment Method Distribution */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Payment Methods</h2>
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead className="bg-gray-200">
               <tr>
                 <th className="p-3 text-left">Payment Method</th>
@@ -207,13 +207,13 @@ const Statistics = () => {
             </tbody>
           </table>
         </div>
-
+        <hr className="my-4" />
         {/* Order Status Distribution */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">
             Order Status Distribution
           </h2>
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead className="bg-gray-200">
               <tr>
                 <th className="p-3 text-left">Status</th>
@@ -230,11 +230,11 @@ const Statistics = () => {
             </tbody>
           </table>
         </div>
-
+        <hr className="my-4" />
         {/* Best Selling Products */}
         <div>
           <h2 className="text-2xl font-semibold mb-4">Best Selling Products</h2>
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead className="bg-gray-200">
               <tr>
                 <th className="p-3 text-center">Product Image</th>
@@ -250,7 +250,7 @@ const Statistics = () => {
                     <img
                       src={product.product_images[0]}
                       alt={product.name}
-                      className="w-16 h-16 object-cover rounded-md"
+                      className="w-16 h-16 object-cover"
                     />
                   </td>
                   <td className="p-3">{product.name}</td>

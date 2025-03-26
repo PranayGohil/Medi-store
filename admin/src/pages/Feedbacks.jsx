@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
+  FaEye,
   FaSearch,
   FaReply,
   FaSort,
@@ -135,7 +136,7 @@ const Feedbacks = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Feedbacks</h1>
 
         {/* Search Bar */}
@@ -145,14 +146,14 @@ const Feedbacks = () => {
             placeholder="Search by Name, Email, or Message"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full p-3 pl-10 border rounded-md"
+            className="w-full p-3 pl-10 border rounded-none"
           />
           <FaSearch className="absolute top-3 left-3 text-gray-500" />
         </div>
 
         {/* Feedback Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th
@@ -215,13 +216,13 @@ const Feedbacks = () => {
                     </td>
                     <td className="p-3 text-center flex justify-center gap-2">
                       <Link to={`/feedback-details/${feedback._id}`}>
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                          View
+                        <button className="bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 flex items-center">
+                          <FaEye className="mr-2" /> View
                         </button>
                       </Link>
                       <button
                         onClick={() => handleReply(feedback)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center"
+                        className="bg-green-500 text-white px-4 py-2 hover:bg-green-600 flex items-center"
                       >
                         <FaReply className="mr-2" /> Reply
                       </button>
@@ -252,10 +253,10 @@ const Feedbacks = () => {
           containerClassName={"pagination flex justify-center mt-4"}
           subContainerClassName={"pages pagination"}
           activeClassName={"active bg-blue-500 text-white"}
-          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          pageClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border cursor-pointer"}
         />
       </div>
     </div>

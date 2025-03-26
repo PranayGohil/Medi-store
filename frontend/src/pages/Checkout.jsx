@@ -60,6 +60,12 @@ const Checkout = () => {
     : [];
 
   useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchCartData = async () => {
       try {
         setIsLoading(true);
@@ -189,24 +195,6 @@ const Checkout = () => {
           });
       }
 
-      await axios
-        .delete(`${import.meta.env.VITE_APP_API_URL}/api/cart/clear-cart`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(() => {
-          if (!response.data.success) {
-            toast.error("Failed to clear cart.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error clearing cart:", error);
-          toast.error("Failed to clear cart.");
-        });
-
-      console.log("Order created:", response.data);
-      clearCart();
       toast.success("Order placed successfully!");
       navigate("/order-history");
       // Clear cart or redirect as needed
@@ -251,40 +239,8 @@ const Checkout = () => {
   const handleApprove = async (orderID) => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("token");
-      let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
 
-      const orderData = {
-        order_id: orderID,
-        products: cartItems.map((item) => ({
-          product_id: item.id,
-          net_quantity: item.net_quantity,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        sub_total: subtotal,
-        delivery_charge: delivery_fee,
-        discount: discount,
-        total: total,
-        delivery_address: deliveryAddress,
-        payment_method: paymentMethod,
-        payment_status: "pending",
-        order_status: "Order Placed",
-      };
-
-      const addOrder = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
-        orderData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Order created:", addOrder.data);
-
-      await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/paypal/captureorder`,
         {
           orderID,
@@ -295,6 +251,66 @@ const Checkout = () => {
           },
         }
       );
+
+      if (response.data.success) {
+        const token = localStorage.getItem("token");
+        let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
+
+        const orderData = {
+          order_id: orderID,
+          products: cartItems.map((item) => ({
+            product_id: item.id,
+            net_quantity: item.net_quantity,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          sub_total: subtotal,
+          delivery_charge: delivery_fee,
+          discount: discount,
+          discount_code: couponCode,
+          total: total,
+          delivery_address: deliveryAddress,
+          payment_method: paymentMethod,
+          payment_status: "completed",
+          payment_details: response.data.data,
+          order_status: "Order Placed",
+        };
+
+        const addOrder = await axios.post(
+          `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
+          orderData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!addOrder.data.success) {
+          toast.error(addOrder.data.message);
+          return;
+        }
+
+        const deleteCart = await axios.delete(
+          `${import.meta.env.VITE_APP_API_URL}/api/cart/clear-cart`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!deleteCart.data.success) {
+          toast.error(deleteCart.data.message);
+          return;
+        }
+
+        clearCart();
+
+        console.log("Order created:", addOrder.data);
+      } else {
+        toast.error("Payment Capturing Failed.");
+      }
 
       navigate("/payment-completed");
     } catch (error) {
@@ -335,24 +351,17 @@ const Checkout = () => {
       }
       console.log("Total Amount:" + totalAmount);
       let product_id = "";
-      let quantity = "";
-      cartItems.map(
-        (item) => (
-          (product_id = product_id + item.id + ","),
-          (quantity = quantity + item.quantity + ",")
-        )
-      );
-      console.log("Product ID:" + product_id);
-      console.log("Quantity:" + quantity);
+      cartItems.map((item) => (product_id = product_id + item.id + ","));
+
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/paypal/createorder`,
         {
-          total: "100",
+          total: totalAmount,
           products: [
             {
               product_id: "product_id",
               quantity: "1",
-              price: "100",
+              price: totalAmount,
             },
           ],
         }
@@ -400,8 +409,6 @@ const Checkout = () => {
     setCouponCode("");
     toast.success("Coupon removed!");
   };
-
-  const discountedTotal = (total - discount).toFixed(2);
 
   if (isLoading) {
     return <LoadingSpinner />;

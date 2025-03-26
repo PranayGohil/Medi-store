@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.nav-link.active {
+  background-color: #6f42c1 !important;
+  color: white !important;
+  font-weight: semibold !important;
+}
+
+/* Force custom color for DaisyUI active items */
+[data-active="true"] {
+  background-color: #6f42c1 !important;
+  color: white !important;
+}
+
+/* Ensure hover styles also match */
+[data-active="true"]:hover {
+  background-color: #5e38a5 !important;
+  color: white !important;
+}
+
+input{
+  border-radius: 0px !important;
+}

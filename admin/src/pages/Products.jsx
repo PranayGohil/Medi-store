@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaSearch, FaPlus, FaThLarge, FaList } from "react-icons/fa";
+import { FaSearch, FaPlus, FaThLarge, FaList, FaEye, FaEdit } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
 import { ShopContext } from "../context/ShopContext";
 
@@ -70,7 +70,7 @@ const Products = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/product/add-product")}
-            className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+            className="flex items-center bg-blue-400 text-white py-3 px-4 hover:bg-blue-500 transition"
           >
             <FaPlus className="mr-2" /> Add Product
           </button>
@@ -79,10 +79,10 @@ const Products = () => {
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-        <div className="flex gap-2 bg-gray-300 p-1 rounded-lg">
+        <div className="flex gap-2 bg-gray-300 p-1">
           <button
             onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-lg transition ${
+            className={`p-2 transition ${
               viewMode === "grid"
                 ? "bg-blue-400 text-white"
                 : "bg-gray-300 text-gray-800"
@@ -93,7 +93,7 @@ const Products = () => {
 
           <button
             onClick={() => setViewMode("list")}
-            className={`p-2 rounded-lg transition ${
+            className={`p-2 transition ${
               viewMode === "list"
                 ? "bg-blue-400 text-white"
                 : "bg-gray-300 text-gray-800"
@@ -103,7 +103,7 @@ const Products = () => {
           </button>
         </div>
         <div className="flex justify-end items-center gap-4 w-full md:w-1/2">
-          <div className="flex items-center bg-white shadow-md p-3 rounded-lg">
+          <div className="flex items-center bg-white shadow-md p-3 w-[400px]">
             <FaSearch className="text-gray-500" />
             <input
               type="text"

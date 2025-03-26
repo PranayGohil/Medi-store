@@ -66,7 +66,7 @@ const AdminLogin = () => {
         bottom: 0,
       }}
     >
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white p-8 shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-semibold mb-6">Admin Login</h1>
 
         <form onSubmit={handleSubmit}>
@@ -77,7 +77,7 @@ const AdminLogin = () => {
               placeholder="Enter Email or Username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 border rounded-md"
+              className="w-full p-3 border"
               required
             />
           </div>
@@ -89,14 +89,14 @@ const AdminLogin = () => {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border rounded-md"
+              className="w-full p-3 border"
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3"
           >
             Login
           </button>

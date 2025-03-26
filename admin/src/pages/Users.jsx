@@ -107,7 +107,7 @@ const Users = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Users</h1>
 
         {/* Search & Filter Section */}
@@ -119,7 +119,7 @@ const Users = () => {
               placeholder="Search by Name, Email, or Phone"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-3 pl-10 border rounded-md"
+              className="w-full p-3 pl-10 border"
             />
             <FaSearch className="absolute top-3 left-3 text-gray-500" />
           </div>
@@ -128,7 +128,7 @@ const Users = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-1/4 p-3 border rounded-md"
+            className="w-full md:w-1/4 p-3 border"
           >
             <option value="">All Status</option>
             <option value="Active">Active</option>
@@ -138,7 +138,7 @@ const Users = () => {
 
         {/* Users Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white shadow-md rounded-md">
+          <table className="w-full border-collapse bg-white shadow-md">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th
@@ -208,7 +208,7 @@ const Users = () => {
                     <td className="p-3">
                       <Link
                         to={`/user/user-details/${user._id}`}
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                        className="bg-blue-400 hover:bg-blue-500 text-white py-2 px-4"
                       >
                         View Details
                       </Link>
@@ -238,10 +238,10 @@ const Users = () => {
           containerClassName={"pagination flex justify-center mt-4"}
           subContainerClassName={"pages pagination"}
           activeClassName={"active bg-blue-500 text-white"}
-          pageClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          previousClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          nextClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
-          breakLinkClassName={"px-4 py-2 mx-1 border rounded cursor-pointer"}
+          pageClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          previousClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          nextClassName={"px-4 py-2 mx-1 border cursor-pointer"}
+          breakLinkClassName={"px-4 py-2 mx-1 border cursor-pointer"}
         />
       </div>
     </div>

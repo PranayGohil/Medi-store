@@ -18,6 +18,7 @@ const EditProducts = () => {
   const notifySuccess = () => toast.success("Product Edited Successfully");
   const notifyError = (error) => toast.error("Error Editing Product: " + error);
   const [step, setStep] = useState(1);
+  const [categories, setCategories] = useState([]);
   const [productImages, setProductImages] = useState([]);
   const [manufacturerImage, setManufacturerImage] = useState(null);
   const [newProductImages, setNewProductImages] = useState([]);
@@ -47,6 +48,24 @@ const EditProducts = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/category/all`
+        );
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategoriesData();
+  }, []);
 
   useEffect(() => {
     getProductData();
@@ -181,7 +200,7 @@ const EditProducts = () => {
         .catch((error) => {
           console.error("Error editing product:", error);
           notifyError(error.message || "Something went wrong.");
-        })
+        });
     } catch (error) {
       console.error("Error editing product:", error);
       notifyError(error.message || "Something went wrong.");
@@ -196,7 +215,7 @@ const EditProducts = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className=" mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className=" mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Edit Product
         </h1>
@@ -252,7 +271,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="product_code"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="product_code"
@@ -267,7 +286,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="name"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="name"
@@ -282,7 +301,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="generic_name"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="generic_name"
@@ -297,7 +316,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="manufacturer"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="manufacturer"
@@ -312,7 +331,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="country_of_origin"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="country_of_origin"
@@ -327,7 +346,7 @@ const EditProducts = () => {
                       <Field
                         type="text"
                         name="dosage_form"
-                        className="w-full p-3 border rounded-md"
+                        className="w-full p-3 border"
                       />
                       <ErrorMessage
                         name="dosage_form"
@@ -351,11 +370,27 @@ const EditProducts = () => {
                                   Category
                                 </label>
                                 <Field
-                                  type="text"
+                                  as="select"
                                   name={`categories.${index}.category`}
-                                  placeholder="Category"
-                                  className="w-full p-3 border rounded-md"
-                                />
+                                  className="w-full p-3 border rounded-none"
+                                  onChange={(e) => {
+                                    setFieldValue(
+                                      `categories.${index}.category`,
+                                      e.target.value
+                                    );
+                                    setFieldValue(
+                                      `categories.${index}.subcategory`,
+                                      ""
+                                    );
+                                  }}
+                                >
+                                  <option value="" disabled className="text-center">Select Category</option>
+                                  {categories.map((cat) => (
+                                    <option key={cat._id} value={cat.category}>
+                                      {cat.category}
+                                    </option>
+                                  ))}
+                                </Field>
                                 <ErrorMessage
                                   name={`categories.${index}.category`}
                                   component="div"
@@ -367,11 +402,54 @@ const EditProducts = () => {
                                   Subcategory
                                 </label>
                                 <Field
-                                  type="text"
+                                  as="select"
                                   name={`categories.${index}.subcategory`}
-                                  placeholder="Subcategory"
-                                  className="w-full p-3 border rounded-md"
-                                />
+                                  className="w-full p-3 border rounded-none"
+                                >
+                                  <option
+                                    value=""
+                                    disabled
+                                    className="text-center"
+                                  >
+                                    Select Subcategory
+                                  </option>
+                                  {categories
+                                    .find(
+                                      (cat) =>
+                                        cat.category ===
+                                        values.categories[index].category
+                                    )
+                                    ?.subcategory.map((subcat, subIndex) => (
+                                      <option key={subIndex} value={subcat}>
+                                        {subcat}
+                                      </option>
+                                    ))}
+                                  {categories
+                                    .find(
+                                      (cat) =>
+                                        cat.category ===
+                                        values.categories[index].category
+                                    )
+                                    ?.special_subcategory.map(
+                                      (subcat, subIndex) => (
+                                        <>
+                                          {subIndex === 0 && (
+                                            <option
+                                              value=""
+                                              disabled
+                                              className="text-center"
+                                            >
+                                              Special Subcategories
+                                            </option>
+                                          )}
+
+                                          <option key={subIndex} value={subcat}>
+                                            {subcat}
+                                          </option>
+                                        </>
+                                      )
+                                    )}
+                                </Field>
                                 <ErrorMessage
                                   name={`categories.${index}.subcategory`}
                                   component="div"
@@ -379,11 +457,11 @@ const EditProducts = () => {
                                 />
                               </div>
                               {index > 0 && (
-                                <div>
+                                <div className="flex items-end h-full">
                                   <button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="bg-red-500 text-white px-3 py-2 rounded"
+                                    className="bg-red-400 hover:bg-red-500 text-white px-3 py-3"
                                   >
                                     Remove
                                   </button>
@@ -396,7 +474,7 @@ const EditProducts = () => {
                           onClick={() =>
                             push({ category: "", subcategory: "" })
                           }
-                          className="bg-green-500 text-white px-4 py-2 rounded"
+                          className="bg-green-400 hover:bg-green-500 text-white px-4 py-3"
                         >
                           + Add More
                         </button>
@@ -422,7 +500,7 @@ const EditProducts = () => {
                   <div className="flex flex-wrap gap-4 mt-2">
                     <label
                       htmlFor="productImages"
-                      className="w-24 h-24 border rounded-md flex items-center justify-center cursor-pointer"
+                      className="w-24 h-24 border flex items-center justify-center cursor-pointer"
                     >
                       {/* Upload icon */}
                       <input
@@ -441,14 +519,14 @@ const EditProducts = () => {
                         <img
                           src={image}
                           alt="Product Preview"
-                          className="w-24 h-24 object-cover border rounded-md"
+                          className="w-24 h-24 object-cover border"
                         />
                         <button
                           type="button"
                           onClick={() =>
                             removeProductImage(index, values, setFieldValue)
                           }
-                          className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                          className="absolute top-1 right-1 bg-red-400 text-white text-xs px-2 py-1 rounded-full"
                         >
                           X
                         </button>
@@ -462,7 +540,7 @@ const EditProducts = () => {
                   <div className="flex flex-wrap gap-4 mt-2">
                     <label
                       htmlFor="manufacturerImage"
-                      className="w-24 h-24 border rounded-md flex items-center justify-center cursor-pointer"
+                      className="w-24 h-24 border flex items-center justify-center cursor-pointer"
                     >
                       {/* Upload icon */}
                       <input
@@ -480,12 +558,12 @@ const EditProducts = () => {
                         <img
                           src={manufacturerImage}
                           alt="Manufacturer Preview"
-                          className="w-24 h-24 object-cover border rounded-md"
+                          className="w-24 h-24 object-cover border"
                         />
                         <button
                           type="button"
                           onClick={() => removeManufacturerImage(setFieldValue)}
-                          className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                          className="absolute top-1 right-1 bg-red-400 text-white text-xs px-2 py-1 rounded-full"
                         >
                           X
                         </button>
@@ -564,7 +642,7 @@ const EditProducts = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.net_quantity`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border"
                                 onChange={(e) => {
                                   const value = parseFloat(e.target.value) || 0;
                                   setFieldValue(
@@ -598,7 +676,7 @@ const EditProducts = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.total_price`}
-                                className="w-full p-3 border rounded-md"
+                                className="w-full p-3 border"
                                 onChange={(e) => {
                                   const value = parseFloat(e.target.value) || 0;
                                   setFieldValue(
@@ -632,7 +710,7 @@ const EditProducts = () => {
                               <Field
                                 type="number"
                                 name={`pricing.${index}.unit_price`}
-                                className="w-full p-3 border rounded-md bg-gray-200"
+                                className="w-full p-3 border bg-gray-200"
                                 readOnly
                               />
                               <ErrorMessage
@@ -644,11 +722,11 @@ const EditProducts = () => {
 
                             {/* Remove Button */}
                             {index > 0 && (
-                              <div>
+                              <div className="h-full flex items-end">
                                 <button
                                   type="button"
                                   onClick={() => remove(index)}
-                                  className="bg-red-500 text-white px-3 py-2 rounded"
+                                  className="bg-red-400 hover:bg-red-500 text-white px-3 py-3"
                                 >
                                   Remove
                                 </button>
@@ -667,7 +745,7 @@ const EditProducts = () => {
                               unit_price: "",
                             })
                           }
-                          className="bg-green-500 text-white px-4 py-2 rounded"
+                          className="bg-green-400 hover:bg-green-500 mt-2 text-white px-4 py-3"
                         >
                           + Add More
                         </button>
@@ -700,7 +778,7 @@ const EditProducts = () => {
                   <button
                     type="button"
                     onClick={() => setStep(step - 1)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded"
+                    className="bg-gray-500 text-white px-8 py-3"
                   >
                     Back
                   </button>
@@ -729,14 +807,14 @@ const EditProducts = () => {
                         setStep(step + 1);
                       }
                     }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    className="bg-blue-400 hover:bg-blue-500 text-white px-6 py-3"
                   >
                     Next
                   </button>
                 ) : (
                   <button
                     type="button"
-                    className="bg-green-600 text-white px-4 py-2 rounded"
+                    className="bg-green-400 hover:bg-green-500 text-white px-6 py-3"
                     onClick={() => handleSubmit(values)}
                   >
                     Submit

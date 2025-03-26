@@ -1,6 +1,27 @@
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
+import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import sendEmail from "../config/emailService.js";
+
+const addOrderEmail = async (order) => {
+  const { order_id, user_id, total } = order;
+  const user = await User.findById(user_id);
+  const email = user.email;
+  const subject = "Order Placed Successfully";
+  const html = `<p>Dear ${user.first_name},</p><p>Thank you for your order! Your order number is ${order_id} and the total amount is $${total}.</p>`;
+  await sendEmail({ to: email, subject, html });
+};
+
+const updateOrderStatusEmail = async (order, status) => {
+  const { order_id, user_id } = order;
+  const user = await User.findById(user_id);
+  const email = user.email;
+  const subject = "Order Status Updated";
+  const html = `<p>Dear ${user.first_name},</p><p>Your Order Status is ${status} for order number ${order_id}.</p>`;
+  console.log("Email Info", email, subject, html);
+  await sendEmail({ to: email, subject, html });
+};
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -114,18 +135,19 @@ export const addOrder = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decoded.id;
 
-    console.log("User ID:", userId);
-    console.log("Order Info:", orderData);
+    const order_id = "ORD-" + Date.now() + Math.floor(Math.random() * 1000);
 
     const order = await Order.create({
       ...orderData,
       user_id: userId,
+      order_id,
       status_history: {
         status: orderData.order_status,
         changed_at: new Date(),
       },
-      payment_status: "pending", // Mark it pending initially
     });
+
+    await addOrderEmail(order);
 
     return res.json({ success: true, order });
   } catch (error) {
@@ -159,6 +181,7 @@ export const updateOrderStatus = async (req, res) => {
     });
     order.order_status = order_status;
     await order.save();
+    await updateOrderStatusEmail(order, order_status);
     return res.json({ success: true, order });
   } catch (error) {
     console.log(error);

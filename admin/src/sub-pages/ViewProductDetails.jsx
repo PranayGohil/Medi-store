@@ -82,13 +82,13 @@ const ViewProductDetails = () => {
         </h1>
         <div className="flex gap-4 py-2 px-5">
           <button
-            className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition"
+            className="bg-green-400 text-white py-3 px-4 hover:bg-green-500 transition"
             onClick={() => navigate(`/product/edit-product/${product._id}`)}
           >
             Edit Details
           </button>
           <button
-            className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition"
+            className="bg-red-400 text-white py-3 px-4 hover:bg-red-500 transition"
             onClick={() => setShowModal(true)}
           >
             Remove Product
@@ -97,7 +97,7 @@ const ViewProductDetails = () => {
       </div>
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 shadow-lg rounded-lg">
+        <div className="bg-white p-6 shadow-lg">
           <h2 className="text-lg font-semibold mb-4">Product Images</h2>
 
           {/* Large Main Image */}
@@ -105,7 +105,7 @@ const ViewProductDetails = () => {
             <img
               src={selectedImage}
               alt="Selected Product"
-              className="w-[500px] h-[500px] object-contain rounded-lg shadow-md"
+              className="w-[500px] h-[500px] object-contain shadow-md"
             />
           </div>
 
@@ -116,7 +116,7 @@ const ViewProductDetails = () => {
                 key={index}
                 src={image}
                 alt={`Thumbnail ${index}`}
-                className={`w-20 h-20 object-cover rounded-lg cursor-pointer shadow-md ${
+                className={`w-20 h-20 object-cover cursor-pointer shadow-md ${
                   selectedImage === image ? "border-2 border-blue-500" : ""
                 }`}
                 onClick={() => setSelectedImage(image)}
@@ -124,7 +124,7 @@ const ViewProductDetails = () => {
             ))}
           </div>
         </div>
-        <div className="md:col-span-2 bg-white p-6 shadow-lg rounded-lg">
+        <div className="md:col-span-2 bg-white p-6 shadow-lg">
           {/* Product Information */}
           <h2 className="text-lg font-semibold mb-4">Product Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -154,22 +154,19 @@ const ViewProductDetails = () => {
               <strong>Rating:</strong> {product.rating}
             </p>
           </div>
-
+          <hr className="my-4" />
           {/* Categories */}
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-4">Categories</h2>
             <div className="flex flex-wrap gap-2">
               {product.categories.map((cat, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm"
-                >
+                <span key={index} className="px-5 text-base">
                   {cat.category} ({cat.subcategory})
                 </span>
               ))}
             </div>
           </div>
-
+          <hr className="my-4" />
           {/* Pricing Details */}
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-4">Pricing Details</h2>
@@ -198,21 +195,21 @@ const ViewProductDetails = () => {
               </tbody>
             </table>
           </div>
-
+          <hr className="my-4" />
           {/* Manufacturer Image */}
           <div className="mt-6 text-center">
             <h2 className="text-lg font-semibold mb-4">Manufacturer Image</h2>
             <img
               src={product.manufacturer_image || "/placeholder.jpg"}
               alt="Manufacturer"
-              className="rounded-lg shadow-md w-48 mx-auto"
+              className="shadow-md w-48 mx-auto"
             />
           </div>
         </div>
       </div>
 
       {/* Description */}
-      <div className="bg-white p-6 shadow-lg rounded-lg mt-6">
+      <div className="bg-white p-6 shadow-lg mt-6">
         <h2 className="text-3xl font-semibold mb-4">Description</h2>
         <hr className="border border-black-300 mb-4" />
         <div
@@ -221,7 +218,7 @@ const ViewProductDetails = () => {
         ></div>
       </div>
       {/* Additional Information */}
-      <div className="bg-white p-6 shadow-lg rounded-lg mt-6">
+      <div className="bg-white p-6 shadow-lg mt-6">
         <h2 className="text-3xl font-semibold mb-4">Additional Information</h2>
         <hr className="border border-black-300 mb-4" />
         <div
@@ -231,13 +228,13 @@ const ViewProductDetails = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="bg-white p-6 shadow-lg rounded-lg mt-6">
+      <div className="bg-white p-6 shadow-lg mt-6">
         <h2 className="text-3xl font-semibold mb-4">Reviews</h2>
         <hr className="border border-black-300 mb-4" />
         {product.reviews.length > 0 ? (
           <ul className="space-y-4">
             {product.reviews.map((review, index) => (
-              <li key={index} className="border p-4 rounded-lg bg-gray-50">
+              <li key={index} className="border p-4 bg-gray-50">
                 <p className="text-gray-700">
                   <strong>User:</strong> {review.user_id}
                 </p>
@@ -260,20 +257,20 @@ const ViewProductDetails = () => {
       {/* Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
             <p className="mb-4">
               Are you sure you want to delete this product?
             </p>
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-4 mt-5">
               <button
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-gray-700 py-3 px-6 hover:bg-gray-400 transition"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition"
+                className="bg-red-400 text-white py-3 px-6 hover:bg-red-500 transition"
                 onClick={removeProduct}
               >
                 Delete

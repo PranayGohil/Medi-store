@@ -1,46 +1,77 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
 import {
   FaSearch,
   FaPlus,
   FaChevronDown,
   FaChevronUp,
   FaEdit,
-  FaThLarge,
-  FaList,
 } from "react-icons/fa";
+import { TbLayoutNavbarExpand } from "react-icons/tb";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CategoryManagement = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newSubcategories, setNewSubcategories] = useState([""]);
-
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showEditCategoryModal, setShowEditCategoryModal] = useState(false);
-
   const [expandedCategories, setExpandedCategories] = useState({});
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editSubcategories, setEditSubcategories] = useState([]);
+  const [editNavbarActive, setEditNavbarActive] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState([]);
 
   const fetchCategories = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/category/all`
       );
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCategories();
-  });
+  }, []);
+
+  useEffect(() => {
+    const results = categories.filter((category) =>
+      category.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCategories(results);
+  }, [searchTerm, categories]);
+
+  const resetAllForms = () => {
+    setSidebarOpen(false);
+    setNewCategoryName("");
+    setSelectedCategory("");
+    setNewSubcategories([""]);
+    setShowNewCategoryInput(false);
+    setShowAddCategoryModal(false);
+    setShowEditCategoryModal(false);
+    setExpandedCategories({});
+    setEditCategoryId(null);
+    setEditCategoryName("");
+    setEditSubcategories([]);
+    setEditNavbarActive(false);
+  };
 
   const handleCategoryChange = (event) => {
     const value = event.target.value;
@@ -72,23 +103,50 @@ const CategoryManagement = () => {
     event.preventDefault();
 
     try {
+      setIsLoading(true);
       if (showNewCategoryInput) {
         // Add new category with subcategories
-        await axios.post(
+        const response = await axios.post(
           `${import.meta.env.VITE_APP_API_URL}/api/category/add`,
           {
             category: newCategoryName,
             subcategory: newSubcategories,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
+        if (
+          response.data.success === false &&
+          response.data.message === "Unauthorized"
+        ) {
+          toast.error(response.data.message);
+          navigate("/login");
+          return;
+        }
       } else {
         // Add new subcategories to existing category
-        await axios.put(
+        const response = await axios.put(
           `${
             import.meta.env.VITE_APP_API_URL
           }/api/category/update/${selectedCategory}`,
-          { subcategory: newSubcategories }
+          { subcategory: newSubcategories },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
+        if (
+          response.data.success === false &&
+          response.data.message === "Unauthorized"
+        ) {
+          toast.error(response.data.message);
+          navigate("/login");
+          return;
+        }
       }
 
       // Refresh categories after submission
@@ -99,8 +157,12 @@ const CategoryManagement = () => {
       setNewSubcategories([""]);
       setSelectedCategory("");
       setShowNewCategoryInput(false);
+      setShowAddCategoryModal(false);
+      setSidebarOpen(false);
     } catch (error) {
       console.error("Error adding category/subcategory:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -113,11 +175,7 @@ const CategoryManagement = () => {
   };
 
   const handleCloseAddCategoryModal = () => {
-    setSidebarOpen(false);
-    setShowAddCategoryModal(false);
-    setSelectedCategory("");
-    setShowNewCategoryInput(false);
-    setNewCategoryName("");
+    resetAllForms();
   };
 
   const toggleCategoryExpansion = (categoryId) => {
@@ -127,7 +185,7 @@ const CategoryManagement = () => {
     }));
   };
 
-  const handleEditCategory = (categoryId) => {
+  const handleEditCategory = (categoryId, navbar_active) => {
     const categoryToEdit = categories.find((cat) => cat._id === categoryId);
     if (categoryToEdit) {
       setSidebarOpen(true);
@@ -140,11 +198,7 @@ const CategoryManagement = () => {
   };
 
   const handleCloseEditCategoryModal = () => {
-    setSidebarOpen(false);
-    setShowEditCategoryModal(false);
-    setEditCategoryId(null);
-    setEditCategoryName("");
-    setEditSubcategories([]);
+    resetAllForms();
   };
 
   const handleEditSubcategoryChange = (index, value) => {
@@ -169,29 +223,123 @@ const CategoryManagement = () => {
 
   const handleEditSubmit = async (event) => {
     event.preventDefault();
+
     try {
-      await axios.put(
-        `${import.meta.env.VITE_APP_API_URL}/api/category/update/${editCategoryId}`,
+      setIsLoading(true);
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/category/update/${editCategoryId}`,
         {
           category: editCategoryName,
           subcategory: editSubcategories,
+          navbar_active: editNavbarActive,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
       fetchCategories();
       handleCloseEditCategoryModal();
     } catch (error) {
       console.error("Error updating category:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleDeleteClick = (categoryId) => {
+    setEditCategoryId(categoryId);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.delete(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/category/remove/${editCategoryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
+
+      if (response.data.success === false) {
+        toast.error(response.data.message);
+      } else {
+        toast.success("Category deleted successfully");
+        resetAllForms();
+        fetchCategories();
+      }
+      setShowDeleteConfirmation(false);
+      setEditCategoryId(null);
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category");
+      setShowDeleteConfirmation(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+    setEditCategoryId(null);
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100">
       <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
 
           <div className="flex items-center gap-4">
+            {/* Search Bar */}
+            <div className="">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search categories..."
+                  className="input input-bordered w-full pr-10"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <FaSearch className="text-gray-400" />
+                </div>
+              </div>
+            </div>
             {/* Add Product Button */}
             {!showAddCategoryModal ? (
               <button
@@ -212,16 +360,13 @@ const CategoryManagement = () => {
         </div>
 
         <div className="w-full flex gap-4">
-          {/* Left side: Display existing categories */}
           <div className={`${sidebarOpen ? "w-1/2" : "w-full"} `}>
             <div className="p-4">
               <ul className="flex flex-wrap">
-                {categories.map((category) => (
+                {filteredCategories.map((category) => (
                   <li
                     key={category._id}
-                    className={`mb-2 p-2 ${
-                      sidebarOpen ? "w-1/2" : "w-1/3"
-                    } `}
+                    className={`mb-2 p-2 ${sidebarOpen ? "w-1/2" : "w-1/3"} `}
                   >
                     <div className="bg-white rounded-lg shadow-md p-4 ">
                       <div
@@ -229,11 +374,16 @@ const CategoryManagement = () => {
                         onClick={() => toggleCategoryExpansion(category._id)}
                       >
                         {category.category}
-                        {expandedCategories[category._id] ? (
-                          <FaChevronUp className="ml-2" />
-                        ) : (
-                          <FaChevronDown className="ml-2" />
-                        )}
+                        <div className="flex items-center">
+                          {category.navbar_active && (
+                            <TbLayoutNavbarExpand className="ml-2 bg-green-500 rounded-md p-1" />
+                          )}
+                          {expandedCategories[category._id] ? (
+                            <FaChevronUp className="ml-2" />
+                          ) : (
+                            <FaChevronDown className="ml-2" />
+                          )}
+                        </div>
                       </div>
                       <hr />
                       {expandedCategories[category._id] && (
@@ -251,7 +401,14 @@ const CategoryManagement = () => {
                           <hr className="my-2" />
                           <button
                             className="flex items-center bg-blue-600 text-white mt-3 py-1 px-4 rounded-lg hover:bg-blue-700 transition"
-                            onClick={() => handleEditCategory(category._id)}
+                            onClick={() => {
+                              handleEditCategory(category._id);
+                              if (category.navbar_active) {
+                                setEditNavbarActive(true);
+                              } else {
+                                setEditNavbarActive(false);
+                              }
+                            }}
                           >
                             <FaEdit className="mr-2" /> Edit
                           </button>
@@ -264,43 +421,28 @@ const CategoryManagement = () => {
             </div>
           </div>
 
-          {/* Right side: Add category div */}
+          {/* Add Category Modal */}
           {showAddCategoryModal && (
             <div className="md:w-1/2">
               <div className="flex flex-col h-full">
                 <div className="bg-white p-4 rounded-lg shadow-md flex-grow">
+                  <h2 className="text-xl font-semibold mb-4">
+                    Add New Category
+                  </h2>
                   <form onSubmit={handleSubmit}>
                     <div>
-                      <select
-                        value={selectedCategory}
-                        className="input input-bordered w-full"
-                        onChange={handleCategoryChange}
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((category) => (
-                          <option key={category._id} value={category._id}>
-                            {category.category}
-                          </option>
-                        ))}
-                        <option value="add-new-category">
-                          Add New Category
-                        </option>
-                      </select>
-
-                      {showNewCategoryInput && (
-                        <div>
-                          <label className="label">
-                            <span className="label-text">Category Name</span>
-                          </label>
-                          <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            placeholder="New Category Name"
-                            value={newCategoryName}
-                            onChange={(e) => setNewCategoryName(e.target.value)}
-                          />
-                        </div>
-                      )}
+                      <div>
+                        <label className="label">
+                          <span className="label-text">Category Name</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input input-bordered w-full"
+                          placeholder="New Category Name"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                        />
+                      </div>
 
                       {/* Subcategory fields */}
                       <label className="label">
@@ -410,12 +552,59 @@ const CategoryManagement = () => {
                       >
                         Add More Subcategories
                       </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline mt-2"
+                        onClick={() => handleDeleteClick(editCategoryId)}
+                      >
+                        Remove Category
+                      </button>
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="mr-2 mt-3"
+                          id="editNavbarActive"
+                          checked={editNavbarActive}
+                          onChange={(e) =>
+                            setEditNavbarActive(e.target.checked)
+                          }
+                        />
+                        <label htmlFor="editNavbarActive">Show in Navbar</label>
+                      </div>
                     </div>
 
                     <button type="submit" className="btn btn-primary">
                       Save Changes
                     </button>
                   </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation Modal */}
+          {showDeleteConfirmation && (
+            <div className="fixed top-0 left-0 z-50 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+                <p>Are you sure you want to delete this category? </p>
+                <h2 className="text-lg text-center font-bold mb-4">
+                  {" "}
+                  {editCategoryName}{" "}
+                </h2>
+                <div className="flex justify-end mt-4">
+                  <button
+                    className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+                    onClick={cancelDelete}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    onClick={confirmDelete}
+                  >
+                    Confirm
+                  </button>
                 </div>
               </div>
             </div>

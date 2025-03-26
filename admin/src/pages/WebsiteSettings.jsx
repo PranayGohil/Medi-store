@@ -231,7 +231,7 @@ const WebsiteSettings = () => {
 
   return (
     <div className="p-8 bg-gray-100">
-      <div className="w-full mx-auto bg-white shadow-md rounded-lg p-6">
+      <div className="w-full mx-auto bg-white shadow-md p-6">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Website Settings
         </h1>
@@ -242,14 +242,14 @@ const WebsiteSettings = () => {
             {!bannerGuide ? (
               <button
                 onClick={() => bannerGuideOpen()}
-                className="bg-blue-500 mx-2 hover:bg-blue-600 text-white py-2 px-4 rounded-md mb-4"
+                className="bg-blue-500 mx-2 hover:bg-blue-600 text-white py-3 px-4 mb-4"
               >
                 Banner Guide
               </button>
             ) : (
               <button
                 onClick={() => bannerGuideClose()}
-                className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-2 px-4 rounded-md mb-4"
+                className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-3 px-4 mb-4"
               >
                 Close Guide
               </button>
@@ -257,14 +257,14 @@ const WebsiteSettings = () => {
             {!showAddBannerForm ? (
               <button
                 onClick={() => addBannerFormOpen()}
-                className="bg-blue-500 mx-2 hover:bg-blue-600 text-white py-2 px-4 rounded-md mb-4"
+                className="bg-blue-500 mx-2 hover:bg-blue-600 text-white py-3 px-4 mb-4"
               >
                 Add banner
               </button>
             ) : (
               <button
                 onClick={() => addBannerFormClose()}
-                className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-2 px-4 rounded-md mb-4"
+                className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-3 px-4 mb-4"
               >
                 Close Guide
               </button>
@@ -287,7 +287,7 @@ const WebsiteSettings = () => {
                 </label>
                 <label
                   htmlFor="banner-image"
-                  className="w-full h-40 object-cover border rounded-md flex flex-col items-center justify-center cursor-pointer"
+                  className="w-full h-64 object-cover border flex flex-col items-center justify-center cursor-pointer"
                 >
                   {imagePreview ? (
                     <img
@@ -338,7 +338,7 @@ const WebsiteSettings = () => {
                     name="discription"
                     value={newBanner.discription}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 border rounded-md w-full"
+                    className="mt-1 p-3 border w-full mb-4"
                   />
                 </div>
                 <div>
@@ -350,7 +350,7 @@ const WebsiteSettings = () => {
                     name="title1"
                     value={newBanner.title1}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 border rounded-md w-full"
+                    className="mt-1 p-3 border w-full mb-4"
                   />
                 </div>
                 <div>
@@ -362,7 +362,7 @@ const WebsiteSettings = () => {
                     name="title2"
                     value={newBanner.title2}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 border rounded-md w-full"
+                    className="mt-1 p-3 border w-full mb-4"
                   />
                 </div>
                 <div>
@@ -374,14 +374,14 @@ const WebsiteSettings = () => {
                     name="title3"
                     value={newBanner.title3}
                     onChange={handleInputChange}
-                    className="mt-1 p-2 border rounded-md w-full"
+                    className="mt-1 p-3 border w-full mb-4"
                   />
                 </div>
               </div>
             </div>
             <button
               type="submit"
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+              className="mt-4 bg-blue-400 hover:bg-blue-500 text-white py-2 px-4"
               disabled={isLoading}
             >
               Add Banner
@@ -391,7 +391,7 @@ const WebsiteSettings = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {banners.map((banner, index) => (
-            <div key={index} className="border rounded-md p-4">
+            <div key={index} className="border p-4">
               <img
                 src={banner.image}
                 alt="Banner"
@@ -402,7 +402,7 @@ const WebsiteSettings = () => {
               <p>Title 2: {banner.title2}</p>
               <p>Title 3: {banner.title3}</p>
               <button
-                className="mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+                className="mt-4 bg-red-400 hover:bg-red-500 text-white py-3 px-4"
                 onClick={() => handleRemoveBanner(banner._id)}
               >
                 Remove
@@ -417,44 +417,44 @@ const WebsiteSettings = () => {
             </h2>
           </div>
         </div>
-        <div className="mt-4 flex felx-wrap align-center">
+        <div className="mt-4 flex felx-wrap items-center">
           <label className="text-base font-medium text-gray-700 mx-5 flex align-center justify-center">
             Delivery Charge :
           </label>
           {changeDeliveryCharge || deliveryCharges === "" ? (
             <div>
-              {currency}
+              {currency} {" "}
               <input
                 type="number"
                 name="delivery_charge"
                 value={newDeliveryCharge}
                 onChange={(e) => setNewDeliveryCharge(e.target.value)}
-                className="border rounded-md mx-3 px-3 h-full"
+                className="p-2 pl-10 border"
               />
               <button
                 type="button"
                 onClick={handleAddDeliveryCharge}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded mx-3"
+                className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 mx-3"
               >
                 Add Delivery Charge
               </button>
               <button
                 type="button"
                 onClick={() => setChangeDeliveryCharge(false)}
-                className="bg-gray-500 hover:bg-greay-600 text-white py-1 px-4 rounded mx-3"
+                className="bg-gray-500 hover:bg-greay-600 text-white py-3 px-4 mx-3"
               >
                 Cancel
               </button>
             </div>
           ) : (
-            <div className="flex align-center">
+            <div className="flex items-center align-center">
               <label className="block text-base font-medium text-gray-700 mx-3">
                 {currency} {deliveryCharges}
               </label>
               <button
                 type="button"
                 onClick={() => setChangeDeliveryCharge(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded mx-3"
+                className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 mx-3"
               >
                 Change
               </button>
