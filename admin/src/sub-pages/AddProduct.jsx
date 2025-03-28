@@ -12,7 +12,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { fetchProducts } = useContext(ShopContext);
+  const { fetchProducts, currency } = useContext(ShopContext);
   const notifySuccess = () => toast.success("Product Added Successfully");
   const notifyError = (error) => toast.error("Error Adding Product: " + error);
   const [step, setStep] = useState(1);
@@ -689,7 +689,7 @@ const AddProduct = () => {
                             {/* Total Price */}
                             <div>
                               <label className="block text-gray-600 font-medium">
-                                Total Price
+                                Total Price ({currency})
                               </label>
                               <Field
                                 type="number"
@@ -723,7 +723,7 @@ const AddProduct = () => {
                             {/* Unit Price (Read-Only) */}
                             <div>
                               <label className="block text-gray-600 font-medium">
-                                Unit Price
+                                Unit Price ({currency})
                               </label>
                               <Field
                                 type="number"
@@ -826,7 +826,9 @@ const AddProduct = () => {
                       }
                     }}
                     className={`${
-                      step === 4 ? "bg-green-400 hover:bg-green-500" : "bg-blue-400 hover:bg-blue-500"
+                      step === 4
+                        ? "bg-green-400 hover:bg-green-500"
+                        : "bg-blue-400 hover:bg-blue-500"
                     } text-white px-6 py-3`}
                   >
                     {step === 4 ? "Submit" : "Next"}

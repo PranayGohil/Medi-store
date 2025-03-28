@@ -389,6 +389,11 @@ const WebsiteSettings = () => {
           </form>
         )}
 
+        {banners.length === 0 && (
+          <p className="text-gray-600 w-full text-center my-5">
+            No banners found.
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {banners.map((banner, index) => (
             <div key={index} className="border p-4">
@@ -423,7 +428,7 @@ const WebsiteSettings = () => {
           </label>
           {changeDeliveryCharge || deliveryCharges === "" ? (
             <div>
-              {currency} {" "}
+              {currency}{" "}
               <input
                 type="number"
                 name="delivery_charge"

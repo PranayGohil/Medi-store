@@ -3,17 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import nodemailer from "nodemailer";
+import sendEmail from "../config/emailService.js";
 
 const otpStore = {};
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-      user: 'adelbert.gutmann30@ethereal.email',
-      pass: '5vXzdPczrSfUdZmAy4'
-  }
-});
 
 export const adminLogin = async (req, res) => {
   try {
@@ -170,13 +162,12 @@ export const sendOtp = async (req, res) => {
 
     // Send OTP via Email
     const mailOptions = {
-      from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`,
+      html: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
 
     res.json({ success: true, message: "OTP sent to your email" });
 

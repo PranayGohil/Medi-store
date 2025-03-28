@@ -380,7 +380,9 @@ const CategoryManagement = () => {
       <div className="w-full mx-auto bg-white shadow-md p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
+          <h1 className="text-3xl font-semibold text-gray-800">
+            Manage Categories
+          </h1>
 
           <div className="flex items-center gap-4">
             {/* Search Bar */}
@@ -421,70 +423,76 @@ const CategoryManagement = () => {
           <div className={`${sidebarOpen ? "w-1/2" : "w-full"} `}>
             <div className="p-4">
               <ul className="flex flex-wrap">
-                {filteredCategories.map((category) => (
-                  <li
-                    key={category._id}
-                    className={`mb-2 p-2 ${sidebarOpen ? "w-1/2" : "w-1/3"} `}
-                  >
-                    <div className="bg-white border border-gray-300 p-4 ">
-                      <div
-                        className="flex justify-between text-lg font-bold mb-3 text-gray-800 cursor-pointer"
-                        onClick={() => toggleCategoryExpansion(category._id)}
-                      >
-                        {category.category}
-                        <div className="flex items-center">
-                          {category.navbar_active && (
-                            <TbLayoutNavbarExpand className="mx-2 bg-green-500 rounded-md p-1" />
-                          )}
-                          {expandedCategories[category._id] ? (
-                            <FaChevronUp className="ml-2" />
-                          ) : (
-                            <FaChevronDown className="ml-2" />
-                          )}
-                        </div>
-                      </div>
-                      {expandedCategories[category._id] && (
-                        <div>
-                          <ul className="pl-10 mt-2 list-disc">
-                            {category.subcategory.map((subcategory, index) => (
-                              <li
-                                key={index}
-                                className="text-base text-gray-600"
-                              >
-                                {subcategory}
-                              </li>
-                            ))}
-                            {category.special_subcategory.map(
-                              (special_subcategory, index) => (
-                                <li
-                                  key={index}
-                                  className="text-base text-green-600"
-                                >
-                                  {special_subcategory}
-                                </li>
-                              )
+                {filteredCategories.length === 0 ? (
+                  <p className="text-gray-500 text-center w-full mt-5">No categories found</p>
+                ) : (
+                  filteredCategories.map((category) => (
+                    <li
+                      key={category._id}
+                      className={`mb-2 p-2 ${sidebarOpen ? "w-1/2" : "w-1/3"} `}
+                    >
+                      <div className="bg-white border border-gray-300 p-4 ">
+                        <div
+                          className="flex justify-between text-lg font-bold mb-3 text-gray-800 cursor-pointer"
+                          onClick={() => toggleCategoryExpansion(category._id)}
+                        >
+                          {category.category}
+                          <div className="flex items-center">
+                            {category.navbar_active && (
+                              <TbLayoutNavbarExpand className="mx-2 bg-green-500 rounded-md p-1" />
                             )}
-                          </ul>
-                          <div className="flex justify-end">
-                            <button
-                              className="flex items-center bg-blue-400 text-white mt-3 py-2 px-6 hover:bg-blue-500 transition"
-                              onClick={() => {
-                                handleEditCategory(category._id);
-                                if (category.navbar_active) {
-                                  setEditNavbarActive(true);
-                                } else {
-                                  setEditNavbarActive(false);
-                                }
-                              }}
-                            >
-                              <FaEdit className="mr-2" /> Edit
-                            </button>
+                            {expandedCategories[category._id] ? (
+                              <FaChevronUp className="ml-2" />
+                            ) : (
+                              <FaChevronDown className="ml-2" />
+                            )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                        {expandedCategories[category._id] && (
+                          <div>
+                            <ul className="pl-10 mt-2 list-disc">
+                              {category.subcategory.map(
+                                (subcategory, index) => (
+                                  <li
+                                    key={index}
+                                    className="text-base text-gray-600"
+                                  >
+                                    {subcategory}
+                                  </li>
+                                )
+                              )}
+                              {category.special_subcategory.map(
+                                (special_subcategory, index) => (
+                                  <li
+                                    key={index}
+                                    className="text-base text-green-600"
+                                  >
+                                    {special_subcategory}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                            <div className="flex justify-end">
+                              <button
+                                className="flex items-center bg-blue-400 text-white mt-3 py-2 px-6 hover:bg-blue-500 transition"
+                                onClick={() => {
+                                  handleEditCategory(category._id);
+                                  if (category.navbar_active) {
+                                    setEditNavbarActive(true);
+                                  } else {
+                                    setEditNavbarActive(false);
+                                  }
+                                }}
+                              >
+                                <FaEdit className="mr-2" /> Edit
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
           </div>

@@ -153,6 +153,13 @@ const DiscountCoupons = () => {
               </tr>
             </thead>
             <tbody>
+              {filteredCoupons.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="p-3 text-center">
+                    No coupons found
+                  </td>
+                </tr>
+              )}
               {filteredCoupons.map((coupon) => (
                 <React.Fragment key={coupon._id}>
                   <tr

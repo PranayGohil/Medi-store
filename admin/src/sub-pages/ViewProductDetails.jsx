@@ -4,6 +4,10 @@ import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { CgUnavailable } from "react-icons/cg";
+import { IoMdCheckmarkCircle } from "react-icons/io";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 const ViewProductDetails = () => {
   const navigate = useNavigate();
@@ -17,24 +21,24 @@ const ViewProductDetails = () => {
   const errorDelete = (error) =>
     toast.error("Error Deleting Product: " + error);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/api/product/single/${id}`
-        );
-        setProduct(response.data.product);
-        if (response.data.product.product_images.length > 0) {
-          setSelectedImage(response.data.product.product_images[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-      } finally {
-        setIsLoading(false);
+  const fetchProduct = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/product/single/${id}`
+      );
+      setProduct(response.data.product);
+      if (response.data.product.product_images.length > 0) {
+        setSelectedImage(response.data.product.product_images[0]);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProduct();
   }, [id]);
 
@@ -69,6 +73,38 @@ const ViewProductDetails = () => {
     setShowModal(false); // Close modal after delete
   };
 
+  const toggleAvailability = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/product/change-available-status/${product._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
+      fetchProduct();
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error in Change availability: " + error);
+      console.error("Error in Change availability: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!product || isLoading) {
     return <LoadingSpinner />;
   }
@@ -82,16 +118,16 @@ const ViewProductDetails = () => {
         </h1>
         <div className="flex gap-4 py-2 px-5">
           <button
-            className="bg-green-400 text-white py-3 px-4 hover:bg-green-500 transition"
+            className="flex items-center bg-green-400 text-white py-3 px-4 hover:bg-green-500 transition"
             onClick={() => navigate(`/product/edit-product/${product._id}`)}
           >
-            Edit Details
+            <FaEdit className="mr-2" /> Edit Details
           </button>
           <button
-            className="bg-red-400 text-white py-3 px-4 hover:bg-red-500 transition"
+            className="flex items-center bg-red-400 text-white py-3 px-4 hover:bg-red-500 transition"
             onClick={() => setShowModal(true)}
           >
-            Remove Product
+            <MdDelete className="mr-2" /> Remove Product
           </button>
         </div>
       </div>
@@ -152,6 +188,25 @@ const ViewProductDetails = () => {
             </p>
             <p>
               <strong>Rating:</strong> {product.rating}
+            </p>
+            <p>
+              <strong>Available: </strong> {product.available ? "Yes" : "No"}
+              <br />
+              {product.available ? (
+                <button
+                  className="flex items-center bg-red-400 text-white py-1 px-4 mt-2 hover:bg-red-500 transition"
+                  onClick={() => toggleAvailability()}
+                >
+                  <CgUnavailable className="mr-2" /> Mark as Unavailable
+                </button>
+              ) : (
+                <button
+                  className="flex items-center bg-green-400 text-white py-1 px-4 mt-2 hover:bg-green-500 transition"
+                  onClick={() => toggleAvailability()}
+                >
+                  <IoMdCheckmarkCircle className="mr-2" /> Mark as Available
+                </button>
+              )}
             </p>
           </div>
           <hr className="my-4" />

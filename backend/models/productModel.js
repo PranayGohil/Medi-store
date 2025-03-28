@@ -19,20 +19,23 @@ const productSchema = new mongoose.Schema({
   information: { type: String, required: true },
   pricing: [
     {
-        net_quantity: { type: Number, required: true },
-        total_price: { type: Number, required: true },
-        unit_price: { type: Number, required: true },
-    }
+      net_quantity: { type: Number, required: true },
+      total_price: { type: Number, required: true },
+      unit_price: { type: Number, required: true },
+    },
   ],
   prescription_required: { type: Boolean, required: true },
+  available: { type: Boolean, default: true },
   rating: { type: Number, default: 0 },
-  reviews: [{
-    user_id: { type: String },
-    comment: { type: String },
-    rating: { type: Number },
-    status: { type: String },
-    created_at: { type: Date, default: Date.now },
-  }],
+  reviews: [
+    {
+      user_id: { type: String },
+      comment: { type: String },
+      rating: { type: Number },
+      status: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
   best_seller: { type: Boolean, default: false },
   alias: { type: String, required: true },
   created_at: { type: Date, default: Date.now },

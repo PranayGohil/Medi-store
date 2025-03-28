@@ -62,7 +62,7 @@ const Products = () => {
   }, [filteredProducts, isLoadingMore]);
 
   return (
-    <div className="p-6 bg-gray-50">
+    <div className="p-6 bg-gray-100">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
@@ -117,6 +117,7 @@ const Products = () => {
       </div>
 
       {/* Product Display Section */}
+      {filteredProducts.length === 0 && <p className="text-gray-500 w-full mt-5 text-center">No products found.</p>}
       <div
         className={
           viewMode === "grid"

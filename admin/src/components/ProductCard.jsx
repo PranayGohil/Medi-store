@@ -33,6 +33,9 @@ const ProductCard = ({ product, viewMode }) => {
           Manufacturer:{" "}
           <span className="font-semibold">{product.manufacturer}</span>
         </p>
+        {!product.available && (
+          <p className="text-sm font-semibold text-red-600">Out of Stock</p>
+        )}
       </div>
 
       {/* Buttons */}

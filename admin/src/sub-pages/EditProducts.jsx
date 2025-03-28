@@ -13,7 +13,7 @@ const EditProducts = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { fetchProducts } = useContext(ShopContext);
+  const { fetchProducts, currency } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const notifySuccess = () => toast.success("Product Edited Successfully");
   const notifyError = (error) => toast.error("Error Editing Product: " + error);
@@ -384,7 +384,13 @@ const EditProducts = () => {
                                     );
                                   }}
                                 >
-                                  <option value="" disabled className="text-center">Select Category</option>
+                                  <option
+                                    value=""
+                                    disabled
+                                    className="text-center"
+                                  >
+                                    Select Category
+                                  </option>
                                   {categories.map((cat) => (
                                     <option key={cat._id} value={cat.category}>
                                       {cat.category}
@@ -671,7 +677,7 @@ const EditProducts = () => {
                             {/* Total Price */}
                             <div>
                               <label className="block text-gray-600 font-medium">
-                                Total Price
+                                Total Price ({currency})
                               </label>
                               <Field
                                 type="number"
@@ -705,7 +711,7 @@ const EditProducts = () => {
                             {/* Unit Price (Read-Only) */}
                             <div>
                               <label className="block text-gray-600 font-medium">
-                                Unit Price
+                                Unit Price ({currency})
                               </label>
                               <Field
                                 type="number"

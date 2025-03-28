@@ -1,7 +1,6 @@
 import Product from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import path from "path";
 
 const addProduct = async (req, res) => {
   try {
@@ -221,6 +220,22 @@ const productSuggestions = async (req, res) => {
     return res.json({ success: false, message: error.message });
   }
 };
+
+export const changeAvailableStatus = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+    product.available = !product.available;
+    await product.save();
+    return res.json({ success: true, product, message: "Product updated." });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+}
 
 const addReview = async (req, res) => {
   try {
