@@ -8,6 +8,7 @@ import { CgUnavailable } from "react-icons/cg";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import "react-quill/dist/quill.snow.css";
 
 const ViewProductDetails = () => {
   const navigate = useNavigate();
@@ -268,7 +269,7 @@ const ViewProductDetails = () => {
         <h2 className="text-3xl font-semibold mb-4">Description</h2>
         <hr className="border border-black-300 mb-4" />
         <div
-          className="text-gray-700"
+          className="prose max-w-full ql-editor text-gray-700"
           dangerouslySetInnerHTML={{ __html: product.description }}
         ></div>
       </div>
@@ -277,7 +278,7 @@ const ViewProductDetails = () => {
         <h2 className="text-3xl font-semibold mb-4">Additional Information</h2>
         <hr className="border border-black-300 mb-4" />
         <div
-          className="text-gray-700"
+          className="prose max-w-full ql-editor w-full text-gray-700"
           dangerouslySetInnerHTML={{ __html: product.information }}
         ></div>
       </div>

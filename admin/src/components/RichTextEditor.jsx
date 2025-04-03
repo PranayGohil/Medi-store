@@ -1,22 +1,9 @@
-import React, { useRef } from "react";
-import JoditEditor from "jodit-react";
+import React from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import styles
 
 const RichTextEditor = ({ value, onChange }) => {
-  const editor = useRef(null);
-
-  const config = {
-    height: 300, // Set the height to 300px (adjust as needed)
-    placeholder: "Write here...",
-  };
-
-  return (
-    <JoditEditor
-      ref={editor}
-      value={value}
-      config={config}
-      onBlur={(newContent) => onChange(newContent)}
-    />
-  );
+  return <ReactQuill theme="snow" value={value} onChange={onChange} />;
 };
 
 export default RichTextEditor;

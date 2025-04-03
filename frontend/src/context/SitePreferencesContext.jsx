@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 export const SitePreferencesContext = createContext();
 
 export const SitePreferencesContextProvider = (props) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [banners, setBanners] = useState([]);
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const fetchSitePreferences = async () => {

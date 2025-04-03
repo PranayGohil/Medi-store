@@ -2,26 +2,20 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
-import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
-import { LocationContext } from "../context/LocationContext";
 import { CartContext } from "../context/CartContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Cart = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [cartItems, setCartItems] = useState([]);
-  const [totalCartPrice, setTotalCartPrice] = useState(0);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { user } = useContext(AuthContext);
-  const { updateLocationData } = useContext(LocationContext);
   const { removeItemFromCart } = useContext(CartContext);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0);
 
   const notifySuccess = (message) => toast.success(message);
   const notifyError = (message) => toast.error(message);
@@ -39,7 +33,7 @@ const Cart = () => {
         }
       );
       setCartItems(response.data.cartItems);
-      setTotalCartPrice(response.data.totalCartPrice);
+      setCartTotal(response.data.totalCartPrice);
     } catch (error) {
       console.error("Error fetching cart data:", error);
     } finally {
@@ -51,25 +45,45 @@ const Cart = () => {
     if (user) {
       fetchCartData();
     } else {
+      console.log("User is not logged in.");
       notifyError("Please login to view your cart.");
       navigate("/login");
     }
   }, [user]);
 
-  const handleQuantityChange = (id, value) => {
-    const updatedCart = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: Math.max(1, value) } : item
-    );
-    setCartItems(updatedCart);
-    // You'll need to update the backend here
+  const handleQuantityChange = async (id, value) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/change-quantity/${id}`,
+        {
+          quantity: value,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data);
+      if (response.data.success) {
+        fetchCartData();
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRemove = async (id) => {
+  const handleRemove = async (id, net_quantity) => {
+    console.log("Removing item with ID:", id, net_quantity);
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.delete(
-        `${import.meta.env.VITE_APP_API_URL}/api/cart/remove-from-cart/${id}`,
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/remove-from-cart/${id}/${net_quantity}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -79,7 +93,7 @@ const Cart = () => {
       console.log(response.data);
       if (response.data.success) {
         notifySuccess(response.data.message);
-        removeItemFromCart(id);
+        removeItemFromCart(id, net_quantity);
         fetchCartData();
       }
     } catch (error) {
@@ -88,30 +102,6 @@ const Cart = () => {
       setIsLoading(false);
     }
   };
-
-  const calculateTotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-  };
-
-  const handleLocationChange = () => {
-    updateLocationData({
-      country: selectedCountry,
-      state: selectedState,
-      city: selectedCity,
-      pincode: document.getElementById("Zip-code").value, // Get pincode from input
-    });
-  };
-
-  const countries = Country.getAllCountries();
-  const states = selectedCountry
-    ? State.getStatesOfCountry(selectedCountry)
-    : [];
-  const cities = selectedState
-    ? City.getCitiesOfState(selectedCountry, selectedState)
-    : [];
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -140,7 +130,7 @@ const Cart = () => {
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
                             {currency}
-                            {calculateTotal().toFixed(2)}
+                            {cartTotal}
                           </span>
                         </li>
                         <li className="mb-[12px] flex justify-between leading-[28px]">
@@ -162,7 +152,7 @@ const Cart = () => {
                           </span>
                           <span className="text-right font-Poppins text-[16px] leading-[28px] tracking-[0.03rem] font-semibold text-[#686e7d]">
                             {currency}
-                            {(calculateTotal() + delivery_fee).toFixed(2)}
+                            {(cartTotal + delivery_fee).toFixed(2)}
                           </span>
                         </li>
                       </ul>
@@ -211,37 +201,52 @@ const Cart = () => {
                             </span>
                           </div>
                         </td>
-                        <td className="p-[12px]">
-                          <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                            {currency}
-                            {item.price}
-                          </span>
-                        </td>
-                        <td className="p-[12px]">
-                          <div className="qty-plus-minus w-[85px] h-[45px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                            <input
-                              type="number"
-                              value={item.quantity}
-                              min="1"
-                              className="qty-input text-[#777] float-left text-[14px] h-[auto] m-[0] p-[0] text-center w-[32px] outline-[0] font-normal leading-[35px] rounded-[10px]"
-                              onChange={(e) =>
-                                handleQuantityChange(
-                                  item.id,
-                                  parseInt(e.target.value) || 1
-                                )
-                              }
-                            />
-                          </div>
-                        </td>
-                        <td className="p-[12px]">
-                          <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                            {currency}
-                            {item.total.toFixed(2)}
-                          </span>
-                        </td>
+                        {item.available ? (
+                          <>
+                            <td className="p-[12px]">
+                              <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
+                                {currency}
+                                {item.price}
+                              </span>
+                            </td>
+                            <td className="p-[12px]">
+                              <div className="qty-plus-minus w-[85px] h-[45px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                                <input
+                                  type="number"
+                                  value={item.quantity}
+                                  min="1"
+                                  className="w-full qty-input text-[#777] float-left text-[14px] h-[auto] m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
+                                  onChange={(e) =>
+                                    handleQuantityChange(
+                                      item.id,
+                                      parseInt(e.target.value) || 1
+                                    )
+                                  }
+                                />
+                              </div>
+                            </td>
+                            <td className="p-[12px]">
+                              <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
+                                {currency}
+                                {item.total.toFixed(2)}
+                              </span>
+                            </td>
+                          </>
+                        ) : (
+                          <td className="p-[12px]" colSpan={3}>
+                            <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#ec6363]">
+                              Currently Not Available
+                            </span>
+                          </td>
+                        )}
+
                         <td className="p-[12px]">
                           <div className="pro-remove">
-                            <button onClick={() => handleRemove(item.id)}>
+                            <button
+                              onClick={() =>
+                                handleRemove(item.id, item.net_quantity)
+                              }
+                            >
                               <i className="ri-delete-bin-line transition-all duration-[0.3s] ease-in-out text-[20px] text-[#686e7d] hover:text-[#ff0000]"></i>
                             </button>
                           </div>

@@ -1,5 +1,3 @@
-// sitePreferencesController.js (Backend)
-
 import SitePreferences from "../models/sitePreferencesModel.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -14,7 +12,6 @@ export const getSitePreferences = async (req, res) => {
 
 export const addBanner = async (req, res) => {
   try {
-    const { discription, title1, title2, title3 } = req.body;
     const banner_image = req.files && req.files.image;
 
     if (!banner_image) {
@@ -31,10 +28,6 @@ export const addBanner = async (req, res) => {
       await settings.save();
     }
     settings.banners.push({
-      discription,
-      title1,
-      title2,
-      title3,
       image: result.secure_url,
     });
     await settings.save();

@@ -28,34 +28,13 @@ const Hero = () => {
                   className="flex flex-wrap w-full mb-[-24px]"
                 >
                   <div className="flex flex-wrap w-full mb-[24px]">
-                    <div className="min-[992px]:w-[50%] w-full px-[12px] min-[992px]:order-1 order-2 mb-[24px]">
-                      <div className="hero-contact h-full flex flex-col items-start justify-center max-[991px]:items-center">
-                        <p className="mb-[20px] font-Poppins text-[18px] text-[#777] font-light leading-[28px] tracking-[0.03rem] max-[1199px]:mb-[10px] max-[1199px]:text-[16px]">
-                          {slide.discription}
-                        </p>
-                        <h1 className="mb-[20px] font-quicksand text-[50px] text-[#3d4750] font-bold tracking-[0.03rem] leading-[1.2] max-[1199px]:mb-[10px] max-[1199px]:text-[38px] max-[991px]:text-center max-[991px]:text-[45px] max-[767px]:text-[40px] max-[575px]:text-[35px] max-[420px]:text-[30px] max-[360px]:text-[28px]">
-                          {slide.title1}{" "}
-                          <span className="relative text-[#6c7fd8]">
-                            {slide.title2}
-                          </span>
-                          <br /> {slide.title3}
-                        </h1>
-                        {/* <a
-                          href="shop-left-sidebar-col-3.html"
-                          className="bb-btn-1 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[8px] px-[20px] text-[14px] font-normal text-[#3d4750] bg-transparent rounded-[10px] border-[1px] border-solid border-[#3d4750] max-[1199px]:py-[3px] max-[1199px]:px-[15px] hover:bg-[#6c7fd8] hover:border-[#6c7fd8] hover:text-[#fff]"
-                        >
-                          Shop Now
-                        </a> */}
-                      </div>
-                    </div>
-                    <div className="min-[992px]:w-[50%] w-full px-[12px] min-[992px]:order-2 order-1 mb-[24px]">
-                      <div className="hero-image pr-[50px] relative max-[991px]:px-[50px] max-[575px]:px-[30px] flex justify-center max-[420px]:p-[0]">
-                        <div style={{ width: "600px", height: "600px" }}>
+                    <div className="w-full px-[12px] min-[992px]:order-2 order-1 mb-[24px]">
+                      <div className="hero-image relative max-[991px]:px-[50px] max-[575px]:px-[30px] flex justify-center max-[420px]:p-[0]">
+                        <div className="w-full flex justify-center items-center">
                           <img
                             src={slide.image}
                             alt="hero"
-                            className="w-full pb-[50px] opacity-[1] max-[1199px]:pr-[30px] max-[991px]:pr-[0] max-[575px]:pb-[30px] max-[420px]:pb-[15px] drop-shadow-xl"
-                            
+                            className="w-full drop-shadow-xl"
                           />
                         </div>
                         <svg
@@ -70,14 +49,6 @@ const Hero = () => {
                             y1="100%"
                             y2="0%"
                           ></linearGradient>
-                          <path d="">
-                            <animate
-                              repeatCount="indefinite"
-                              attributeName="d"
-                              dur="15s"
-                              values=""
-                            />
-                          </path>
                         </svg>
                       </div>
                     </div>

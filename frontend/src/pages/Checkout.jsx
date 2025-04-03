@@ -78,6 +78,10 @@ const Checkout = () => {
             },
           }
         );
+        if (response.data.allAvailable === false) {
+          toast.error("Some Cart Product is Not Available");
+          navigate("/cart");
+        }
         setCartItems(response.data.cartItems);
         setTotalCartPrice(response.data.totalCartPrice);
       } catch (error) {
@@ -121,7 +125,7 @@ const Checkout = () => {
     });
   }, [selectedCountry, selectedState, selectedCity, pincode]);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const subtotal = totalCartPrice;
   const total = subtotal + delivery_fee - discount;
 
   const handleInputChange = (e) => {
@@ -211,30 +215,30 @@ const Checkout = () => {
 
   const totalAmount = (subtotal + delivery_fee - discount).toFixed(2);
 
-  const handlePlaceOrder = () => {
-    if (!isNewAddress && !selectedAddress) {
-      toast.error("Please select or add an address.");
-      setShowModal(false);
-      return;
-    }
-    if (isNewAddress) {
-      if (
-        newAddress.first_name === "" ||
-        newAddress.last_name === "" ||
-        newAddress.email === "" ||
-        newAddress.phone === "" ||
-        newAddress.address === "" ||
-        newAddress.country === "" ||
-        newAddress.state === "" ||
-        newAddress.city === "" ||
-        newAddress.pincode === ""
-      ) {
-        toast.error("Please fill all the details.");
-        return;
-      }
-    }
-    setShowPaymentOptions(true);
-  };
+  // const handlePlaceOrder = () => {
+  //   if (!isNewAddress && !selectedAddress) {
+  //     toast.error("Please select or add an address.");
+  //     setShowModal(false);
+  //     return;
+  //   }
+  //   if (isNewAddress) {
+  //     if (
+  //       newAddress.first_name === "" ||
+  //       newAddress.last_name === "" ||
+  //       newAddress.email === "" ||
+  //       newAddress.phone === "" ||
+  //       newAddress.address === "" ||
+  //       newAddress.country === "" ||
+  //       newAddress.state === "" ||
+  //       newAddress.city === "" ||
+  //       newAddress.pincode === ""
+  //     ) {
+  //       toast.error("Please fill all the details.");
+  //       return;
+  //     }
+  //   }
+  //   setShowPaymentOptions(true);
+  // };
 
   const handleApprove = async (orderID) => {
     try {
@@ -327,7 +331,24 @@ const Checkout = () => {
 
       if (!isNewAddress && !selectedAddress) {
         toast.error("Please select or add an address.");
+        setShowModal(false);
         return;
+      }
+      if (isNewAddress) {
+        if (
+          newAddress.first_name === "" ||
+          newAddress.last_name === "" ||
+          newAddress.email === "" ||
+          newAddress.phone === "" ||
+          newAddress.address === "" ||
+          newAddress.country === "" ||
+          newAddress.state === "" ||
+          newAddress.city === "" ||
+          newAddress.pincode === ""
+        ) {
+          toast.error("Please fill all the details.");
+          return;
+        }
       }
 
       if (isNewAddress) {
@@ -857,43 +878,42 @@ const Checkout = () => {
                           </span>
                         </li>
                       )}
-
-                      <li className="flex justify-between mb-2">
-                        <span className="text-gray-600">Total Amount:</span>
-                        <span className="font-bold">
-                          {currency}
-                          {totalAmount}
-                        </span>
-                      </li>
                     </ul>
                   </div>
-                  <div className="w-full">
+                  <h2 className="text-xl font-semibold text-right mb-3">
+                    Total: ${totalAmount}
+                  </h2>
+
+                  {/* <div className="w-full">
                     <button
                       className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
                       onClick={handlePlaceOrder}
                     >
                       Place Order
                     </button>
-                  </div>
-                  {showPaymentOptions && (
-                    <div className="my-5 ">
-                      <PayPalScriptProvider
-                        options={{
-                          "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
-                        }}
-                      >
-                        <div className="">
-                          {error && <p style={{ color: "red" }}>{error}</p>}
+                  </div> */}
+                  <h4 className="mt-5 font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
+                    Place Order
+                  </h4>
+                  <div className="my-5 mx-8">
+                    <PayPalScriptProvider
+                      options={{
+                        "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
+                      }}
+                      className="w-full"
+                    >
+                      <div>
+                        {error && <p style={{ color: "red" }}>{error}</p>}
 
-                          <PayPalButtons
-                            createOrder={createOrder}
-                            onApprove={(data) => handleApprove(data.orderID)}
-                            fundingSource="paypal"
-                          />
-                        </div>
-                      </PayPalScriptProvider>
-                    </div>
-                  )}
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={(data) => handleApprove(data.orderID)}
+                          fundingSource="paypal"
+                          className="flex justify-center w-[100%]"
+                        />
+                      </div>
+                    </PayPalScriptProvider>
+                  </div>
                 </div>
               </div>
             </div>

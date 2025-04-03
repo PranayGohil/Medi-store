@@ -70,10 +70,6 @@ const WebsiteSettings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("discription", newBanner.discription);
-    formData.append("title1", newBanner.title1);
-    formData.append("title2", newBanner.title2);
-    formData.append("title3", newBanner.title3);
     formData.append("image", newBanner.image);
 
     try {
@@ -327,56 +323,6 @@ const WebsiteSettings = () => {
                     style={{ display: "none" }}
                   />
                 </label>
-              </div>
-              <div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Discription
-                  </label>
-                  <input
-                    type="text"
-                    name="discription"
-                    value={newBanner.discription}
-                    onChange={handleInputChange}
-                    className="mt-1 p-3 border w-full mb-4"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Title 1
-                  </label>
-                  <input
-                    type="text"
-                    name="title1"
-                    value={newBanner.title1}
-                    onChange={handleInputChange}
-                    className="mt-1 p-3 border w-full mb-4"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Title 2
-                  </label>
-                  <input
-                    type="text"
-                    name="title2"
-                    value={newBanner.title2}
-                    onChange={handleInputChange}
-                    className="mt-1 p-3 border w-full mb-4"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Title 3
-                  </label>
-                  <input
-                    type="text"
-                    name="title3"
-                    value={newBanner.title3}
-                    onChange={handleInputChange}
-                    className="mt-1 p-3 border w-full mb-4"
-                  />
-                </div>
               </div>
             </div>
             <button

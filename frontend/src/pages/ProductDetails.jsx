@@ -320,40 +320,7 @@ const ProductDetails = () => {
                           )}
                         </p>
                       </div>
-                      <div className="bb-single-pro-weight mb-[24px]">
-                        <div className="pro-title mb-[12px]">
-                          <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
-                            Select Quantity
-                          </h4>
-                        </div>
-                        <div className="bb-pro-variation-contant">
-                          <ul className="flex flex-wrap m-[-2px]">
-                            <div>
-                              {product.pricing.map((price, index) => (
-                                <li
-                                  key={index}
-                                  className={`my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer ${
-                                    price.net_quantity ===
-                                    selectedPrice.net_quantity
-                                      ? "active-variation"
-                                      : ""
-                                  }`}
-                                  onClick={() => setSelectedPrice(price)}
-                                >
-                                  <span className="font-Poppins text-[#000000] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                    {price.net_quantity} {product.dosage_form}{" "}
-                                    /s - &nbsp;&nbsp;&nbsp;&nbsp; {currency}
-                                    {price.total_price} &nbsp;&nbsp;&nbsp;&nbsp;
-                                    ( {currency}
-                                    {price.unit_price} per {product.dosage_form}{" "}
-                                    )
-                                  </span>
-                                </li>
-                              ))}
-                            </div>
-                          </ul>
-                        </div>
-                      </div>
+
                       {/* <div className="bb-single-price-wrap flex justify-between py-[10px]">
                         <div className="bb-single-price py-[15px]">
                           <div className="price mb-[8px]">
@@ -383,41 +350,83 @@ const ProductDetails = () => {
                           </div>
                         </div>
                       </div> */}
-
-                      <div className="bb-single-qty flex flex-wrap m-[-2px]">
-                        <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                          <input
-                            className="w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
-                            type="number"
-                            name="quantity"
-                            value={quantity}
-                            onChange={(e) => {
-                              if (e.target.value < 1) {
-                                e.target.value = 1;
-                              }
-                              setQuantity(parseInt(e.target.value));
-                            }}
-                            min={1}
-                          />
-                        </div>
-                        <div className="buttons m-[2px]">
-                          {isProductInCart ? (
-                            <Link
-                              to="/cart"
-                              className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                            >
-                              View Cart
-                            </Link>
-                          ) : (
-                            <button
-                              onClick={handleAddToCart}
-                              className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                            >
-                              Add to Cart
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                      {product.available ? (
+                        <>
+                          <div className="bb-single-pro-weight mb-[24px]">
+                            <div className="pro-title mb-[12px]">
+                              <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
+                                Select Quantity
+                              </h4>
+                            </div>
+                            <div className="bb-pro-variation-contant">
+                              <ul className="flex flex-wrap m-[-2px]">
+                                <div>
+                                  {product.pricing.map((price, index) => (
+                                    <li
+                                      key={index}
+                                      className={`my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer ${
+                                        price.net_quantity ===
+                                        selectedPrice.net_quantity
+                                          ? "active-variation"
+                                          : ""
+                                      }`}
+                                      onClick={() => setSelectedPrice(price)}
+                                    >
+                                      <span className="font-Poppins text-[#000000] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
+                                        {price.net_quantity}{" "}
+                                        {product.dosage_form} /s -
+                                        &nbsp;&nbsp;&nbsp;&nbsp; {currency}
+                                        {price.total_price}{" "}
+                                        &nbsp;&nbsp;&nbsp;&nbsp; ( {currency}
+                                        {price.unit_price} per{" "}
+                                        {product.dosage_form} )
+                                      </span>
+                                    </li>
+                                  ))}
+                                </div>
+                              </ul>
+                            </div>
+                          </div>
+                          <div className="bb-single-qty flex flex-wrap m-[-2px]">
+                            <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                              <input
+                                className="w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
+                                type="number"
+                                name="quantity"
+                                value={quantity}
+                                onChange={(e) => {
+                                  if (e.target.value < 1) {
+                                    e.target.value = 1;
+                                  }
+                                  setQuantity(parseInt(e.target.value));
+                                }}
+                                min={1}
+                              />
+                            </div>
+                            <div className="buttons m-[2px]">
+                              {isProductInCart ? (
+                                <Link
+                                  to="/cart"
+                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                                >
+                                  View Cart
+                                </Link>
+                              ) : (
+                                <button
+                                  onClick={handleAddToCart}
+                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                                >
+                                  Add to Cart
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="font-Poppins text-[16px] font-light text-[#ec6363] leading-[28px] tracking-[0.03rem] mt-[50px]">
+                          This medicine is currently out of stock or unavailable
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -468,11 +477,12 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="detail">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
                         <div
-                          className="bb-details"
+                          className="bb-details prose max-w-full ql-editor mx-3"
                           dangerouslySetInnerHTML={{
                             __html: product.description,
                           }}
                         ></div>
+                        <h1>Hellooooooooooooooooo</h1>
                       </div>
                     </div>
                   )}
@@ -481,7 +491,7 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="information">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
                         <div
-                          className="information"
+                          className="information prose max-w-full ql-editor mx-3"
                           dangerouslySetInnerHTML={{
                             __html: product.information,
                           }}
@@ -493,7 +503,7 @@ const ProductDetails = () => {
                   {activeTab === "reviews" && (
                     <div className="tab-pro-pane" id="reviews">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
-                        <div className="bb-reviews">
+                        <div className="bb-reviews mx-3">
                           {reviews.length === 0 && (
                             <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
                               No Review Found

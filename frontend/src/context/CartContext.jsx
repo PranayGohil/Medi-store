@@ -36,12 +36,19 @@ export const CartContextProvider = ({ children }) => {
     }
   };
 
-  const removeItemFromCart = (itemId) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId));
+  const removeItemFromCart = (itemId, net_quantity) => {
+    console.log("Removing item with ID:", itemId, net_quantity);
+    setCartItems(
+      cartItems.filter(
+        (item) =>
+          !(item.product_id === itemId && item.net_quantity === net_quantity)
+      )
+    );
   };
 
   const clearCart = () => {
     localStorage.removeItem("cartItems");
+    setCartItems([]);
   };
 
   const updateItemQuantity = (itemId, newQuantity) => {
@@ -52,7 +59,6 @@ export const CartContextProvider = ({ children }) => {
         )
       );
     } else {
-      // If newQuantity is 0 or less, remove the item
       removeItemFromCart(itemId);
     }
   };

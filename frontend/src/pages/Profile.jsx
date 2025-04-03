@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -11,6 +12,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { user, login, logout } = useContext(AuthContext);
+  const { clearCart } = useContext(CartContext);
   const [profileData, setProfileData] = useState({
     first_name: "",
     last_name: "",
@@ -56,7 +58,7 @@ const Profile = () => {
 
   useEffect(() => {
     getAddresses();
-    if (user) {
+    if (localStorage.getItem("user")) {
       setProfileData({
         _id: user._id,
         first_name: user.first_name,
@@ -176,8 +178,9 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    logout(); // Call the logout function from AuthContext
-    navigate("/login"); // Redirect to login page
+    clearCart();
+    logout(); 
+    navigate("/login"); 
   };
 
   if (isLoading) {

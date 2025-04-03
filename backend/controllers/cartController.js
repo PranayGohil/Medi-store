@@ -2,7 +2,7 @@ import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
 import jwt from "jsonwebtoken";
 
-const addToCart = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
     const { userId, product_id, net_quantity, price, quantity } = req.body;
 
@@ -30,7 +30,7 @@ const addToCart = async (req, res) => {
   }
 };
 
-const getCartItems = async (req, res) => {
+export const getCartItems = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -46,7 +46,7 @@ const getCartItems = async (req, res) => {
 
     const cartItems = [];
     let totalCartPrice = 0;
-
+    let allAvailable = true;
     for (const cartItem of user.cartData) {
       const product = await Product.findById(cartItem.product_id);
 
@@ -58,11 +58,16 @@ const getCartItems = async (req, res) => {
 
         if (pricing) {
           const itemTotal = pricing.total_price * cartItem.quantity;
-          totalCartPrice += itemTotal;
+          if (product.available) {
+            totalCartPrice += itemTotal;
+          } else {
+            allAvailable = false;
+          }
 
           cartItems.push({
             id: product._id,
             name: product.name,
+            available: product.available,
             generic_name: product.generic_name,
             dosage_form: product.dosage_form,
             price: pricing.total_price,
@@ -75,18 +80,18 @@ const getCartItems = async (req, res) => {
       }
     }
 
-    res.json({ success: true, cartItems, totalCartPrice });
+    res.json({ success: true, cartItems, totalCartPrice, allAvailable });
   } catch (error) {
     console.error("Error fetching cart data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-const getCartItemsById = async (req, res) => {
+export const getCartItemsById = async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -123,7 +128,6 @@ const getCartItemsById = async (req, res) => {
     }
     console.log(cartItems);
 
-
     res.json({ success: true, cartItems, totalCartPrice });
   } catch (error) {
     console.error("Error fetching cart data:", error);
@@ -131,7 +135,41 @@ const getCartItemsById = async (req, res) => {
   }
 };
 
-const removeCartItem = async (req, res) => {
+export const changeCartQuantity = async (req, res) => {
+  try {
+    console.log(req.body);
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userId = decoded.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    } else {
+      const productId = req.params.productId;
+      const cartItemIndex = user.cartData.findIndex(
+        (item) => item.product_id.toString() === productId
+      );
+      if (cartItemIndex === -1) {
+        return res.json({
+          success: false,
+          message: "Product not found in cart",
+        });
+      }
+      user.cartData[cartItemIndex].quantity = req.body.quantity;
+      await user.save();
+      res.json({ success: true, message: "Quantity updated successfully" });
+    }
+  } catch (error) {
+    console.error("Error updating cart quantity:", error);
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const removeCartItem = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -146,9 +184,14 @@ const removeCartItem = async (req, res) => {
     }
 
     const productId = req.params.productId;
+    const netQuantity = req.params.netQuantity;
+    console.log("Product : ", productId, netQuantity);
+    console.log(user.cartData);
     const cartItemIndex = user.cartData.findIndex(
-      (item) => item.product_id.toString() === productId
+      (item) => (item.product_id.toString() === productId && item.net_quantity.toString() === netQuantity)
     );
+
+    console.log(cartItemIndex);
 
     if (cartItemIndex === -1) {
       return res.json({ success: false, message: "Product not found in cart" });
@@ -164,7 +207,7 @@ const removeCartItem = async (req, res) => {
   }
 };
 
-const clearCart = async (req, res) => {
+export const clearCart = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -187,5 +230,3 @@ const clearCart = async (req, res) => {
     res.json({ success: false, message: "Internal server error" });
   }
 };
-
-export { addToCart, getCartItems, getCartItemsById, removeCartItem, clearCart };
