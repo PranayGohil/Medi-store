@@ -103,7 +103,7 @@ const Contact = () => {
         <div className="flex flex-wrap justify-center items-center mx-auto max-w-[960px]">
           <div className="w-full px-[12px] mb-[24px]">
             <h2 className="text-center text-[25px] font-bold text-[#3d4750]">
-              Get In <span className="text-[#6c7fd8]">Touch</span>
+              Get In <span className="text-[#0097b2]">Touch</span>
             </h2>
             <p className="text-center text-[14px] text-[#686e7d]">
               Please select a topic below related to your inquiry. If you don't
@@ -160,7 +160,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2 text-white bg-[#6c7fd8] rounded-[10px] border border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                className="w-full py-2 text-white bg-[#0097b2] rounded-[10px] border border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
               >
                 Submit
               </button>

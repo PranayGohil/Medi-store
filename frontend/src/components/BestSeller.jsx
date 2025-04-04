@@ -51,7 +51,7 @@ const BestSeller = () => {
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={20}
-          slidesPerView={1}
+          slidesPerView={2}
           breakpoints={{
             640: { slidesPerView: 2 },
             768: { slidesPerView: 3 },
@@ -68,7 +68,7 @@ const BestSeller = () => {
         </Swiper>
       </div>
       <div className="flex justify-center text-blue-600 w-full mt-[30px]">
-        <Link to={"/products"} className="block text-center mt-2 bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[25px] text-[14px] font-normal text-[#6c7fd8] bg-[#ffffff] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-[#6c7fd8] hover:border-[#ffffff] hover:text-[#ffffff]">View All Products</Link>
+        <Link to={"/products"} className="block text-center mt-2 bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[25px] text-[14px] font-normal text-[#0097b2] bg-[#ffffff] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-[#0097b2] hover:border-[#ffffff] hover:text-[#ffffff]">View All Products</Link>
       </div>
     </section>
   );

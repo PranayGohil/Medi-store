@@ -29,9 +29,9 @@ const Navbar = ({ pageTitle, toggleSidebar }) => {
             className="flex items-center space-x-2 focus:outline-none"
           >
             <img
-              src="/assets/img/logo.jpg"
+              src="/assets/img/favicon.png"
               alt="User"
-              className="w-10 h-10 rounded-full border"
+              className="w-10 h-10 rounded-full border object-contain"
             />
           </Link>
         </div>

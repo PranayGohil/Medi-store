@@ -3,9 +3,11 @@ import { ShopContext } from "../context/ShopContext";
 import Breadcrumb from "../components/Breadcrumb";
 import ProductCard from "../components/ProductCard";
 import { useLocation } from "react-router-dom";
+import PageTitle from "../components/PageTitle";
 
 const SearchResults = () => {
   const { products } = useContext(ShopContext);
+  const [title, setTitle] = useState("Search Results");
   const [listView, setListView] = useState(false);
   const [sortOption, setSortOption] = useState("Sort by");
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -23,6 +25,7 @@ const SearchResults = () => {
 
     // Apply search filtering
     if (searchQuery) {
+      setTitle(`Search - ${searchQuery}`);
       filtered = products.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -33,6 +36,7 @@ const SearchResults = () => {
           product.generic_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     } else if (genericSearchQuery) {
+      setTitle(`Generic Search - ${genericSearchQuery}`);
       filtered = products.filter((product) =>
         product.generic_name
           .toLowerCase()
@@ -41,12 +45,14 @@ const SearchResults = () => {
     }
 
     if (category) {
+      setTitle(`${category}`);
       filtered = filtered.filter((product) =>
         product.categories.some((cat) => cat.category === category)
       );
     }
 
     if (category && subcategory) {
+      setTitle(`${category} - ${subcategory}`);
       filtered = filtered.filter((product) =>
         product.categories.some(
           (cat) =>
@@ -99,6 +105,7 @@ const SearchResults = () => {
 
   return (
     <>
+      <PageTitle title={title} />
       <Breadcrumb
         title="Search Results"
         destination1="Home"

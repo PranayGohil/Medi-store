@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import RelatedProducts from "../components/RelatedProducts";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
+import PageTitle from "../components/PageTitle";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -221,6 +222,7 @@ const ProductDetails = () => {
 
   return (
     <>
+      <PageTitle title={`${product.name}`} />
       <Breadcrumb
         title="Product Details"
         destination1="Home"
@@ -277,7 +279,7 @@ const ProductDetails = () => {
                           |&nbsp;&nbsp;
                           <Link
                             to="#bb-spt-nav-review"
-                            className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem] text-[#6c7fd8]"
+                            className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem] text-[#0097b2]"
                           >
                             {product.reviews.length} Reviews
                           </Link>
@@ -344,7 +346,7 @@ const ProductDetails = () => {
                             </h5>
                           </div>
                           <div className="stock">
-                            <span className="text-[18px] text-[#6c7fd8]">
+                            <span className="text-[18px] text-[#0097b2]">
                               In stock
                             </span>
                           </div>
@@ -407,14 +409,14 @@ const ProductDetails = () => {
                               {isProductInCart ? (
                                 <Link
                                   to="/cart"
-                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
                                 >
                                   View Cart
                                 </Link>
                               ) : (
                                 <button
                                   onClick={handleAddToCart}
-                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#6c7fd8] rounded-[10px] border-[1px] border-solid border-[#6c7fd8] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
                                 >
                                   Add to Cart
                                 </button>

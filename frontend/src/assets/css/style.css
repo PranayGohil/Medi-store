@@ -212,12 +212,12 @@ body {
 }
 
 ::-moz-selection {
-  color: #6c7fd8;
+  color: #0097b2;
   background-color: rgba(0, 0, 0, 0.04);
 }
 
 ::selection {
-  color: #6c7fd8;
+  color: #0097b2;
   background-color: rgba(0, 0, 0, 0.04);
 }
 
@@ -243,13 +243,13 @@ body {
   height: 16px;
   border-radius: 100%;
   background: #fff;
-  border: 1px solid #6c7fd8;
+  border: 1px solid #0097b2;
 }
 [type=radio]:checked + label:after {
   content: "";
   width: 8px;
   height: 8px;
-  background: #6c7fd8;
+  background: #0097b2;
   position: absolute;
   top: 4px;
   left: 4px;
@@ -289,7 +289,7 @@ body {
   content: "";
   width: 8px;
   height: 8px;
-  background: #6c7fd8;
+  background: #0097b2;
   position: absolute;
   top: 4px;
   left: 4px;
@@ -470,7 +470,7 @@ select {
   height: 20px;
 }
 .custom-select svg path {
-  fill: #6c7fd8;
+  fill: #0097b2;
 }
 .custom-select .custom-select {
   position: relative;
@@ -530,7 +530,7 @@ select {
   color: #777;
 }
 .select-options li:hover {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 .select-options li[rel=hide] {
   display: none;
@@ -599,13 +599,13 @@ select {
 }
 
 .bb-main-menu-desk .bb-inner-menu-desk .bb-main-menu ul.navbar-nav li:hover a.nav-link {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 .bb-main-menu-desk .bb-inner-menu-desk .bb-main-menu ul.navbar-nav li:hover a.nav-link:after {
-  border-color: #6c7fd8;
+  border-color: #0097b2;
 }
 .bb-main-menu-desk .bb-inner-menu-desk .bb-main-menu ul.navbar-nav li:hover span {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 .bb-main-menu-desk .bb-inner-menu-desk .bb-main-menu ul.navbar-nav .bb-main-dropdown .mega-menu {
   -webkit-box-shadow: 2px 2px 15px 0 rgba(0, 0, 0, 0.07);
@@ -966,9 +966,9 @@ select {
 }
 
 .bb-pro-variation ul li.active {
-  background-color: #6c7fd8 !important;
+  background-color: #0097b2 !important;
   color: #fff !important;
-  border-color: #6c7fd8 !important;
+  border-color: #0097b2 !important;
 }
 .bb-pro-variation ul li.active a {
   color: #fff;
@@ -1053,7 +1053,7 @@ select {
 .bb-tools-sidebar .bb-tools-detail .bb-tools-block .bb-tools-rtl .active-dark img,
 .bb-tools-sidebar .bb-tools-detail .bb-tools-block .bb-tools-rtl .active-box img,
 .bb-tools-sidebar .bb-tools-detail .bb-tools-block .bb-tools-rtl .active-rtl img {
-  border-color: #6c7fd8;
+  border-color: #0097b2;
 }
 .bb-tools-sidebar .bb-tools-detail .bb-tools-block .bb-tools-dark .active-dark:after,
 .bb-tools-sidebar .bb-tools-detail .bb-tools-block .bb-tools-dark .active-box:after,
@@ -1073,7 +1073,7 @@ select {
   top: 10px;
   right: 10px;
   border-radius: 10px;
-  background-color: #6c7fd8;
+  background-color: #0097b2;
   color: #fff;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1225,7 +1225,7 @@ select {
   transition: all 0.3s ease 0s;
 }
 .hero-slider .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  background-color: #6c7fd8;
+  background-color: #0097b2;
   width: 30px;
 }
 
@@ -1352,8 +1352,8 @@ select {
   text-orientation: upright;
 }
 .bb-pro-box .bb-pro-img .bb-pro-actions .bb-btn-group:hover {
-  background-color: #6c7fd8;
-  border-color: #6c7fd8;
+  background-color: #0097b2;
+  border-color: #0097b2;
 }
 .bb-pro-box .bb-pro-img .bb-pro-actions .bb-btn-group:hover i {
   color: #fff;
@@ -1373,7 +1373,7 @@ select {
   bottom: 10px;
 }
 .bb-pro-box .bb-pro-contact h4.bb-pro-title a:hover {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 .bb-pro-box .dealend-timer {
   width: 100%;
@@ -1623,7 +1623,7 @@ select {
 }
 
 ul#ProductTab li.active a {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 
 /* vendors */
@@ -1653,10 +1653,10 @@ ul#ProductTab li.active a {
 }
 
 ul#vendorstab li.active a {
-  border-color: #6c7fd8;
+  border-color: #0097b2;
 }
 ul#vendorstab li.active a .bb-vendors-box .inner-heading h5 {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 
 /* Testimonials */
@@ -1769,8 +1769,8 @@ ul#vendorstab li.active a .bb-vendors-box .inner-heading h5 {
 
 /* Shop */
 ul.bb-shop-tags li.active-tags a {
-  color: #6c7fd8;
-  border-color: #6c7fd8;
+  color: #0097b2;
+  border-color: #0097b2;
 }
 
 .bb-shop-sidebar::-webkit-scrollbar {
@@ -1887,7 +1887,7 @@ ul.bb-shop-tags li.active-tags a {
 }
 
 .bb-pro-list-top .bb-bl-btn button.active {
-  background-color: #6c7fd8;
+  background-color: #0097b2;
   color: #fff;
   border-radius: 15px;
 }
@@ -1910,11 +1910,11 @@ ul.bb-shop-tags li.active-tags a {
   top: -1px;
   width: 18px;
   height: 18px;
-  border: 1px solid #6c7fd8;
+  border: 1px solid #0097b2;
   content: "\eb7b";
   position: absolute;
   display: none;
-  background: #6c7fd8;
+  background: #0097b2;
   font-family: "remixicon";
   font-size: 14px;
   font-weight: 800;
@@ -1953,24 +1953,24 @@ ul.bb-shop-tags li.active-tags a {
   margin-left: 8px;
 }
 .price-range-slider .range-bar .ui-slider-range {
-  background: #6c7fd8;
+  background: #0097b2;
 }
 .price-range-slider .range-bar .ui-slider-handle {
   border: none;
   border-radius: 25px;
   background: #fff;
   top: -7px;
-  border: 2px solid #6c7fd8;
+  border: 2px solid #0097b2;
   height: 17px;
   width: 17px;
   cursor: pointer;
 }
 .price-range-slider .range-bar .ui-slider-handle + span {
-  background: #6c7fd8;
+  background: #0097b2;
 }
 
 .bb-tags ul li:hover {
-  background-color: #6c7fd8;
+  background-color: #0097b2;
 }
 .bb-tags ul li:hover a {
   color: #fff;
@@ -2055,7 +2055,7 @@ ul.bb-shop-tags li.active-tags a {
 }
 /* Single product page */
 ul#ProTab li.active a {
-  color: #6c7fd8;
+  color: #0097b2;
 }
 
 .single-pro-slider .single-nav-thumb .slick-list {
@@ -2065,10 +2065,10 @@ ul#ProTab li.active a {
   display: block !important;
 }
 .single-pro-slider .single-nav-thumb .slick-slide:hover img {
-  border-color: #6c7fd8;
+  border-color: #0097b2;
 }
 .single-pro-slider .single-nav-thumb .slick-slide.slick-current.slick-active img {
-  border-color: #6c7fd8;
+  border-color: #0097b2;
 }
 .single-pro-slider .single-nav-thumb .slick-arrow {
   top: 42%;
@@ -2128,13 +2128,13 @@ ul#ProTab li.active a {
 }
 
 .bb-single-pro-contact .bb-single-pro-weight .bb-pro-variation-contant ul li.active-variation {
-  background-color: #6c7fd8;
+  background-color: #0097b2;
 }
 .bb-single-pro-contact .bb-single-pro-weight .bb-pro-variation-contant ul li.active-variation span {
   color: #fff;
 }
 .bb-single-pro-contact .bb-single-qty .bb-pro-actions a:hover {
-  background-color: #6c7fd8;
+  background-color: #0097b2;
 }
 .bb-single-pro-contact .bb-single-qty .bb-pro-actions a:hover i {
   color: #fff;

@@ -1,7 +1,10 @@
+import { Route, Routes } from "react-router-dom";
+
+import PageTitle from "./components/PageTitle";
 import ScrollRestoration from "./components/ScrollRestoration";
+
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import PageNotFound from "./pages/PageNotFound";
 import Register from "./pages/Register";
@@ -23,33 +26,176 @@ import AllCategories from "./pages/AllCategories";
 import PaymentCompleted from "./pages/PaymentCompleted";
 import PaymentCancelled from "./pages/PaymentCancelled";
 
-
 function App() {
   return (
     <div>
       <ScrollRestoration />
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/products" element={<Products />} />
+        <Route
+          path="/"
+          element={
+            <>
+              <PageTitle title="Foreever Cure - Home" />
+              <Home />
+            </>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <>
+              <PageTitle title="Account Register" />
+              <Register />
+            </>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <>
+              <PageTitle title="Account Login" />
+              <Login />
+            </>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <>
+              <PageTitle title="Products" />
+              <Products />
+            </>
+          }
+        />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/offers" element={<Offers />} />
-        <Route path="/order-details/:id" element={<OrderDetails />} />
-        <Route path="/order-history" element={<OrderHistory />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/cart"
+          element={
+            <>
+              <PageTitle title="Shopping Cart" />
+              <Cart />
+            </>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <>
+              <PageTitle title="Checkout" />
+              <Checkout />
+            </>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <>
+              <PageTitle title="About Us" />
+              <About />
+            </>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <>
+              <PageTitle title="Contact Us" />
+              <Contact />
+            </>
+          }
+        />
+        <Route
+          path="/offers"
+          element={
+            <>
+              <PageTitle title="Offers" />
+              <Offers />
+            </>
+          }
+        />
+        <Route
+          path="/order-details/:id"
+          element={
+            <>
+              <PageTitle title="Order Details" />
+              <OrderDetails />
+            </>
+          }
+        />
+        <Route
+          path="/order-history"
+          element={
+            <>
+              <PageTitle title="Order History" />
+              <OrderHistory />
+            </>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <>
+              <PageTitle title="Your Profile" />
+              <Profile />
+            </>
+          }
+        />
         <Route path="/search" element={<SearchResults />} />
-        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-        <Route path="/privacy-policy" element={<PrivacyAndPolicy />} />
-        <Route path="/all-categories" element={<AllCategories />} />
-        <Route path="/payment-completed" element={<PaymentCompleted />} />
-        <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-        <Route path="*" element={<PageNotFound />} />
+        <Route
+          path="/terms-and-conditions"
+          element={
+            <>
+              <PageTitle title="Terms and Conditions" />
+              <TermsAndConditions />
+            </>
+          }
+        />
+        <Route
+          path="/privacy-policy"
+          element={
+            <>
+              <PageTitle title="Privacy Policy" />
+              <PrivacyAndPolicy />
+            </>
+          }
+        />
+        <Route
+          path="/all-categories"
+          element={
+            <>
+              <PageTitle title="All Categories" />
+              <AllCategories />
+            </>
+          }
+        />
+        <Route
+          path="/payment-completed"
+          element={
+            <>
+              <PageTitle title="Payment Completed" />
+              <PaymentCompleted />
+            </>
+          }
+        />
+        <Route
+          path="/payment-cancelled"
+          element={
+            <>
+              <PageTitle title="Payment Cancelled" />
+              <PaymentCancelled />
+            </>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <>
+              <PageTitle title="404 Page Not Found" />
+              <PageNotFound />
+            </>
+          }
+        />
       </Routes>
       <Footer />
     </div>

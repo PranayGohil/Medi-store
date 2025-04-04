@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import PageTitle from "./components/PageTitle";
+
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
@@ -44,42 +46,201 @@ function App() {
 
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/categories" element={<CategoryManagement />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/feedbacks" element={<Feedbacks />} />
-          <Route path="/statistics" element={<Statistics />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/user/user-details/:id" element={<ViewUserDetails />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <PageTitle title="Admin | Dashboard" />
+                <Dashboard />
+              </>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <PageTitle title="Admin | Dashboard" />
+                <Dashboard />
+              </>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <>
+                <PageTitle title="Admin | Login" />
+                <Login />
+              </>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <>
+                <PageTitle title="Admin | Orders" />
+                <Orders />
+              </>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <>
+                <PageTitle title="Admin | Category" />
+                <CategoryManagement />
+              </>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <>
+                <PageTitle title="Admin | Products" />
+                <Products />
+              </>
+            }
+          />
+          <Route
+            path="/reviews"
+            element={
+              <>
+                <PageTitle title="Admin | Reviews" />
+                <Reviews />
+              </>
+            }
+          />
+          <Route
+            path="/feedbacks"
+            element={
+              <>
+                <PageTitle title="Admin | Feedbacks" />
+                <Feedbacks />
+              </>
+            }
+          />
+          <Route
+            path="/statistics"
+            element={
+              <>
+                <PageTitle title="Admin | Statistics" />
+                <Statistics />
+              </>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <>
+                <PageTitle title="Admin | Users" />
+                <Users />
+              </>
+            }
+          />
+          <Route
+            path="/user/user-details/:id"
+            element={
+              <>
+                <PageTitle title="Admin | User Details" />
+                <ViewUserDetails />
+              </>
+            }
+          />
 
-          <Route path="/website-settings" element={<WebsiteSettings />} />
-          <Route path="/discount-coupons" element={<DiscountCoupons />} />
+          <Route
+            path="/website-settings"
+            element={
+              <>
+                <PageTitle title="Admin | Website Settings" />
+                <WebsiteSettings />
+              </>
+            }
+          />
+          <Route
+            path="/discount-coupons"
+            element={
+              <>
+                <PageTitle title="Admin | Discount Coupons" />
+                <DiscountCoupons />
+              </>
+            }
+          />
 
-          <Route path="/product/add-product" element={<AddProduct />} />
-          <Route path="/product/edit-product/:id" element={<EditProducts />} />
+          <Route
+            path="/product/add-product"
+            element={
+              <>
+                <PageTitle title="Admin | Add Product" />
+                <AddProduct />
+              </>
+            }
+          />
+          <Route
+            path="/product/edit-product/:id"
+            element={
+              <>
+                <PageTitle title="Admin | Edit Product" />
+                <EditProducts />
+              </>
+            }
+          />
           <Route
             path="/product/product-details/:id"
-            element={<ViewProductDetails />}
+            element={
+              <>
+                <PageTitle title="Admin | Product Details" />
+                <ViewProductDetails />
+              </>
+            }
           />
 
           <Route
             path="/order/order-details/:id"
-            element={<ViewOrderDetails />}
+            element={
+              <>
+                <PageTitle title="Admin | Order Details" />
+                <ViewOrderDetails />
+              </>
+            }
           />
 
           <Route
             path="/feedback-details/:id"
-            element={<ViewFeedbackDetail />}
+            element={
+              <>
+                <PageTitle title="Admin | Feedback Details" />
+                <ViewFeedbackDetail />
+              </>
+            }
           />
 
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/profile"
+            element={
+              <>
+                <PageTitle title="Admin | Profile" />
+                <Profile />
+              </>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <>
+                <PageTitle title="Admin | Forgot Password" />
+                <ForgotPassword />
+              </>
+            }
+          />
 
-          <Route path="*" element={<PageNotFound />} />
+          <Route
+            path="*"
+            element={
+              <>
+                <PageTitle title="Admin | 404 Not Found" />
+                <PageNotFound />
+              </>
+            }
+          />
         </Routes>
       </div>
     </div>

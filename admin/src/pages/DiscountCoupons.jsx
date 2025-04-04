@@ -15,6 +15,7 @@ const DiscountCoupons = () => {
     expiration_date: "",
     usage_limit: 100000,
   });
+  const [showAddModal, setShowAddModal] = useState(false);
   const [expandedCoupon, setExpandedCoupon] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -64,7 +65,7 @@ const DiscountCoupons = () => {
     } catch (error) {
       toast.error("Failed to create coupon");
     } finally {
-      hideAddModal();
+      setShowAddModal();
       setIsLoading(false);
     }
   };
@@ -91,14 +92,6 @@ const DiscountCoupons = () => {
   const filteredCoupons = coupons.filter((coupon) =>
     coupon.code.toLowerCase().includes(search.toLowerCase())
   );
-
-  const showAddModal = () => {
-    document.getElementById("addCouponModal").showModal();
-  };
-
-  const hideAddModal = () => {
-    document.getElementById("addCouponModal").close();
-  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -131,7 +124,7 @@ const DiscountCoupons = () => {
             {/* Add Coupon Button */}
             <button
               className="flex items-center bg-blue-400 text-white py-3 px-4 hover:bg-blue-500 transition"
-              onClick={() => showAddModal()}
+              onClick={() => setShowAddModal(true)}
             >
               <FaPlus className="mr-2" /> Add Coupon
             </button>
@@ -234,83 +227,86 @@ const DiscountCoupons = () => {
       </div>
 
       {/* Add Coupon Modal */}
-      <dialog id="addCouponModal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Add New Coupon</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Coupon Type</span>
-              </label>
-              <select
-                name="discount_type"
-                value={formData.discount_type}
-                onChange={handleChange}
-                required
-                className="select select-bordered w-full rounded-none"
-              >
-                <option value="percentage">Percentage</option>
-                <option value="fixed">Fixed</option>
-              </select>
-            </div>
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Coupon Code</span>
-              </label>
-              <input
-                type="text"
-                name="code"
-                placeholder="Coupon Code"
-                value={formData.code}
-                onChange={handleChange}
-                required
-                className="input input-bordered w-full rounded-none"
-              />
-            </div>
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Discount Value</span>
-              </label>
-              <input
-                type="number"
-                name="discount_value"
-                placeholder="Discount Value"
-                value={formData.discount_value}
-                onChange={handleChange}
-                required
-                className="input input-bordered w-full rounded-none"
-              />
-            </div>
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Expiration Date</span>
-              </label>
-              <input
-                type="date"
-                name="expiration_date"
-                value={formData.expiration_date}
-                onChange={handleChange}
-                required
-                className="input input-bordered w-full rounded-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn bg-blue-600 text-white py-3 px-4 hover:bg-blue-700 transition w-full rounded-none"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              className="btn bg-gray-200 w-full rounded-none"
-              onClick={hideAddModal}
-            >
-              Close
-            </button>
-          </form>
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
+          <div className="bg-white p-6 shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-4">Add New Coupon</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-1">
+                  Coupon Type
+                </label>
+                <select
+                  name="discount_type"
+                  value={formData.discount_type}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 border rounded"
+                >
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-1">
+                  Coupon Code
+                </label>
+                <input
+                  type="text"
+                  name="code"
+                  placeholder="Coupon Code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 border rounded"
+                />
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-1">
+                  Discount Value
+                </label>
+                <input
+                  type="number"
+                  name="discount_value"
+                  placeholder="Discount Value"
+                  value={formData.discount_value}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 border rounded"
+                />
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-1">
+                  Expiration Date
+                </label>
+                <input
+                  type="date"
+                  name="expiration_date"
+                  value={formData.expiration_date}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 border rounded"
+                />
+              </div>
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  type="button"
+                  className="bg-gray-300 text-gray-700 py-2 px-4 hover:bg-gray-400 transition"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white py-2 px-6 hover:bg-blue-700 transition"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </dialog>
+      )}
     </div>
   );
 };

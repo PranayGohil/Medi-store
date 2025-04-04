@@ -28,9 +28,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         } transition-transform lg:translate-x-0`}
       >
         {/* Logo Section */}
-        <div className="flex items-center p-3 space-x-3 border-b">
-          <img src="/assets/img/logo.jpg" alt="Logo" className="w-10 h-10" />
-          <h1 className="text-xl font-bold text-gray-800">Medi-Store</h1>
+        <div className="flex justify-center items-center p-3 space-x-3 border-b">
+          <img src="/assets/img/logo.png" alt="Logo" className="w-3/4" />
         </div>
 
         {/* Sidebar Menu */}

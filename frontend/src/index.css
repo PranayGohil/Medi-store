@@ -86,10 +86,10 @@
 
 .Toastify__toast--success {
   background-color: White !important;
-  color: #6c7fd8 !important;
+  color: #0097b2 !important;
 }
 .Toastify__progress-bar--success {
-  background-color: #6c7fd8 !important; /* Change success progress bar */
+  background-color: #0097b2 !important; /* Change success progress bar */
 }
 
 .Toastify__toast--error {

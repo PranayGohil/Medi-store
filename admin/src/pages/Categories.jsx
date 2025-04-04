@@ -391,7 +391,7 @@ const CategoryManagement = () => {
                 <input
                   type="text"
                   placeholder="Search categories..."
-                  className="input input-bordered w-full pr-10 rounded-none"
+                  className="input border p-3 w-full pr-10 rounded-none"
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -424,7 +424,9 @@ const CategoryManagement = () => {
             <div className="p-4">
               <ul className="flex flex-wrap">
                 {filteredCategories.length === 0 ? (
-                  <p className="text-gray-500 text-center w-full mt-5">No categories found</p>
+                  <p className="text-gray-500 text-center w-full mt-5">
+                    No categories found
+                  </p>
                 ) : (
                   filteredCategories.map((category) => (
                     <li
@@ -513,7 +515,7 @@ const CategoryManagement = () => {
                         </label>
                         <input
                           type="text"
-                          className="input input-bordered w-full rounded-none"
+                          className="input border p-3 w-full rounded-none"
                           placeholder="New Category Name"
                           value={newCategoryName}
                           onChange={(e) => setNewCategoryName(e.target.value)}
@@ -529,7 +531,7 @@ const CategoryManagement = () => {
                           <input
                             type="text"
                             placeholder="New Subcategory Name"
-                            className="input input-bordered w-full rounded-none"
+                            className="input border p-3 w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleSubcategoryChange(index, e.target.value)
@@ -537,7 +539,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-error text-white rounded-none"
+                            className="btn btn-error bg-red-400 hover:bg-red-500 px-3 text-white rounded-none"
                             onClick={() => removeSubcategoryField(index)}
                           >
                             Remove
@@ -548,7 +550,7 @@ const CategoryManagement = () => {
                       {/* Add more subcategories button */}
                       <button
                         type="button"
-                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        className=" bg-blue-400 hover:bg-blue-500 text-white py-3 mt-2 w-full rounded-none"
                         onClick={addSubcategoryField}
                       >
                         Add More Subcategories
@@ -556,18 +558,20 @@ const CategoryManagement = () => {
 
                       {/* Special Subcategory fields */}
                       {newSpecialSubcategories.length > 0 && (
-                        <label className="label">
-                          <span className="label-text">
-                            Special Subcategory
-                          </span>
-                        </label>
+                        <div className="mt-4">
+                          <label className="label">
+                            <span className="label-text">
+                              Special Subcategory
+                            </span>
+                          </label>
+                        </div>
                       )}
                       {newSpecialSubcategories.map((subcategory, index) => (
                         <div key={index} className="flex gap-2 mb-2">
                           <input
                             type="text"
                             placeholder="Special Subcategory Name"
-                            className="input input-bordered w-full rounded-none"
+                            className="input border p-3 w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleSpecialSubcategoryChange(
@@ -578,7 +582,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-error text-white rounded-none"
+                            className="btn btn-error bg-red-400 hover:bg-red-500 px-3 text-white rounded-none"
                             onClick={() => removeSpecialSubcategoryField(index)}
                           >
                             Remove
@@ -589,7 +593,7 @@ const CategoryManagement = () => {
                       {/* Add more subcategories button */}
                       <button
                         type="button"
-                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        className="btn bg-blue-400 hover:bg-blue-500 py-3 text-white mt-2 w-full rounded-none"
                         onClick={addSpecialSubcategoryField}
                       >
                         Add Special Subcategories
@@ -598,7 +602,7 @@ const CategoryManagement = () => {
 
                     <button
                       type="submit"
-                      className="btn bg-green-400 hover:bg-green-500 float-end text-white mt-2 rounded-none"
+                      className="btn bg-green-400 hover:bg-green-500 py-3 px-6 float-end text-white mt-2 rounded-none"
                     >
                       Submit
                     </button>
@@ -616,7 +620,8 @@ const CategoryManagement = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Edit Category</h2>
                     <button
-                      className="btn btn-sm btn-circle bg-gray-500 text-white"
+                      className="btn btn-sm btn-circle py-1 px-2 bg-gray-500 text-white"
+                      style={{ borderRadius: "50%" }}
                       onClick={handleCloseEditCategoryModal}
                     >
                       ✕
@@ -631,7 +636,7 @@ const CategoryManagement = () => {
                       <input
                         type="text"
                         placeholder="Category Name"
-                        className="input input-bordered w-full rounded-none"
+                        className="input border p-3 w-full rounded-none"
                         value={editCategoryName}
                         onChange={(e) => setEditCategoryName(e.target.value)}
                       />
@@ -647,7 +652,7 @@ const CategoryManagement = () => {
                           <input
                             type="text"
                             placeholder="Subcategory Name"
-                            className="input input-bordered w-full rounded-none"
+                            className="input border p-3 w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleEditSubcategoryChange(index, e.target.value)
@@ -655,7 +660,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-error text-white  rounded-none"
+                            className="btn btn-error bg-red-400 hover:bg-red-500 px-3 text-white  rounded-none"
                             onClick={() => removeEditSubcategoryField(index)}
                           >
                             Remove
@@ -664,22 +669,26 @@ const CategoryManagement = () => {
                       ))}
                       <button
                         type="button"
-                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        className="btn bg-blue-400 hover:bg-blue-500 py-3 text-white mt-2 w-full rounded-none"
                         onClick={addEditSubcategoryField}
                       >
                         Add More Subcategories
                       </button>
-                      <label className="label mt-5">
-                        <span className="label-text">
-                          Special Subcategories
-                        </span>
-                      </label>
+                      {editSpecialSubcategories.length > 0 && (
+                        <div className="mt-4">
+                          <label className="label mt-5">
+                            <span className="label-text mt-5">
+                              Special Subcategories
+                            </span>
+                          </label>
+                        </div>
+                      )}
                       {editSpecialSubcategories.map((subcategory, index) => (
                         <div key={index} className="flex gap-2 mb-2">
                           <input
                             type="text"
                             placeholder="Special Subcategory Name"
-                            className="input input-bordered w-full rounded-none"
+                            className="input border p-3 w-full rounded-none"
                             value={subcategory}
                             onChange={(e) =>
                               handleEditSpecialSubcategoryChange(
@@ -690,7 +699,7 @@ const CategoryManagement = () => {
                           />
                           <button
                             type="button"
-                            className="btn btn-error text-white  rounded-none"
+                            className="btn btn-error bg-red-400 hover:bg-red-500 px-3 text-white  rounded-none"
                             onClick={() =>
                               removeEditSpecialSubcategoryField(index)
                             }
@@ -701,14 +710,14 @@ const CategoryManagement = () => {
                       ))}
                       <button
                         type="button"
-                        className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 w-full rounded-none"
+                        className="btn bg-blue-400 hover:bg-blue-500 text-white py-3 mt-2 w-full rounded-none"
                         onClick={addEditSpecialSubcategoryField}
                       >
                         Add Special Subcategories
                       </button>
                       <button
                         type="button"
-                        className="btn bg-red-400 hover:bg-red-500 text-white mt-2 w-full rounded-none"
+                        className="btn bg-red-400 hover:bg-red-500 py-3 text-white mt-2 w-full rounded-none"
                         onClick={() => handleDeleteClick(editCategoryId)}
                       >
                         Remove Category
@@ -729,7 +738,7 @@ const CategoryManagement = () => {
 
                     <button
                       type="submit"
-                      className="btn bg-blue-400 hover:bg-blue-500 text-white mt-2 float-end rounded-none"
+                      className="btn bg-blue-400 hover:bg-blue-500 py-3 px-4 text-white mt-2 float-end rounded-none"
                     >
                       Save Changes
                     </button>
@@ -742,7 +751,7 @@ const CategoryManagement = () => {
           {/* Confirmation Modal */}
           {showDeleteConfirmation && (
             <div className="fixed top-0 left-0 z-50 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-              <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="bg-white p-6 shadow-lg">
                 <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
                 <p>Are you sure you want to delete this category? </p>
                 <h2 className="text-lg text-center font-bold mb-4">
@@ -751,13 +760,13 @@ const CategoryManagement = () => {
                 </h2>
                 <div className="flex justify-end mt-4">
                   <button
-                    className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-4 py-3 mr-2 hover:bg-gray-600"
                     onClick={cancelDelete}
                   >
                     Cancel
                   </button>
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    className="bg-red-400 text-white px-4 py-3 hover:bg-red-500"
                     onClick={confirmDelete}
                   >
                     Confirm

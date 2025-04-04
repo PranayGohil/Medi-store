@@ -82,7 +82,7 @@ const Footer = () => {
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
                         <Link
                           to={"/about"}
-                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           About Us
                         </Link>
@@ -90,7 +90,7 @@ const Footer = () => {
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
                         <Link
                           to={"/contact"}
-                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Contact Us
                         </Link>
@@ -98,7 +98,7 @@ const Footer = () => {
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
                         <Link
                           to={"/terms-and-conditions"}
-                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Terms &amp; Conditions
                         </Link>
@@ -106,7 +106,7 @@ const Footer = () => {
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
                         <Link
                           href="shop-list-left-sidebar.html"
-                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Services
                         </Link>
@@ -114,7 +114,7 @@ const Footer = () => {
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
                         <Link
                           to={"/privacy-policy"}
-                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                          className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Privacy Policy
                         </Link>
@@ -141,7 +141,7 @@ const Footer = () => {
                                 onClick={() =>
                                   handleCategoryClick(category.category)
                                 }
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#6c7fd8] mb-[0] inline-block break-all tracking-[0] font-normal"
+                                className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#686e7d] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                               >
                                 {category.category}
                               </button>
@@ -163,7 +163,7 @@ const Footer = () => {
                       <ul className="align-items-center">
                         <li className="bb-footer-link bb-foo-location flex items-start max-[991px]:mb-[15px] mb-[16px]">
                           <span className="mt-[5px] w-[25px] basis-[auto] grow-[0] shrink-[0]">
-                            <i className="ri-map-pin-line leading-[0] text-[18px] text-[#6c7fd8]" />
+                            <i className="ri-map-pin-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <p className="m-[0] font-Poppins text-[14px] text-[#686e7d] font-normal leading-[28px] tracking-[0.03rem]">
                             971 Lajamni, Motavarachha, Surat, Gujarat, Bharat
@@ -172,7 +172,7 @@ const Footer = () => {
                         </li>
                         <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">
                           <span className="w-[25px] basis-[auto] grow-[0] shrink-[0]">
-                            <i className="ri-whatsapp-line leading-[0] text-[18px] text-[#6c7fd8]" />
+                            <i className="ri-whatsapp-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <a
                             href="tel:+009876543210"
@@ -183,7 +183,7 @@ const Footer = () => {
                         </li>
                         <li className="bb-footer-link bb-foo-mail flex">
                           <span className="w-[25px] basis-[auto] grow-[0] shrink-[0]">
-                            <i className="ri-mail-line leading-[0] text-[18px] text-[#6c7fd8]" />
+                            <i className="ri-mail-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <a
                             href="mailto:example@email.com"
@@ -203,7 +203,7 @@ const Footer = () => {
                         <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
                           <Link
                             to={"https://www.facebook.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#6c7fd8] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
+                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
                           >
                             <i className="ri-facebook-fill text-[16px] text-[#fff]" />
                           </Link>
@@ -211,7 +211,7 @@ const Footer = () => {
                         <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
                           <Link
                             to={"https://twitter.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#6c7fd8] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
+                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
                           >
                             <i className="ri-twitter-x-fill text-[16px] text-[#fff]" />
                           </Link>
@@ -219,7 +219,7 @@ const Footer = () => {
                         <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
                           <Link
                             to={"https://whatsapp.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#6c7fd8] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
+                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
                           >
                             <i className="ri-whatsapp-line text-[16px] text-[#fff]" />
                           </Link>
@@ -227,7 +227,7 @@ const Footer = () => {
                         <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
                           <Link
                             to={"https://www.instagram.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#6c7fd8] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
+                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#686e7d] relative break-all font-normal"
                           >
                             <i className="ri-instagram-line text-[16px] text-[#fff]" />
                           </Link>
@@ -254,7 +254,7 @@ const Footer = () => {
                       />
                       <Link
                         to={"/"}
-                        className="site-name transition-all duration-[0.3s] ease-in-out font-medium text-[#6c7fd8] hover:text-[#3d4750] font-Poppins text-[15px] leading-[28px] tracking-[0.03rem]"
+                        className="site-name transition-all duration-[0.3s] ease-in-out font-medium text-[#0097b2] hover:text-[#3d4750] font-Poppins text-[15px] leading-[28px] tracking-[0.03rem]"
                       >
                         Forever Cure
                       </Link>{" "}
