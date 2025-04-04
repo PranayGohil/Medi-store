@@ -1,6 +1,5 @@
 import Coupon from "../models/couponModel.js";
 
-// Create a new coupon
 export const createCoupon = async (req, res) => {
   try {
     const coupon = new Coupon(req.body);
@@ -11,7 +10,6 @@ export const createCoupon = async (req, res) => {
   }
 };
 
-// Get all coupons
 export const getAllCoupons = async (req, res) => {
   try {
     const coupons = await Coupon.find();
@@ -21,7 +19,6 @@ export const getAllCoupons = async (req, res) => {
   }
 };
 
-// Get coupon by ID
 export const getCouponById = async (req, res) => {
   try {
     const coupon = await Coupon.findById(req.params.id);
@@ -34,7 +31,6 @@ export const getCouponById = async (req, res) => {
   }
 };
 
-// Update coupon
 export const updateCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
@@ -49,7 +45,6 @@ export const updateCoupon = async (req, res) => {
   }
 };
 
-// Delete coupon
 export const deleteCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
@@ -62,7 +57,6 @@ export const deleteCoupon = async (req, res) => {
   }
 };
 
-// Apply Coupon During Checkout
 export const applyCoupon = async (req, res) => {
   const { code, total } = req.body;
 
@@ -98,7 +92,6 @@ export const applyCoupon = async (req, res) => {
 
     const discountedTotal = total - discount;
 
-    // Increment usage count
     coupon.used_count += 1;
     await coupon.save();
 

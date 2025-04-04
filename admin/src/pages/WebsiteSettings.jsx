@@ -20,7 +20,6 @@ const WebsiteSettings = () => {
     title3: "",
     image: null,
   });
-  const [bannerGuide, setBannerGuide] = useState(false);
   const [showAddBannerForm, setShowAddBannerForm] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
@@ -167,18 +166,8 @@ const WebsiteSettings = () => {
     }
   };
 
-  const bannerGuideOpen = () => {
-    setBannerGuide(true);
-    setShowAddBannerForm(false);
-  };
-
-  const bannerGuideClose = () => {
-    setBannerGuide(false);
-  };
-
   const addBannerFormOpen = () => {
     setShowAddBannerForm(true);
-    setBannerGuide(false);
   };
 
   const addBannerFormClose = () => {
@@ -235,21 +224,6 @@ const WebsiteSettings = () => {
         <div className="flex justify-between">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Banners</h2>
           <div>
-            {!bannerGuide ? (
-              <button
-                onClick={() => bannerGuideOpen()}
-                className="bg-blue-500 mx-2 hover:bg-blue-600 text-white py-3 px-4 mb-4"
-              >
-                Banner Guide
-              </button>
-            ) : (
-              <button
-                onClick={() => bannerGuideClose()}
-                className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-3 px-4 mb-4"
-              >
-                Close Guide
-              </button>
-            )}
             {!showAddBannerForm ? (
               <button
                 onClick={() => addBannerFormOpen()}
@@ -262,18 +236,11 @@ const WebsiteSettings = () => {
                 onClick={() => addBannerFormClose()}
                 className="bg-gray-500 mx-2 hover:bg-gray-600 text-white py-3 px-4 mb-4"
               >
-                Close Guide
+                Close
               </button>
             )}
           </div>
         </div>
-        {bannerGuide && (
-          <img
-            src="../assets/img/banner-guide.png"
-            alt="Banners"
-            className="mb-6"
-          />
-        )}
         {showAddBannerForm && (
           <form onSubmit={handleSubmit} className="mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,10 +315,6 @@ const WebsiteSettings = () => {
                 alt="Banner"
                 className="w-full h-48 object-contain mb-4"
               />
-              <p>Discription: {banner.discription}</p>
-              <p>Title 1: {banner.title1}</p>
-              <p>Title 2: {banner.title2}</p>
-              <p>Title 3: {banner.title3}</p>
               <button
                 className="mt-4 bg-red-400 hover:bg-red-500 text-white py-3 px-4"
                 onClick={() => handleRemoveBanner(banner._id)}
