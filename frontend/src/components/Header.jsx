@@ -342,7 +342,7 @@ const Header = () => {
                       {/* Suggestions with Image, Manufacturer, and Price */}
                       {showSuggestions && (
                         <ul className="absolute top-[100%] p-2 left-0 w-full min-w-[350px] max-h-[500px] overflow-scroll no-scrollbar bg-white border border-gray-300 shadow-lg rounded-md z-10">
-                          {suggestions.slice(0, 10).map((suggestion, index) => (
+                          {[...new Map(suggestions.map((item) => [item.generic_name, item])).values()].slice(0, 8).map((suggestion, index) => (
                             <li
                               key={index}
                               className="p-2 cursor-pointer hover:bg-gray-100"
@@ -353,7 +353,7 @@ const Header = () => {
                               {suggestion.generic_name}
                             </li>
                           ))}
-                          {suggestions.slice(0, 10).map((suggestion, index) => (
+                          {suggestions.slice(0, 8).map((suggestion, index) => (
                             <li
                               key={index}
                               className="flex items-center p-2 cursor-pointer hover:bg-gray-100"

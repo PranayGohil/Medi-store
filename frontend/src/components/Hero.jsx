@@ -10,7 +10,7 @@ import { SitePreferencesContext } from "../context/SitePreferencesContext";
 const Hero = () => {
   const { banners } = useContext(SitePreferencesContext);
   return (
-    <section className="section-hero mb-[50px] max-[1199px]:mb-[35px] py-[50px] relative bg-[#f8f8fb] overflow-hidden">
+    <section className="section-hero py-[10px] relative bg-[#f8f8fb] overflow-hidden">
       <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
         <div className="flex flex-wrap w-full">
           <div className="w-full">
@@ -27,9 +27,9 @@ const Hero = () => {
                   key={index}
                   className="flex flex-wrap w-full mb-[-24px]"
                 >
-                  <div className="flex flex-wrap w-full mb-[24px]">
-                    <div className="w-full px-[12px] min-[992px]:order-2 order-1 mb-[24px]">
-                      <div className="hero-image relative max-[991px]:px-[50px] max-[575px]:px-[30px] flex justify-center max-[420px]:p-[0]">
+                  <div className="flex flex-wrap w-full ">
+                    <div className="w-full min-[992px]:order-2 order-1">
+                      <div className="hero-image relative max-[991px]:px-[10px] max-[575px]:px-[5px] flex justify-center max-[420px]:p-[0]">
                         <div className="w-full flex justify-center items-center">
                           <img
                             src={slide.image}
