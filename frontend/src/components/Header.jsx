@@ -747,7 +747,7 @@ const Header = () => {
                             <li className="relative">
                               <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
                                 {category.subcategory.map((subCategory) => (
-                                  <li className="relative">
+                                  <li className="relative border-b border-[#eee]">
                                     <button
                                       onClick={() =>
                                         handleSubCategoryClick(
@@ -755,7 +755,7 @@ const Header = () => {
                                           subCategory
                                         )
                                       }
-                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
+                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
                                     >
                                       {subCategory}
                                     </button>
@@ -763,7 +763,7 @@ const Header = () => {
                                 ))}
                                 {category.special_subcategory.map(
                                   (subCategory) => (
-                                    <li className="relative">
+                                    <li className="relative border-b border-[#eee]">
                                       <button
                                         onClick={() =>
                                           handleSubCategoryClick(
@@ -771,9 +771,9 @@ const Header = () => {
                                             subCategory
                                           )
                                         }
-                                        className="w-full flex items-center font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[12px]"
+                                        className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
                                       >
-                                        <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]" />
+                                        <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
                                         {subCategory}
                                       </button>
                                     </li>
