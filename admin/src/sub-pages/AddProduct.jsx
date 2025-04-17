@@ -13,8 +13,6 @@ const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { fetchProducts, currency } = useContext(ShopContext);
-  const notifySuccess = () => toast.success("Product Added Successfully");
-  const notifyError = (error) => toast.error("Error Adding Product: " + error);
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState([]);
   const [productImages, setProductImages] = useState([]);
@@ -65,7 +63,7 @@ const AddProduct = () => {
     product_code: "",
     product_images: null,
     manufacturer: "",
-    manufacturer_image: null,
+    manufacturer_image: "",
     categories: [{ category: "", subcategory: "" }],
     country_of_origin: "",
     dosage_form: "",
@@ -134,6 +132,7 @@ const AddProduct = () => {
           },
         }
       );
+      console.log(response.data);
       if (
         response.data.success === false &&
         response.data.message === "Unauthorized"
@@ -146,14 +145,14 @@ const AddProduct = () => {
 
       if (response.data.success) {
         fetchProducts();
-        notifySuccess();
+        toast.success("Product Added Successfully");
         navigate("/products");
       } else {
-        notifyError(response.data.message || "Error adding product");
+        toast.error(response.data.message || "Error adding product");
       }
     } catch (error) {
       console.error("Error:", error);
-      notifyError(error.message);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -504,11 +503,6 @@ const AddProduct = () => {
                         style={{ display: "none" }}
                         multiple
                       />
-                      <ErrorMessage
-                        name="product_images"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
                     </label>
                     {productImages.map((image, index) => (
                       <div key={index} className="relative">
@@ -527,10 +521,13 @@ const AddProduct = () => {
                       </div>
                     ))}
                   </div>
+                  <ErrorMessage
+                    name="product_images"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
 
-                  {/* Manufacturer Image Upload */}
-
-                  {/* Manufacturer Image Preview */}
+                  {/* Manufacturer Image */}
                   <label className="block text-gray-600 font-medium">
                     Manufacturer Logo Image
                   </label>
@@ -565,11 +562,6 @@ const AddProduct = () => {
                         accept="image/*"
                         style={{ display: "none" }}
                       />
-                      <ErrorMessage
-                        name="manufacturer_image"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
                     </label>
                     {manufacturerImage && (
                       <div className="relative">
@@ -588,6 +580,11 @@ const AddProduct = () => {
                       </div>
                     )}
                   </div>
+                  <ErrorMessage
+                    name="manufacturer_image"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </>
               )}
 

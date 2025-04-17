@@ -1,8 +1,9 @@
 .custom-pagination {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
-  bottom: -8px;
+  position: absolute;
+  bottom: 20px !important;
+  z-index: 10;
 }
 
 .swiper-pagination-bullet {
@@ -19,4 +20,18 @@
 .swiper-pagination-bullet-active {
   width: 30px;
   background: #0097b2;
+}
+
+@media screen and (max-width: 1000px) {
+
+  .swiper-pagination-bullet {
+    width: 15px;
+    height: 5px;
+  }
+
+  .swiper-pagination-bullet-active {
+    width: 20px;
+    background: #0097b2;
+  }
+  
 }

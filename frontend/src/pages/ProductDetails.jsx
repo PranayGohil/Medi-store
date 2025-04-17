@@ -267,9 +267,11 @@ const ProductDetails = () => {
                         <h4 className="font-quicksand text-[22px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#3d4750]">
                           {product.name}
                         </h4>
-                        <h3 className="font-quicksand text-[15px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#39393a]">
-                          ({product.generic_name})
-                        </h3>
+                        {product.generic_name && (
+                          <h3 className="font-quicksand text-[15px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#39393a]">
+                            ({product.generic_name})
+                          </h3>
+                        )}
                       </div>
                       <div className="bb-single-rating mb-[12px]">
                         <span className="bb-pro-rating mr-[10px]">
@@ -287,30 +289,38 @@ const ProductDetails = () => {
                       </div>
                       <div className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                         <ul className="my-[-8px] pl-[18px]">
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Product Code :
-                            </span>{" "}
-                            {product.product_code}
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Country of Origin :
-                            </span>{" "}
-                            {product.country_of_origin}
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Dosage Form :
-                            </span>{" "}
-                            {product.dosage_form}
-                          </li>
-                          <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                            <span className="font-Poppins text-[#777] text-[14px]">
-                              Manufacturer :
-                            </span>{" "}
-                            {product.manufacturer}
-                          </li>
+                          {product.product_code && (
+                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                              <span className="font-Poppins text-[#777] text-[14px]">
+                                Product Code :
+                              </span>{" "}
+                              {product.product_code}
+                            </li>
+                          )}
+                          {product.country_of_origin && (
+                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                              <span className="font-Poppins text-[#777] text-[14px]">
+                                Country of Origin :
+                              </span>{" "}
+                              {product.country_of_origin}
+                            </li>
+                          )}
+                          {product.dosage_form && (
+                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                              <span className="font-Poppins text-[#777] text-[14px]">
+                                Dosage Form :
+                              </span>{" "}
+                              {product.dosage_form}
+                            </li>
+                          )}
+                          {product.manufacturer && (
+                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
+                              <span className="font-Poppins text-[#777] text-[14px]">
+                                Manufacturer :
+                              </span>{" "}
+                              {product.manufacturer}
+                            </li>
+                          )}
                         </ul>
                         <p className="my-[8px] w-[300px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
                           {product.manufacturer_image && (
@@ -354,7 +364,7 @@ const ProductDetails = () => {
                       </div> */}
                       {product.available ? (
                         <>
-                          <div className="bb-single-pro-weight mb-[24px]">
+                          <div className="bb-single-pro-weight my-[24px]">
                             <div className="pro-title mb-[12px]">
                               <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
                                 Select Quantity
@@ -478,13 +488,18 @@ const ProductDetails = () => {
                   {activeTab === "detail" && (
                     <div className="tab-pro-pane" id="detail">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
-                        <div
-                          className="bb-details prose max-w-full ql-editor mx-3"
-                          dangerouslySetInnerHTML={{
-                            __html: product.description,
-                          }}
-                        ></div>
-                        <h1>Hellooooooooooooooooo</h1>
+                        {product.description ? (
+                          <div
+                            className="bb-details prose max-w-full ql-editor mx-3"
+                            dangerouslySetInnerHTML={{
+                              __html: product.description,
+                            }}
+                          ></div>
+                        ) : (
+                          <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
+                            No description found
+                          </h4>
+                        )}
                       </div>
                     </div>
                   )}
@@ -492,12 +507,18 @@ const ProductDetails = () => {
                   {activeTab === "information" && (
                     <div className="tab-pro-pane" id="information">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
-                        <div
-                          className="information prose max-w-full ql-editor mx-3"
-                          dangerouslySetInnerHTML={{
-                            __html: product.information,
-                          }}
-                        ></div>
+                        {product.information ? (
+                          <div
+                            className="information prose max-w-full ql-editor mx-3"
+                            dangerouslySetInnerHTML={{
+                              __html: product.information,
+                            }}
+                          ></div>
+                        ) : (
+                          <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
+                            No information found
+                          </h4>
+                        )}
                       </div>
                     </div>
                   )}

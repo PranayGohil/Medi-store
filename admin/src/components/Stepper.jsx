@@ -5,7 +5,7 @@ const Stepper = ({ steps, currentStep, onStepClick }) => {
   return (
     <div className="flex justify-center space-x-8 mb-8">
       {steps.map((step, index) => (
-        <div key={index} className="flex flex-col items-center cursor-pointer">
+        <div key={index} className="flex flex-col items-center cursor-pointer" onClick={() => onStepClick(index)}>
           <div
             className={`w-12 h-12 flex items-center justify-center rounded-full text-white 
               ${index === currentStep ? "bg-blue-500" : "bg-gray-400"}`}

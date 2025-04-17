@@ -3,32 +3,30 @@ import * as Yup from "yup";
 export const addProduct = Yup.object().shape({
   // Step 1: Basic Information
   product_code: Yup.string()
-    .required("Product code is required")
     .matches(/^[A-Za-z0-9_-]+$/, "Invalid product code format"),
   name: Yup.string().required("Product name is required"),
-  generic_name: Yup.string().required("Generic name is required"),
-  manufacturer: Yup.string().required("Manufacturer name is required"),
-  country_of_origin: Yup.string().required("Country of origin is required"),
+  generic_name: Yup.string(),
+  manufacturer: Yup.string(),
+  country_of_origin: Yup.string(),
   dosage_form: Yup.string().required("Dosage form is required"),
 
   categories: Yup.array()
     .of(
       Yup.object().shape({
-        category: Yup.string().required("Category is required"),
-        subcategory: Yup.string().required("Subcategory is required"),
+        category: Yup.string(),
+        subcategory: Yup.string(),
       })
-    )
-    .min(1, "At least one category is required"),
+    ),
 
   // Step 2: Images
   product_images: Yup.array()
     .min(1, "At least one product image is required")
     .required("Product images are required"),
-  manufacturer_image: Yup.mixed().required("Manufacturer image is required"),
+  manufacturer_image: Yup.mixed(),
 
   // Step 3: Description & Information
-  description: Yup.string().required("Description is required"),
-  information: Yup.string().required("Additional information is required"),
+  description: Yup.string(),
+  information: Yup.string(),
 
   // Step 4: Pricing
   pricing: Yup.array()

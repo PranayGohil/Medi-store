@@ -12,21 +12,25 @@ const addProduct = async (req, res) => {
     console.log(productData);
 
     let productImageUrls = await Promise.all(
-      product_images.map(async (image) => {
-        let result = await cloudinary.uploader.upload(image.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+      product_images
+        ? product_images.map(async (image) => {
+            let result = await cloudinary.uploader.upload(image.path, {
+              resource_type: "image",
+            });
+            return result.secure_url;
+          })
+        : []
     );
 
     let manufacturerImageUrl = await Promise.all(
-      manufacturer_image.map(async (image) => {
-        let result = await cloudinary.uploader.upload(image.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+      manufacturer_image
+        ? manufacturer_image.map(async (image) => {
+            let result = await cloudinary.uploader.upload(image.path, {
+              resource_type: "image",
+            });
+            return result.secure_url;
+          })
+        : ""
     );
 
     let alias = productData.name.split(" ").join("-").toLowerCase();
@@ -235,7 +239,7 @@ export const changeAvailableStatus = async (req, res) => {
     console.log(error);
     return res.json({ success: false, message: error.message });
   }
-}
+};
 
 const addReview = async (req, res) => {
   try {

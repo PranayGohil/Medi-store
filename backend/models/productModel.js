@@ -1,22 +1,22 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
-  product_code: { type: String, required: true },
+  product_code: { type: String },
   name: { type: String, required: true },
-  generic_name: { type: String, required: true },
-  manufacturer: { type: String, required: true },
-  country_of_origin: { type: String, required: true },
+  generic_name: { type: String },
+  manufacturer: { type: String },
+  country_of_origin: { type: String },
   dosage_form: { type: String, required: true },
   categories: [
     {
-      category: { type: String, required: true },
-      subcategory: { type: String, required: true },
+      category: { type: String },
+      subcategory: { type: String },
     },
   ],
   product_images: { type: Array, required: true },
-  manufacturer_image: { type: String, required: true },
-  description: { type: String, required: true },
-  information: { type: String, required: true },
+  manufacturer_image: { type: String },
+  description: { type: String },
+  information: { type: String },
   pricing: [
     {
       net_quantity: { type: Number, required: true },
