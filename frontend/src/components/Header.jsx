@@ -21,6 +21,7 @@ const Header = () => {
   const [genericSuggestions, setGenericSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showGenericSuggestions, setShowGenericSuggestions] = useState(false);
+  const [openMobileSubMenu, setOpenMobileSubMenu] = useState("");
 
   const [categories, setCategories] = useState([]);
 
@@ -32,6 +33,7 @@ const Header = () => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+    setOpenMobileSubMenu("");
   };
 
   const fetchCategories = async () => {
@@ -188,6 +190,11 @@ const Header = () => {
     };
   }, []);
 
+  const toggleMobileSubMenu = (category) => {
+    console.log(category);
+    setOpenMobileSubMenu((prevId) => (prevId === category ? "" : category));
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -342,17 +349,26 @@ const Header = () => {
                       {/* Suggestions with Image, Manufacturer, and Price */}
                       {showSuggestions && (
                         <ul className="absolute top-[100%] p-2 left-0 w-full min-w-[350px] max-h-[500px] overflow-scroll no-scrollbar bg-white border border-gray-300 shadow-lg rounded-md z-10">
-                          {[...new Map(suggestions.map((item) => [item.generic_name, item])).values()].slice(0, 8).map((suggestion, index) => (
-                            <li
-                              key={index}
-                              className="p-2 cursor-pointer hover:bg-gray-100"
-                              onClick={() =>
-                                handleGenericSuggestionClick(suggestion)
-                              }
-                            >
-                              {suggestion.generic_name}
-                            </li>
-                          ))}
+                          {[
+                            ...new Map(
+                              suggestions.map((item) => [
+                                item.generic_name,
+                                item,
+                              ])
+                            ).values(),
+                          ]
+                            .slice(0, 8)
+                            .map((suggestion, index) => (
+                              <li
+                                key={index}
+                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                onClick={() =>
+                                  handleGenericSuggestionClick(suggestion)
+                                }
+                              >
+                                {suggestion.generic_name}
+                              </li>
+                            ))}
                           {suggestions.slice(0, 8).map((suggestion, index) => (
                             <li
                               key={index}
@@ -690,92 +706,87 @@ const Header = () => {
               </li>
               <li className="relative">
                 <Link
-                  to="/products"
+                  to="/all-categories"
                   onClick={closeMobileMenu}
                   className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
-                  Categories
-                </Link>
-                <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                  <li className="relative">
-                    {/* <a
-                      href="javascript:void(0)"
-                      className="transition-all duration-[0.3s] ease-in-out mb-[0] pl-[15px] pr-[0] py-[12px] capitalize block text-[14px] font-normal text-[#686e7d]"
-                    >
-                      Classic
-                    </a> */}
-                    <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static hidden visible opacity-[1]">
-                      <li className="relative">
-                        <a
-                          href="shop-left-sidebar-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Left sidebar 3 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-left-sidebar-col-4.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Left sidebar 4 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-right-sidebar-col-3.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Right sidebar 3 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-right-sidebar-col-4.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Right sidebar 4 column
-                        </a>
-                      </li>
-                      <li className="relative">
-                        <a
-                          href="shop-full-width.html"
-                          className="font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
-                        >
-                          Full width 4 column
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-              <li className="relative">
-                <Link
-                  to="/products"
-                  onClick={closeMobileMenu}
-                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
-                >
-                  Explore Products
+                  All Categories
                 </Link>
               </li>
-              <li className="relative">
-                <Link
-                  to="/about"
-                  onClick={closeMobileMenu}
-                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
-                >
-                  About
-                </Link>
-              </li>
-              <li className="relative">
-                <Link
-                  to="/contact"
-                  onClick={closeMobileMenu}
-                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
-                >
-                  Contact
-                </Link>
-              </li>
+              {categories.map(
+                (category) =>
+                  category.navbar_active && (
+                    <li className="relative border-[1px] border-solid border-[#eee] rounded-[10px] transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] font-Poppins capitalize text-[#686e7d] text-[15px] font-medium leading-[28px] tracking-[0.03rem]">
+                      <div className="flex justify-between items-center ">
+                        <button
+                          onClick={() => {
+                            closeMobileMenu();
+                            handleCategoryClick(category.category);
+                          }}
+                          className=" w-[80%] text-start"
+                        >
+                          {category.category}
+                        </button>
+                        {openMobileSubMenu === category.category ? (
+                          <i
+                            className="ri-arrow-down-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() => toggleMobileSubMenu("")}
+                          ></i>
+                        ) : (
+                          <i
+                            className="ri-arrow-right-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() =>
+                              toggleMobileSubMenu(category.category)
+                            }
+                          ></i>
+                        )}
+                      </div>
+                      {openMobileSubMenu === category.category && (
+                        <>
+                          <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
+                            <li className="relative">
+                              <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
+                                {category.subcategory.map((subCategory) => (
+                                  <li className="relative">
+                                    <button
+                                      onClick={() =>
+                                        handleSubCategoryClick(
+                                          category.category,
+                                          subCategory
+                                        )
+                                      }
+                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[12px]"
+                                    >
+                                      {subCategory}
+                                    </button>
+                                  </li>
+                                ))}
+                                {category.special_subcategory.map(
+                                  (subCategory) => (
+                                    <li className="relative">
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="w-full flex items-center font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[12px]"
+                                      >
+                                        <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]" />
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </li>
+                          </ul>
+                        </>
+                      )}
+                    </li>
+                  )
+              )}
               <li className="relative">
                 <Link
                   to="/offers"
