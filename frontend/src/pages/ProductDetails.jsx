@@ -151,6 +151,11 @@ const ProductDetails = () => {
           item.id === product._id &&
           item.net_quantity === selectedPrice.net_quantity
       );
+      // if (productExists === true) {
+      //   setQuantity(productExists.quantity);
+      // } else {
+      //   setQuantity(1);
+      // }
       setIsProductInCart(productExists);
     }
   }, [cart, product, selectedPrice]);
@@ -399,21 +404,42 @@ const ProductDetails = () => {
                               </ul>
                             </div>
                           </div>
+                          <div className="pro-title mb-[18px]">
+                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
+                              Total: {currency}{" "}
+                              {selectedPrice.total_price * quantity}
+                            </h4>
+                          </div>
                           <div className="bb-single-qty flex flex-wrap m-[-2px]">
                             <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                              <input
-                                className="w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
-                                type="number"
-                                name="quantity"
-                                value={quantity}
-                                onChange={(e) => {
-                                  if (e.target.value < 1) {
-                                    e.target.value = 1;
-                                  }
-                                  setQuantity(parseInt(e.target.value));
+                              <button
+                                className="bb-qtybtn"
+                                type="button"
+                                onClick={() => {
+                                  setQuantity((prevQuantity) => {
+                                    if (prevQuantity > 1) {
+                                      return prevQuantity - 1;
+                                    }
+                                    return prevQuantity; // Ensure it doesn't go below 1
+                                  });
                                 }}
-                                min={1}
-                              />
+                              >
+                                -
+                              </button>
+                              <p className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]">
+                                {quantity}
+                              </p>
+                              <button
+                                className="bb-qtybtn"
+                                type="button"
+                                onClick={() => {
+                                  setQuantity(
+                                    (prevQuantity) => prevQuantity + 1
+                                  );
+                                }}
+                              >
+                                +
+                              </button>
                             </div>
                             <div className="buttons m-[2px]">
                               {isProductInCart ? (

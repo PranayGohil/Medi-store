@@ -83,7 +83,9 @@ const Cart = () => {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.delete(
-        `${import.meta.env.VITE_APP_API_URL}/api/cart/remove-from-cart/${id}/${net_quantity}`,
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/cart/remove-from-cart/${id}/${net_quantity}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -162,8 +164,8 @@ const Cart = () => {
               </div>
             </div>
             <div className="min-[992px]:w-[66.66%] w-full px-[12px] mb-[24px]">
-              <div className="bb-cart-table border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto">
-                <table className="w-full max-[1399px]:w-[780px]">
+              <div className="bb-cart-table border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:block hidden">
+                <table className="w-full">
                   <thead>
                     <tr className="border-b-[1px] border-solid border-[#eee]">
                       <th className="font-Poppins p-[12px] text-left text-[16px] font-medium text-[#3d4750] leading-[26px] tracking-[0.02rem] capitalize">
@@ -211,18 +213,35 @@ const Cart = () => {
                             </td>
                             <td className="p-[12px]">
                               <div className="qty-plus-minus w-[85px] h-[45px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                                <input
-                                  type="number"
-                                  value={item.quantity}
-                                  min="1"
-                                  className="w-full qty-input text-[#777] float-left text-[14px] h-[auto] m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]"
-                                  onChange={(e) =>
+                                <button
+                                  type="button"
+                                  className="bb-qtybtn"
+                                  onClick={() => {
+                                    if (item.quantity === 1) {
+                                      handleRemove(item.id, item.net_quantity);
+                                    } else {
+                                      handleQuantityChange(
+                                        item.id,
+                                        item.quantity - 1
+                                      );
+                                    }
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <p>{item.quantity}</p>
+                                <button
+                                  type="button"
+                                  className="bb-qtybtn"
+                                  onClick={() =>
                                     handleQuantityChange(
                                       item.id,
-                                      parseInt(e.target.value) || 1
+                                      item.quantity + 1
                                     )
                                   }
-                                />
+                                >
+                                  +
+                                </button>
                               </div>
                             </td>
                             <td className="p-[12px]">
@@ -263,6 +282,115 @@ const Cart = () => {
                   </tbody>
                 </table>
               </div>
+
+              <div className="bb-cart-table border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:hidden block">
+                <div className="w-full">
+                  <div>
+                    {cartItems.map((item) => (
+                      <div key={item.id + item.net_quantity}>
+                        <div className="flex justify-between">
+                          <div className="p-[12px]">
+                            <div className="Product-cart flex items-center">
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-[70px] border-[1px] border-solid border-[#eee] rounded-[10px]"
+                              />
+                              <span className="ml-[10px] font-Poppins text-[14px] font-normal leading-[28px] tracking-[0.03rem] text-[#686e7d]">
+                                {item.name}({item.generic_name})
+                                <br />
+                                {item.net_quantity} {item.dosage_form}/s
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-[12px] m-3">
+                            <div className="pro-remove">
+                              <button
+                                onClick={() =>
+                                  handleRemove(item.id, item.net_quantity)
+                                }
+                              >
+                                <i className="ri-delete-bin-line transition-all duration-[0.3s] ease-in-out text-[20px] text-[#686e7d] hover:text-[#ff0000]"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex justify-between border-b-[1px] border-solid border-[#eee] pb-2">
+                          {item.available ? (
+                            <>
+                              <div className="p-[12px]  flex flex-col gap-1">
+                              Price:
+                                <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
+                                  {currency}
+                                  {item.price}
+                                </span>
+                              </div>
+                              <div className="p-[12px]  flex flex-col gap-1">
+                                Quantity:
+                                <div className="qty-plus-minus w-[85px] h-[35px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                                  <button
+                                    type="button"
+                                    className="bb-qtybtn"
+                                    onClick={() => {
+                                      if (item.quantity === 1) {
+                                        handleRemove(
+                                          item.id,
+                                          item.net_quantity
+                                        );
+                                      } else {
+                                        handleQuantityChange(
+                                          item.id,
+                                          item.quantity - 1
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    -
+                                  </button>
+                                  <p>{item.quantity}</p>
+                                  <button
+                                    type="button"
+                                    className="bb-qtybtn"
+                                    onClick={() =>
+                                      handleQuantityChange(
+                                        item.id,
+                                        item.quantity + 1
+                                      )
+                                    }
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="p-[12px] flex flex-col gap-1">
+                              Total Price:
+                                <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
+                                  {currency}
+                                  {item.total.toFixed(2)}
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="p-[12px] text-center w-full">
+                              <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#ec6363]">
+                                Currently Not Available
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {cartItems.length === 0 && (
+                      <div>
+                        <div colSpan="5" className="text-center py-4">
+                          Your cart is empty
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {cartItems.length > 0 && (
                 <Link
                   to="/checkout"

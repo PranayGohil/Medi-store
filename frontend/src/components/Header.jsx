@@ -676,7 +676,7 @@ const Header = () => {
       />
       <div
         id="bb-mobile-menu"
-        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[17] overflow-auto max-[480px]:w-[300px] ${
+        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
           isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
         }`}
       >
