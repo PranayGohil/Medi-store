@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import PageTitle from "./components/PageTitle";
 import ScrollRestoration from "./components/ScrollRestoration";
+import InvoicePrintWrapper from "./pages/InvoicePrintWrapper";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -193,6 +194,15 @@ function App() {
             <>
               <PageTitle title="404 Page Not Found" />
               <PageNotFound />
+            </>
+          }
+        />
+        <Route
+          path="/invoice/:orderId"
+          element={
+            <>
+              <PageTitle title="Invoice" />
+              <InvoicePrintWrapper />
             </>
           }
         />

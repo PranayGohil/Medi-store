@@ -14,6 +14,7 @@ import {
   getUserReviews,
   getProductReviews,
   getAllReviews,
+  getProductsByIds,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -55,5 +56,7 @@ productRouter.put(
 productRouter.get("/get-review/:productId/:userId", getUserReviews);
 productRouter.get("/get-review/:productId", getProductReviews);
 productRouter.get("/all-reviews", adminAuth, getAllReviews);
+
+productRouter.post("/get-by-ids", getProductsByIds);
 
 export default productRouter;

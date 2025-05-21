@@ -11,6 +11,8 @@ import { FaStar } from "react-icons/fa";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+import html2pdf from "html2pdf.js";
+
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -141,9 +143,21 @@ const OrderDetails = () => {
     setOpenReview(null);
   };
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  const downloadInvoicePDF = () => {
+    const element = document.getElementById("invoice-content");
+    html2pdf()
+      .set({
+        margin: 10,
+        filename: `Invoice-${order.order_id}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(element)
+      .save();
+  };
+
+  if (isLoading || !order) return <LoadingSpinner />;
 
   return (
     <>
@@ -153,7 +167,7 @@ const OrderDetails = () => {
         destination2="Order Details"
       />
       <section className="section-track py-[25px]">
-        <div className="container mx-auto">
+        <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <Title
             title1="Track"
             title2="Order"
@@ -298,36 +312,16 @@ const OrderDetails = () => {
                             <div className="mt-4 mx-7 md:mt-0 md:ml-auto">
                               <button
                                 onClick={() => toggleReview(product._id)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base font-medium py-2 px-4 rounded-lg"
+                                className="bg-[#0097b2] border border-[#0097b2] hover:bg-transparent hover:text-[#0097b2] text-white text-sm md:text-base font-medium py-2 px-4 rounded-lg"
                               >
                                 See Review
                               </button>
                             </div>
                           ) : (
-                            // <div className="mt-4 bg-white border border-gray-300 p-4 rounded-lg shadow">
-                            //   <h3 className="text-gray-700 font-semibold text-lg mb-2">
-                            //     Your Review for {product.name}
-                            //   </h3>
-                            //   <div className="flex space-x-1 mt-1">
-                            //     {[1, 2, 3, 4, 5].map((star) => (
-                            //       <FaStar
-                            //         key={star}
-                            //         className={`text-2xl ${
-                            //           product.userReview.rating >= star
-                            //             ? "text-yellow-500"
-                            //             : "text-gray-300"
-                            //         }`}
-                            //       />
-                            //     ))}
-                            //   </div>
-                            //   <p className="text-gray-600 mt-2">
-                            //     {product.userReview.comment}
-                            //   </p>
-                            // </div>
                             <div className="mt-4 mx-7 md:mt-0 md:ml-auto">
                               <button
                                 onClick={() => toggleReview(product._id)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base font-medium py-2 px-4 rounded-lg"
+                                className="bg-[#0097b2] border border-[#0097b2] hover:bg-transparent hover:text-[#0097b2] text-white text-sm md:text-base font-medium py-2 px-4 rounded-lg"
                               >
                                 Write Review
                               </button>
@@ -352,7 +346,7 @@ const OrderDetails = () => {
                                   key={star}
                                   className={`cursor-pointer text-2xl ${
                                     reviews[product._id]?.rating >= star
-                                      ? "text-yellow-500"
+                                      ? "text-[#0097b2]"
                                       : "text-gray-300"
                                   }`}
                                   onClick={() =>
@@ -393,7 +387,7 @@ const OrderDetails = () => {
                               </button>
                               <button
                                 onClick={() => handleReviewSubmit(product._id)}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                                className="px-4 py-2 bg-[#0097b2] border border-[#0097b2] hover:bg-transparent hover:text-[#0097b2] text-white rounded-md"
                               >
                                 Submit
                               </button>
@@ -410,7 +404,7 @@ const OrderDetails = () => {
                                   key={star}
                                   className={`text-2xl ${
                                     product.userReview.rating >= star
-                                      ? "text-yellow-500"
+                                      ? "text-[#0097b2]"
                                       : "text-gray-300"
                                   }`}
                                 />
@@ -425,11 +419,139 @@ const OrderDetails = () => {
                     </div>
                   ))}
                 </div>
+                {order.order_status === "Order Delivered" && (
+                  <button
+                    onClick={downloadInvoicePDF}
+                    className="bg-[#0097b2] border border-[#0097b2] hover:bg-transparent hover:text-[#0097b2] text-white text-sm md:text-base font-medium py-2 px-4 rounded-lg"
+                  >
+                    Download Invoice
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      <div style={{ display: "none" }}>
+        <div id="invoice-content">
+          <div className="p-10 max-w-4xl mx-auto bg-white text-black text-sm font-sans">
+            <div className="text-center mb-6 flex justify-between items-center p-10">
+              <img
+                src="../assets/img/logo/logo.png"
+                alt="Logo"
+                className="h-20"
+              />
+              <h1 className="text-2xl font-bold">INVOICE</h1>
+            </div>
+
+            <div className="flex justify-between">
+              <div>
+                <div>
+                  <strong>Order ID:</strong> <p>{order.order_id}</p>
+                </div>
+                <div className="mt-2">
+                  <strong>Date:</strong>{" "}
+                  <p>{new Date(order.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                {order.delivery_address && (
+                  <>
+                    <p>
+                      <strong>Customer Name:</strong>
+                    </p>
+                    <p>
+                      {order?.delivery_address[0]?.first_name}{" "}
+                      {order?.delivery_address[0]?.last_name}
+                    </p>
+                    <p className="mt-2">
+                      <strong>Email:</strong>
+                    </p>
+                    <p>{order.delivery_address[0]?.email}</p>
+                    <p className="mt-2">
+                      <strong>Phone:</strong>
+                    </p>
+                    <p>{order.delivery_address[0]?.phone}</p>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="my-10">
+              <table className="w-full border-collapse py-5">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border p-2 text-left">Product</th>
+                    <th className="border p-2">Net Qty</th>
+                    <th className="border p-2">Price</th>
+                    <th className="border p-2">Qty</th>
+                    <th className="border p-2">Total Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr key={product._id}>
+                      <td className="border p-2">
+                        {product.name || "N/A"}{" "}
+                        <small>({product.generic_name})</small>
+                      </td>
+                      <td className="border p-2 text-center">
+                        {product.net_quantity} {product.dosage_form} /s
+                      </td>
+                      <td className="border p-2 text-center">
+                        {currency} {product.price}
+                      </td>
+                      <td className="border p-2 text-center">
+                        {product.quantity}
+                      </td>
+                      <td className="border p-2 text-center">
+                        {currency}{" "}
+                        {(product.price * product.quantity).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="">
+                    <td colSpan="4" className=" p-2 text-right font-bold">
+                      Subtotal:
+                    </td>
+                    <td className=" p-2 text-center">
+                      {currency} {order.sub_total}
+                    </td>
+                  </tr>
+                  <tr className="">
+                    <td colSpan="4" className=" p-2 text-right font-bold">
+                      Discount:
+                    </td>
+                    <td className=" p-2 text-center">
+                      {currency} {order.discount || 0}
+                    </td>
+                  </tr>
+                  <tr className="">
+                    <td colSpan="4" className=" p-2 text-right font-bold">
+                      Delivery:
+                    </td>
+                    <td className=" p-2 text-center">
+                      {currency} {order.delivery_charge}
+                    </td>
+                  </tr>
+                  <tr className="border-t-2 border-gray-400">
+                    <td colSpan="4" className=" p-2 text-right font-bold">
+                      Total:
+                    </td>
+                    <td className=" p-2 text-center">
+                      {currency} {order.total}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="text-center mt-10 italic text-gray-600">
+              Thank you for shopping with us!
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

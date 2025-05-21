@@ -3,6 +3,9 @@ import Product from "../models/productModel.js";
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import sendEmail from "../config/emailService.js";
+import { generateInvoicePDF } from "../utils/generateInvoice.js";
+import path from "path";
+import fs from "fs";
 
 const addOrderEmail = async (order) => {
   const { order_id, user_id, total } = order;
@@ -186,5 +189,36 @@ export const updateOrderStatus = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });
+  }
+};
+
+export const downloadInvoice = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    const productIds = order.products.map((p) => p.product_id);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    const filePath = path.join("invoices", `invoice-${order.order_id}.pdf`);
+
+    // Generate the invoice and wait for write to finish
+    await new Promise((resolve, reject) => {
+      generateInvoicePDF(order, products, filePath);
+      const interval = setInterval(() => {
+        if (fs.existsSync(filePath)) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 100);
+      setTimeout(() => {
+        reject(new Error("Timeout while waiting for PDF to be created."));
+      }, 3000);
+    });
+
+    res.download(filePath, `Invoice-${order.order_id}.pdf`);
+  } catch (err) {
+    console.error("Error generating invoice:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to generate invoice", message: err.message });
   }
 };

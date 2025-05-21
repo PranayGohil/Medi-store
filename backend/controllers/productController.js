@@ -2,7 +2,7 @@ import Product from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
-const addProduct = async (req, res) => {
+export const addProduct = async (req, res) => {
   try {
     const productData = req.body;
 
@@ -63,7 +63,7 @@ const addProduct = async (req, res) => {
   }
 };
 
-const removeProduct = async (req, res) => {
+export const removeProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await Product.findByIdAndDelete(id);
@@ -74,7 +74,7 @@ const removeProduct = async (req, res) => {
   }
 };
 
-const editProduct = async (req, res) => {
+export const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -181,7 +181,7 @@ const editProduct = async (req, res) => {
   }
 };
 
-const getAllProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({});
     return res.json({ success: true, products });
@@ -191,7 +191,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-const getSingleProduct = async (req, res) => {
+export const getSingleProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const product = await Product.findById(productId);
@@ -202,7 +202,7 @@ const getSingleProduct = async (req, res) => {
   }
 };
 
-const getProductByAlias = async (req, res) => {
+export const getProductByAlias = async (req, res) => {
   try {
     const alias = req.params.alias;
     const product = await Product.findOne({ alias: alias });
@@ -214,7 +214,24 @@ const getProductByAlias = async (req, res) => {
   }
 };
 
-const productSuggestions = async (req, res) => {
+export const getProductsByIds = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID list" });
+    }
+
+    const products = await Product.find({ _id: { $in: ids } });
+
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.error("Error fetching products by IDs:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const productSuggestions = async (req, res) => {
   try {
     console.log("suggestions");
     const suggestions = await Product.find({}).limit(5);
@@ -241,7 +258,7 @@ export const changeAvailableStatus = async (req, res) => {
   }
 };
 
-const addReview = async (req, res) => {
+export const addReview = async (req, res) => {
   try {
     const { productId } = req.params;
     const { user_id, comment, rating } = req.body;
@@ -274,7 +291,7 @@ const addReview = async (req, res) => {
   }
 };
 
-const deleteReview = async (req, res) => {
+export const deleteReview = async (req, res) => {
   try {
     const { productId, reviewId } = req.params;
 
@@ -310,7 +327,7 @@ const deleteReview = async (req, res) => {
   }
 };
 
-const changeReviewStatus = async (req, res) => {
+export const changeReviewStatus = async (req, res) => {
   try {
     const { productId, reviewId } = req.params;
     const { status } = req.body;
@@ -339,7 +356,7 @@ const changeReviewStatus = async (req, res) => {
   }
 };
 
-const getUserReviews = async (req, res) => {
+export const getUserReviews = async (req, res) => {
   try {
     const { productId, userId } = req.params;
 
@@ -365,7 +382,7 @@ const getUserReviews = async (req, res) => {
   }
 };
 
-const getProductReviews = async (req, res) => {
+export const getProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
     const product = await Product.findById(productId);
@@ -378,7 +395,7 @@ const getProductReviews = async (req, res) => {
   }
 };
 
-const getAllReviews = async (req, res) => {
+export const getAllReviews = async (req, res) => {
   try {
     const products = await Product.find({}, "name reviews");
     const allReviews = products.flatMap((product) =>
@@ -393,20 +410,4 @@ const getAllReviews = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
-};
-
-export {
-  addProduct,
-  removeProduct,
-  editProduct,
-  getAllProducts,
-  getSingleProduct,
-  getProductByAlias,
-  productSuggestions,
-  addReview,
-  deleteReview,
-  changeReviewStatus,
-  getUserReviews,
-  getProductReviews,
-  getAllReviews,
 };

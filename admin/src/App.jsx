@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
+import Dosageforms from "./pages/Dosageforms";
 import CategoryManagement from "./pages/Categories";
 import Products from "./pages/Products";
 import Reviews from "./pages/Reviews";
@@ -79,6 +80,15 @@ function App() {
               <>
                 <PageTitle title="Admin | Orders" />
                 <Orders />
+              </>
+            }
+          />
+          <Route
+            path="/dosageforms"
+            element={
+              <>
+                <PageTitle title="Admin | Dosage Forms" />
+                <Dosageforms />
               </>
             }
           />

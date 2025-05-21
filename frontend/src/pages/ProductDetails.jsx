@@ -172,8 +172,8 @@ const ProductDetails = () => {
           key={i}
           className={
             i < rating
-              ? "ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"
-              : "ri-star-line float-left text-[15px] mr-[3px] text-[#777]"
+              ? "ri-star-fill float-left text-[15px] mr-[3px] text-[#0097b2]"
+              : "ri-star-line float-left text-[15px] mr-[3px] text-[#0097b2]"
           }
         ></i>
       );
@@ -579,7 +579,7 @@ const ProductDetails = () => {
                                     (star, index) => (
                                       <i
                                         key={index}
-                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-[#fea99a]"
+                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-[#0097b2]"
                                       ></i>
                                     )
                                   )}

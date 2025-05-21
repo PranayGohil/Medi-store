@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
+
 import userRouter from "./routes/userRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
@@ -14,6 +16,7 @@ import statisticsRouter from "./routes/statisticsRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import paypalRouter from "./routes/paypalRoutes.js";
 import couponRouter from "./routes/couponRoutes.js";
+import dosageformRouter from "./routes/dosageformRoutes.js";
 
 // App config
 const app = express();
@@ -33,6 +36,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/dosageform", dosageformRouter);
 app.use("/api/site", sitePreferencesRouter);
 app.use("/api/statistics", statisticsRouter);
 app.use("/api/paypal", paypalRouter);

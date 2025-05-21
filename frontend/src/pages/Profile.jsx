@@ -116,6 +116,21 @@ const Profile = () => {
     setShowAddAddress(true);
   };
 
+  const handleCancelAddAddress = () => {
+    setNewAddress({
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      address: "",
+      country: "",
+      state: "",
+      city: "",
+      pincode: "",
+    });
+    setShowAddAddress(false);
+  };
+
   const handleSaveAddress = async () => {
     try {
       setIsLoading(true);
@@ -179,8 +194,8 @@ const Profile = () => {
 
   const handleLogout = () => {
     clearCart();
-    logout(); 
-    navigate("/login"); 
+    logout();
+    navigate("/login");
   };
 
   if (isLoading) {
@@ -307,23 +322,29 @@ const Profile = () => {
                 <h3 className="font-quicksand tracking-[0.03rem] leading-text-[20px] font-bold text-[#3d4750] mb-[20px]">
                   Addresses
                 </h3>
-                <ul>
-                  {existingAddress.map((address, index) => (
-                    <li key={index} className="mb-[10px]">
-                      {address.first_name} {address.last_name},{address.address}
-                      , <br />
-                      {address.city}, {address.state}, {address.country},{" "}
-                      {address.pincode} <br />
-                      {address.phone}, {address.email}
-                      <button
-                        onClick={() => handleRemoveAddress(address._id)}
-                        className="ml-2 text-red-500 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                {existingAddress.length === 0 ? (
+                  <p className="mb-[10px]">No addresses found.</p>
+                ) : (
+                  <ul>
+                    {existingAddress.map((address, index) => (
+                      <li key={index} className="mb-[10px]">
+                        {address.first_name} {address.last_name},
+                        {address.address}
+                        , <br />
+                        {address.city}, {address.state}, {address.country},{" "}
+                        {address.pincode} <br />
+                        {address.phone}, {address.email}
+                        <button
+                          onClick={() => handleRemoveAddress(address._id)}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
                 {showAddAddress ? (
                   <form onSubmit={handleSaveAddress} className="mt-[20px]">
                     <div className="flex flex-wrap mx-[-12px]">
@@ -414,7 +435,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             Country *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px] bg-white">
                             <select
                               className="block w-full"
                               name="country"
@@ -435,7 +456,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             Region State *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]  bg-white">
                             <select
                               className="block w-full"
                               name="state"
@@ -456,7 +477,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             City *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]  bg-white">
                             <select
                               className="block w-full"
                               name="city"
@@ -496,6 +517,14 @@ const Profile = () => {
                     >
                       Save Address
                     </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelAddAddress}
+                      className="bb-btn-2 inline-flex items-center justify-center transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[8px] px-[20px] text-[14px] font-normal text-[#fff] bg-gray-500 rounded-[10px] border-[1px] border-solid hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750] ml-[10px]"
+                    >
+                      Cancel
+                    </button>
+
                   </form>
                 ) : (
                   <button

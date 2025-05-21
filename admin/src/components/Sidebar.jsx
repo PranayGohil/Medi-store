@@ -9,6 +9,7 @@ import {
   ChartBarIcon,
   UserIcon,
 } from "@heroicons/react/outline";
+import { GiMedicinePills } from "react-icons/gi";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   return (
@@ -74,6 +75,20 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               }
             >
               <CubeIcon className="w-6 h-6" /> Category
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/dosageforms"
+              className={({ isActive }) =>
+                `flex items-center gap-3 text-base rounded-none py-3 px-4 transition ${
+                  isActive
+                    ? "bg-blue-100 text-gray-700 font-semibold"
+                    : "hover:bg-gray-100"
+                }`
+              }
+            >
+              <GiMedicinePills className="w-6 h-6" /> Dosage Forms 
             </NavLink>
           </li>
           <li>

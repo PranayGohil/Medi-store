@@ -104,3 +104,15 @@
   font-size: 16px;
   border-radius: 8px;
 }
+
+@media print {
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  #invoice {
+    padding: 0;
+    box-shadow: none;
+  }
+}

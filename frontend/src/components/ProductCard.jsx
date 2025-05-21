@@ -13,8 +13,8 @@ const ProductCard = (product) => {
           key={i}
           className={
             i < rating
-              ? "ri-star-fill float-left text-[15px] mr-[3px] leading-[18px] text-[#fea99a]"
-              : "ri-star-line float-left text-[15px] mr-[3px] leading-[18px] text-[#fea99a]"
+              ? "ri-star-fill float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]"
+              : "ri-star-line float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]"
           }
         ></i>
       );

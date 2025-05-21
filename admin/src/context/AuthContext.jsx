@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const AuthContext = createContext();
@@ -11,6 +12,27 @@ export const AuthContextProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decoded.exp < currentTime) {
+          console.warn("Token expired");
+          logout(); // logout and redirect
+        }
+      } catch (error) {
+        console.error("Invalid token", error);
+        logout();
+      }
+    }
+
+    setIsLoading(false);
+  }, []);
 
   // ✅ Admin login function
   const login = async (userid, password) => {

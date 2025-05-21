@@ -15,6 +15,7 @@ const AddProduct = () => {
   const { fetchProducts, currency } = useContext(ShopContext);
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState([]);
+  const [dosageforms, setDosageforms] = useState([]);
   const [productImages, setProductImages] = useState([]);
   const [manufacturerImage, setManufacturerImage] = useState(null);
 
@@ -88,7 +89,22 @@ const AddProduct = () => {
       }
     };
 
+    const fetchDosageformsData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}/api/dosageform/all`
+        );
+        setDosageforms(response.data);
+      } catch (error) {
+        console.error("Error fetching dosageforms:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchCategoriesData();
+    fetchDosageformsData();
   }, []);
 
   const handleSubmit = async (values) => {
@@ -313,10 +329,25 @@ const AddProduct = () => {
                         Dosage Form
                       </label>
                       <Field
-                        type="text"
-                        name="dosage_form"
-                        className="w-full p-3 border"
-                      />
+                        as="select"
+                        name={`dosage_form`}
+                        className="w-full p-3 border rounded-none"
+                        onChange={(e) => {
+                          setFieldValue(
+                            `dosage_form`,
+                            e.target.value
+                          );
+                        }}
+                      >
+                        <option value="" disabled className="text-center">
+                          Select Dosage Form
+                        </option>
+                        {dosageforms.map((form) => (
+                          <option key={form._id} value={form.dosageform}>
+                            {form.dosageform}
+                          </option>
+                        ))}
+                      </Field>
                       <ErrorMessage
                         name="dosage_form"
                         component="div"
