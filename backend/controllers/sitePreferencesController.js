@@ -37,6 +37,33 @@ export const addBanner = async (req, res) => {
   }
 };
 
+export const addMobileBanner = async (req, res) => {
+  try {
+    const mobile_banner_image = req.files && req.files.image;
+
+    if (!mobile_banner_image) {
+      return res.json({ success: false, message: "Please upload an image" });
+    }
+
+    let result = await cloudinary.uploader.upload(mobile_banner_image[0].path, {
+      resource_type: "image",
+    });
+
+    let settings = await SitePreferences.findOne();
+    if (!settings) {
+      settings = new SitePreferences({ mobile_banners: [] });
+      await settings.save();
+    }
+    settings.mobile_banners.push({
+      image: result.secure_url,
+    });
+    await settings.save();
+    res.json({ success: true, message: "Mobile Banner added successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export const removeBanner = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,6 +77,20 @@ export const removeBanner = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+export const removeMobileBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const settings = await SitePreferences.findOne();
+    settings.mobile_banners = settings.mobile_banners.filter(
+      (banner) => banner._id.toString() !== id
+    );
+    await settings.save();
+    res.json({ success: true, message: "Mobile Banner removed successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
 
 export const setDeliveryCharge = async (req, res) => {
   try {

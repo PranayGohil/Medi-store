@@ -16,8 +16,12 @@ const Cart = () => {
   const { removeItemFromCart } = useContext(CartContext);
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState({
+    id: null,
+    net_quantity: null,
+  });
 
-  const notifySuccess = (message) => toast.success(message);
   const notifyError = (message) => toast.error(message);
 
   const fetchCartData = async () => {
@@ -78,7 +82,14 @@ const Cart = () => {
   };
 
   const handleRemove = async (id, net_quantity) => {
-    console.log("Removing item with ID:", id, net_quantity);
+    setItemToRemove({ id, net_quantity });
+    setShowRemoveModal(true);
+  };
+
+  const confirmRemove = async () => {
+    const { id, net_quantity } = itemToRemove;
+    if (!id || !net_quantity) return;
+
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
@@ -92,15 +103,16 @@ const Cart = () => {
           },
         }
       );
-      console.log(response.data);
       if (response.data.success) {
-        notifySuccess(response.data.message);
         removeItemFromCart(id, net_quantity);
         fetchCartData();
       }
     } catch (error) {
       console.error("Error removing item from cart:", error);
+      notifyError("Failed to remove item.");
     } finally {
+      setShowRemoveModal(false);
+      setItemToRemove({ id: null, net_quantity: null });
       setIsLoading(false);
     }
   };
@@ -319,7 +331,7 @@ const Cart = () => {
                           {item.available ? (
                             <>
                               <div className="p-[12px]  flex flex-col gap-1">
-                              Price:
+                                Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
                                   {currency}
                                   {item.price}
@@ -363,7 +375,7 @@ const Cart = () => {
                                 </div>
                               </div>
                               <div className="p-[12px] flex flex-col gap-1">
-                              Total Price:
+                                Total Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
                                   {currency}
                                   {item.total.toFixed(2)}
@@ -403,6 +415,31 @@ const Cart = () => {
           </div>
         </div>
       </section>
+
+      {!!showRemoveModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-md w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Confirm Removal</h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to remove this item from your cart?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition"
+                onClick={() => setShowRemoveModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                onClick={confirmRemove}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

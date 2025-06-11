@@ -2,7 +2,9 @@ import express from "express";
 import {
   getSitePreferences,
   addBanner,
+  addMobileBanner,
   removeBanner,
+  removeMobileBanner,
   setDeliveryCharge,
 } from "../controllers/sitePreferencesController.js";
 
@@ -18,7 +20,18 @@ sitePreferencesRouter.post(
   upload.fields([{ name: "image", maxCount: 1 }]),
   addBanner
 );
+sitePreferencesRouter.post(
+  "/add-mobile-banner",
+  adminAuth,
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  addMobileBanner
+);
 sitePreferencesRouter.delete("/remove-banner/:id", adminAuth, removeBanner);
+sitePreferencesRouter.delete(
+  "/remove-mobile-banner/:id",
+  adminAuth,
+  removeMobileBanner
+);
 sitePreferencesRouter.put("/set-delivery-charge", adminAuth, setDeliveryCharge);
 
 export default sitePreferencesRouter;

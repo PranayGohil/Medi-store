@@ -103,6 +103,11 @@ const Checkout = () => {
           }
         );
         setAddresses(response.data.addresses);
+        if (response.data.addresses.length > 0) {
+          setIsNewAddress(false);
+        } else {
+          setIsNewAddress(true);
+        }
       } catch (error) {
         console.error("Error fetching addresses:", error);
       } finally {
@@ -593,7 +598,7 @@ const Checkout = () => {
                       name="address"
                       className="w-auto mr-[2px] p-[10px]"
                       onClick={() => setIsNewAddress(false)}
-                      defaultChecked={true}
+                      defaultChecked={!isNewAddress}
                     />
                     <label
                       htmlFor="address1"
@@ -609,6 +614,7 @@ const Checkout = () => {
                       name="address"
                       className="w-auto mr-[2px] p-[10px]"
                       onClick={() => setIsNewAddress(true)}
+                      defaultChecked={isNewAddress}
                     />
                     <label
                       htmlFor="address2"

@@ -156,6 +156,7 @@ const Contact = () => {
                 onChange={handleChange}
                 required
                 className="w-full h-[150px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                style={{ resize: "none" }}
               ></textarea>
               <button
                 type="submit"

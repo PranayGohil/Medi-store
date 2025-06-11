@@ -8,7 +8,20 @@ import "./Hero.css";
 import { SitePreferencesContext } from "../context/SitePreferencesContext";
 
 const Hero = () => {
-  const { banners } = useContext(SitePreferencesContext);
+  const { banners, mobileBanners } = useContext(SitePreferencesContext);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const slides = isMobile ? mobileBanners : banners;
+
   return (
     <section className="section-hero py-[10px] relative overflow-hidden">
       <div className="flex flex-wrap justify-between relative items-center">
@@ -22,7 +35,7 @@ const Hero = () => {
               autoplay={{ delay: 5000 }}
               className="w-full"
             >
-              {banners.map((slide, index) => (
+              {slides.map((slide, index) => (
                 <SwiperSlide
                   key={index}
                   className="flex flex-wrap w-full mb-[-24px]"

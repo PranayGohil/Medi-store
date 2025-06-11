@@ -64,7 +64,7 @@ const Footer = () => {
                     the world for 5 years.{" "}
                     <button
                       type="button"
-                      className="cursor-pointer text-blue-600"
+                      className="cursor-pointer text-[#0097b2] font-Poppins text-[14px] leading-[20px] font-normal hover:text-[#3d4750] transition-all duration-[0.3s] ease-in-out"
                       onClick={() => gotoAboutPage()}
                     >
                       Read More..

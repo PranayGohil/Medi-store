@@ -71,12 +71,12 @@ const registerUser = async (req, res) => {
       });
     }
 
-    if (!validator.isMobilePhone(phone)) {
-      return res.json({
-        success: false,
-        message: "Please enter a valid phone number",
-      });
-    }
+    // if (!validator.isMobilePhone(phone)) {
+    //   return res.json({
+    //     success: false,
+    //     message: "Please enter a valid phone number",
+    //   });
+    // }
 
     if (!validator.isStrongPassword(password)) {
       return res.json({

@@ -1,10 +1,14 @@
 import React, { useState, useContext } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
+
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
+import ReCAPTCHA from "react-google-recaptcha";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,11 +24,9 @@ const Register = () => {
     confirmpassword: "",
   });
   const [error, setError] = useState("");
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const notifySuccess = (message) => toast.success(message);
-  const notifyError = (message) => toast.error(message);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +52,8 @@ const Register = () => {
       return;
     }
 
-    if (!/^\d{10}$/.test(formData.phonenumber)) {
+    const sanitizedPhone = formData.phonenumber.replace(/\s+/g, ""); // remove spaces
+    if (!/^\+\d{7,15}$/.test(sanitizedPhone)) {
       setError("Invalid phone number format.");
       return;
     }
@@ -69,6 +72,11 @@ const Register = () => {
       return;
     }
 
+    if (!isCaptchaVerified) {
+      setError("Please complete the CAPTCHA verification.");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const response = await axios.post(
@@ -83,7 +91,6 @@ const Register = () => {
       );
 
       if (response.data.success) {
-        notifySuccess(response.data.message);
         localStorage.setItem("token", response.data.token);
         login(response.data.user);
         navigate("/");
@@ -104,6 +111,10 @@ const Register = () => {
 
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const capchaVerified = (value) => {
+    console.log(`Captcha value: ${value}`);
   };
 
   if (isLoading) {
@@ -183,16 +194,19 @@ const Register = () => {
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           Phone Number*
                         </label>
-                        <input
-                          type="text"
-                          name="phonenumber"
-                          placeholder="Enter your phone number"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
+                        <PhoneInput
+                          country={"in"}
                           value={formData.phonenumber}
-                          onChange={handleChange}
+                          onChange={(phone) =>
+                            setFormData({
+                              ...formData,
+                              phonenumber: "+" + phone,
+                            })
+                          }
+                          inputClass="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
                         />
                       </div>
+
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           Password*
@@ -225,7 +239,9 @@ const Register = () => {
                         </label>
                         <div className="relative">
                           <input
-                            type={`${showConfirmPassword ? "text" : "password"}`}
+                            type={`${
+                              showConfirmPassword ? "text" : "password"
+                            }`}
                             name="confirmpassword"
                             placeholder="Confirm Password"
                             className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
@@ -245,12 +261,23 @@ const Register = () => {
                           </span>
                         </div>
                       </div>
+                      <div className="bb-register-wrap w-full px-[12px] mb-[24px]">
+                        <ReCAPTCHA
+                          sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                          onChange={(value) => {
+                            setIsCaptchaVerified(true);
+                          }}
+                          onExpired={() => {
+                            setIsCaptchaVerified(false);
+                          }}
+                        />
+                      </div>
                       {error && (
                         <div className="w-full px-[12px] mb-[12px] text-red-500">
                           {error}
                         </div>
                       )}
-                      <div className="bb-register-button w-full flex justify-center">
+                      <div className="bb-register-button w-full md:flex md:justify-between px-[12px]">
                         <button
                           type="button"
                           onClick={handleSubmit}
@@ -258,6 +285,12 @@ const Register = () => {
                         >
                           Register
                         </button>
+                        <Link
+                          to="/login"
+                          className="h-[36px] m-[5px] flex items-center font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem]"
+                        >
+                          Already have an account? Login
+                        </Link>
                       </div>
                     </form>
                   </div>

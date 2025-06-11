@@ -7,6 +7,8 @@ import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+import ReCAPTCHA from "react-google-recaptcha";
+
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,6 +20,7 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const { cartItems, addItemToCart } = useContext(CartContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
   const notifySuccess = (message) => toast.success(message);
 
@@ -28,7 +31,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
     setError("");
-
+    if (!isCaptchaVerified) {
+      setError("Please complete the CAPTCHA verification.");
+      return;
+    }
     try {
       setIsLoading(true);
       const response = await axios.post(
@@ -53,7 +59,6 @@ const Login = () => {
           if (!isDuplicate) {
             addItemToCart(item);
           } else {
-            // If duplicate, you can optionally update quantity or log a message
             console.log("Duplicate item found, not adding to cart:", item);
           }
         });
@@ -61,6 +66,7 @@ const Login = () => {
       } else {
         // Login failed
         setError(response.data.message);
+        setIsCaptchaVerified(false); 
       }
     } catch (err) {
       setError("An error occurred during login.");
@@ -143,6 +149,17 @@ const Login = () => {
                     >
                       Forgot Password?
                     </Link>
+                  </div>
+                  <div className="bb-login-wrap mb-[24px]">
+                    <ReCAPTCHA
+                      sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                      onChange={(value) => {
+                        setIsCaptchaVerified(true);
+                      }}
+                      onExpired={() => {
+                        setIsCaptchaVerified(false);
+                      }}
+                    />
                   </div>
                   {error && (
                     <div className="w-full px-[12px] mb-[12px] text-red-500">

@@ -6,6 +6,11 @@ const sitePreferencesModel = new mongoose.Schema({
       image: { type: String },
     },
   ],
+  mobile_banners: [
+    {
+      image: { type: String },
+    },
+  ],
   delivery_charge: { type: Number, default: 0 },
   currency: { type: String },
 });

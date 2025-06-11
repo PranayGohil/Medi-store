@@ -69,9 +69,9 @@ const SearchResults = () => {
     } else if (sortOption === "name-desc") {
       filtered = [...filtered].sort((a, b) => b.name.localeCompare(a.name));
     } else if (sortOption === "price-low") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price);
+      filtered = [...filtered].sort((a, b) => a.pricing[0].unit_price - b.pricing[0].unit_price);
     } else if (sortOption === "price-high") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price);
+      filtered = [...filtered].sort((a, b) => b.pricing[0].unit_price - a.pricing[0].unit_price);
     }
 
     setFilteredProducts(filtered);
@@ -152,7 +152,7 @@ const SearchResults = () => {
               {/* Products List */}
               <div
                 className={`grid ${
-                  listView ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3 gap-6"
+                  listView ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
                 }`}
               >
                 {filteredProducts

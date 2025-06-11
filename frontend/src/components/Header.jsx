@@ -25,6 +25,9 @@ const Header = () => {
 
   const [categories, setCategories] = useState([]);
 
+  const [hoverCartItems, setHoverCartItems] = useState([]);
+  const [showCartPreview, setShowCartPreview] = useState(false);
+
   const dropdownRef = useRef(null);
 
   const toggleMobileMenu = () => {
@@ -47,6 +50,24 @@ const Header = () => {
       console.error("Error fetching categories:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+  const fetchHoverCartItems = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setHoverCartItems(response.data.cartItems.slice(0, 3)); // show only top 3
+      }
+    } catch (error) {
+      console.error("Failed to fetch cart preview:", error);
     }
   };
 
@@ -465,9 +486,15 @@ const Header = () => {
                           </span>
                         </div>
                       </a> */}
+
                       <Link
-                        to={"/cart"}
-                        className="bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out relative flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
+                        to="/cart"
+                        onMouseEnter={() => {
+                          setShowCartPreview(true);
+                          fetchHoverCartItems();
+                        }}
+                        onMouseLeave={() => setShowCartPreview(false)}
+                        className="relative bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
                         title="Cart"
                       >
                         <div className="header-icon relative flex">
@@ -493,7 +520,62 @@ const Header = () => {
                             Cart
                           </span>
                         </div>
+
+                        {showCartPreview &&
+                          (hoverCartItems.length > 0 ? (
+                            <div
+                              onMouseEnter={() => {
+                                setShowCartPreview(true);
+                                fetchHoverCartItems();
+                              }}
+                              onMouseLeave={() => setShowCartPreview(false)}
+                              className="absolute top-[110%] right-0 w-[320px] bg-white shadow-lg border border-gray-200 rounded-md z-50 p-4"
+                            >
+                              <h4 className="text-lg font-semibold mb-2 text-[#0097b2]">
+                                Cart Preview
+                              </h4>
+                              {hoverCartItems.map((item) => (
+                                <div
+                                  key={item.id + item.net_quantity}
+                                  className="flex items-center mb-3"
+                                >
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-12 h-12 object-cover rounded mr-3"
+                                  />
+                                  <div className="flex-grow">
+                                    <p className="text-sm font-medium text-gray-800">
+                                      {item.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {item.quantity} × {currency} {item.price}
+                                    </p>
+                                  </div>
+                                  <span className="text-sm font-semibold text-gray-700">
+                                    {currency}{" "}
+                                    {(item.price * item.quantity).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                              <div className="mt-2 text-center">
+                                <Link
+                                  to="/cart"
+                                  className="text-sm text-[#0097b2] hover:underline font-medium"
+                                >
+                                  View Full Cart
+                                </Link>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="absolute top-[110%] right-0 w-[320px] bg-white shadow-lg border border-gray-200 rounded-md z-50 p-4">
+                              <p className="text-sm text-gray-700 text-center">
+                                Your cart is empty
+                              </p>
+                            </div>
+                          ))}
                       </Link>
+
                       <button
                         onClick={toggleMobileMenu} // Add onClick handler
                         className="bb-toggle-menu hidden max-[991px]:flex max-[991px]:ml-[20px]"
@@ -513,24 +595,8 @@ const Header = () => {
       <div className="bb-main-menu-desk bg-[#fff] py-[5px] border-t-[1px] border-solid border-[#eee] max-[991px]:hidden">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
-            <div className="w-full px-[12px]">
+            <div className="w-full px-[24px]">
               <div className="bb-inner-menu-desk flex max-[1199px]:relative max-[991px]:justify-between">
-                <a
-                  href="javascript:void(0)"
-                  className="bb-header-btn bb-sidebar-toggle bb-category-toggle transition-all duration-[0.3s] ease-in-out h-[45px] w-[45px] mr-[30px] p-[8px] flex items-center justify-center bg-[#fff] border-[1px] border-solid border-[#eee] rounded-[10px] relative max-[767px]:m-[0] max-[575px]:hidden"
-                >
-                  <svg
-                    className="svg-icon w-[25px] h-[25px]"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      className="fill-[#0097b2]"
-                      d="M384 928H192a96 96 0 0 1-96-96V640a96 96 0 0 1 96-96h192a96 96 0 0 1 96 96v192a96 96 0 0 1-96 96zM192 608a32 32 0 0 0-32 32v192a32 32 0 0 0 32 32h192a32 32 0 0 0 32-32V640a32 32 0 0 0-32-32H192zM784 928H640a96 96 0 0 1-96-96V640a96 96 0 0 1 96-96h192a96 96 0 0 1 96 96v144a32 32 0 0 1-64 0V640a32 32 0 0 0-32-32H640a32 32 0 0 0-32 32v192a32 32 0 0 0 32 32h144a32 32 0 0 1 0 64zM384 480H192a96 96 0 0 1-96-96V192a96 96 0 0 1 96-96h192a96 96 0 0 1 96 96v192a96 96 0 0 1-96 96zM192 160a32 32 0 0 0-32 32v192a32 32 0 0 0 32 32h192a32 32 0 0 0 32-32V192a32 32 0 0 0-32-32H192zM832 480H640a96 96 0 0 1-96-96V192a96 96 0 0 1 96-96h192a96 96 0 0 1 96 96v192a96 96 0 0 1-96 96zM640 160a32 32 0 0 0-32 32v192a32 32 0 0 0 32 32h192a32 32 0 0 0 32-32V192a32 32 0 0 0-32-32H640z"
-                    />
-                  </svg>
-                </a>
                 <button
                   className="navbar-toggler shadow-none hidden"
                   type="button"
@@ -547,20 +613,22 @@ const Header = () => {
                   id="navbarSupportedContent"
                 >
                   <ul className="navbar-nav flex flex-wrap flex-row ">
+                    <li className="nav-item ">
+                      <Link
+                        to="/all-categories"
+                        className="flex items-center mr-[25px] text-[#fff] hover:text-[#0097b2] bg-[#0097b2] hover:bg-[#fff] hover:border-[1px] border-solid border-[#0097b2] rounded-[10px]  py-3 px-4"
+                      >
+                        <p className=" font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium  block tracking-[0.03rem]">
+                          All Categories
+                        </p>
+                      </Link>
+                    </li>
                     <li className="nav-item flex items-center font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem] mr-[35px]">
                       <Link
                         to="/"
                         className="nav-link p-[0] font-Poppins leading-[28px] text-[15px] font-medium text-[#3d4750] tracking-[0.03rem] block"
                       >
                         Home
-                      </Link>
-                    </li>
-                    <li className="nav-item bb-main-dropdown flex items-center mr-[45px]">
-                      <Link
-                        to="/all-categories"
-                        className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
-                      >
-                        All Categories
                       </Link>
                     </li>
                     {categories.map(
