@@ -219,7 +219,9 @@ export const getProductsByIds = async (req, res) => {
     const { ids } = req.body;
 
     if (!ids || !Array.isArray(ids)) {
-      return res.status(400).json({ success: false, message: "Invalid product ID list" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid product ID list" });
     }
 
     const products = await Product.find({ _id: { $in: ids } });
@@ -255,6 +257,21 @@ export const changeAvailableStatus = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });
+  }
+};
+
+export const toggleBestSeller = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+    product.best_seller_manual = !product.best_seller_manual;
+    await product.save();
+    res.json({ success: true, message: "Updated best seller status" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Update failed" });
   }
 };
 

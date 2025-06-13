@@ -8,6 +8,7 @@ import {
   getProductByAlias,
   productSuggestions,
   changeAvailableStatus,
+  toggleBestSeller,
   addReview,
   deleteReview,
   changeReviewStatus,
@@ -44,7 +45,12 @@ productRouter.get("/all", getAllProducts);
 productRouter.get("/single/:id", getSingleProduct);
 productRouter.get("/single-by-alias/:alias", getProductByAlias);
 productRouter.get("/suggestions", productSuggestions);
-productRouter.put("/change-available-status/:id", adminAuth, changeAvailableStatus);
+productRouter.put(
+  "/change-available-status/:id",
+  adminAuth,
+  changeAvailableStatus
+);
+productRouter.put("/toggle-best-seller/:id", adminAuth, toggleBestSeller);
 
 productRouter.post("/add-review/:productId", addReview);
 productRouter.delete("/delete-review/:productId/:reviewId", deleteReview);

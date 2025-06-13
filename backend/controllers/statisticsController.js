@@ -140,17 +140,26 @@ export const getStatistics = async (req, res) => {
 
 export const getBestSellers = async (req, res) => {
   try {
-    const orders = await Order.find();
+    // 1. Get manually selected best sellers
+    const manualBestSellers = await Product.find({
+      best_seller_manual: true,
+    }).limit(10);
 
+    const manualProductIds = manualBestSellers.map((p) => p._id.toString());
+
+    // 2. Get actual best sellers from orders
+    const orders = await Order.find();
     const productSales = {};
     const productIds = new Set();
 
-    // Calculate sales from orders
     orders.forEach((order) => {
       order.products.forEach((product) => {
-        const productId = product.product_id;
+        const productId = product.product_id.toString();
 
-        productIds.add(productId); // Collect unique product IDs
+        // Skip if already in manual list
+        if (manualProductIds.includes(productId)) return;
+
+        productIds.add(productId);
 
         if (!productSales[productId]) {
           productSales[productId] = {
@@ -164,25 +173,22 @@ export const getBestSellers = async (req, res) => {
       });
     });
 
-    // Fetch product details using the collected product IDs
-    const products = await Product.find({
-      _id: { $in: Array.from(productIds) },
+    const remainingCount = 10 - manualBestSellers.length;
+
+    const bestProductIds = Array.from(productIds);
+    const products = await Product.find({ _id: { $in: bestProductIds } });
+
+    const productMap = {};
+    products.forEach((product) => {
+      productMap[product._id.toString()] = product;
     });
 
-    // Map products by ID for easy lookup
-    const productMap = products.reduce((acc, product) => {
-      acc[product._id.toString()] = product;
-      return acc;
-    }, {});
-
-    // Combine sales data with product details
-    const bestSellingProducts = Object.entries(productSales)
-      .map(([productId, data]) => {
-        const product = productMap[productId];
-        console.log(product)
+    const autoBestSellers = Object.entries(productSales)
+      .map(([id, data]) => {
+        const product = productMap[id];
         if (product) {
           return {
-            _id: productId,
+            _id: product._id,
             product_code: product.product_code,
             name: product.name,
             generic_name: product.generic_name,
@@ -195,27 +201,29 @@ export const getBestSellers = async (req, res) => {
             unit_price: product.pricing[0]?.unit_price || 0,
             rating: product.rating,
             prescription_required: product.prescription_required,
-            best_seller: product.best_seller,
+            best_seller_manual: product.best_seller_manual,
             alias: product.alias,
             created_at: product.created_at,
           };
         }
         return null;
       })
-      .filter((item) => item !== null)
-      .sort((a, b) => b.quantity_sold - a.quantity_sold) // Sort by quantity sold
-      .slice(0, 10); // Limit to top 10 products
+      .filter((p) => p !== null)
+      .sort((a, b) => b.quantity_sold - a.quantity_sold)
+      .slice(0, remainingCount);
+
+    const finalList = [...manualBestSellers, ...autoBestSellers];
 
     res.status(200).json({
       success: true,
-      message: "Best-selling products fetched successfully",
-      products: bestSellingProducts,
+      message: "Hybrid best-seller products fetched successfully",
+      products: finalList,
     });
   } catch (error) {
-    console.error("Error fetching best-selling products:", error);
+    console.error("Error fetching hybrid best sellers:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch best-selling products",
+      message: "Failed to fetch hybrid best sellers",
       error: error.message,
     });
   }

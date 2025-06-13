@@ -106,6 +106,38 @@ const ViewProductDetails = () => {
     }
   };
 
+  const toggleBestSeller = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/product/toggle-best-seller/${product._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (
+        response.data.success === false &&
+        response.data.message === "Unauthorized"
+      ) {
+        toast.error(response.data.message);
+        navigate("/login");
+        return;
+      }
+      fetchProduct();
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error in Change availability: " + error);
+      console.error("Error in Change availability: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!product || isLoading) {
     return <LoadingSpinner />;
   }
@@ -206,6 +238,25 @@ const ViewProductDetails = () => {
                   onClick={() => toggleAvailability()}
                 >
                   <IoMdCheckmarkCircle className="mr-2" /> Mark as Available
+                </button>
+              )}
+            </p>
+            <p>
+              <strong>Best Seller: </strong> {product.best_seller_manual ? "Yes" : "No"}
+              <br />
+              {product.best_seller_manual ? (
+                <button
+                  className="flex items-center bg-red-400 text-white py-1 px-4 mt-2 hover:bg-red-500 transition"
+                  onClick={() => toggleBestSeller()}
+                >
+                  <CgUnavailable className="mr-2" /> Mark as Not Best Seller
+                </button>
+              ) : (
+                <button
+                  className="flex items-center bg-green-400 text-white py-1 px-4 mt-2 hover:bg-green-500 transition"
+                  onClick={() => toggleBestSeller()}
+                >
+                  <IoMdCheckmarkCircle className="mr-2" /> Mark as Best Seller
                 </button>
               )}
             </p>
