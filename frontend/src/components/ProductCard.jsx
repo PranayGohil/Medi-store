@@ -24,8 +24,9 @@ const ProductCard = (product) => {
 
   if (!product.listView) {
     return (
-      <div
-        className="bb-pro-box rounded-[20px] overflow-hidden"
+      <Link
+        to={`/product/${product.alias}`}
+        className="bb-pro-box rounded-[20px] overflow-hidden border"
       >
         {/* Product Image */}
         <div className="bb-pro-img relative border-b border-[#eee]">
@@ -63,7 +64,7 @@ const ProductCard = (product) => {
             View Details
           </Link>
         </div>
-      </div>
+      </Link>
     );
   } else {
     return (

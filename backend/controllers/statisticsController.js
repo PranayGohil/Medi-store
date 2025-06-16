@@ -140,26 +140,16 @@ export const getStatistics = async (req, res) => {
 
 export const getBestSellers = async (req, res) => {
   try {
-    // 1. Get manually selected best sellers
-    const manualBestSellers = await Product.find({
-      best_seller_manual: true,
-    }).limit(10);
-
-    const manualProductIds = manualBestSellers.map((p) => p._id.toString());
-
-    // 2. Get actual best sellers from orders
+    // 1. Get all orders to calculate sales
     const orders = await Order.find();
-    const productSales = {};
-    const productIds = new Set();
 
+    const productSales = {};
+    const productIdsSet = new Set();
+
+    // 2. Accumulate quantity and revenue per product
     orders.forEach((order) => {
       order.products.forEach((product) => {
         const productId = product.product_id.toString();
-
-        // Skip if already in manual list
-        if (manualProductIds.includes(productId)) return;
-
-        productIds.add(productId);
 
         if (!productSales[productId]) {
           productSales[productId] = {
@@ -170,49 +160,88 @@ export const getBestSellers = async (req, res) => {
 
         productSales[productId].quantity += product.quantity;
         productSales[productId].revenue += product.price * product.quantity;
+
+        productIdsSet.add(productId);
       });
     });
 
-    const remainingCount = 10 - manualBestSellers.length;
+    // 3. Fetch manually selected best sellers
+    const manualBestSellers = await Product.find({
+      best_seller_manual: true,
+    });
 
-    const bestProductIds = Array.from(productIds);
-    const products = await Product.find({ _id: { $in: bestProductIds } });
+    const manualProductIds = manualBestSellers.map((p) => p._id.toString());
+
+    // 4. Enrich manual best sellers with actual sales
+    const enrichedManualBestSellers = manualBestSellers.map((product) => {
+      const id = product._id.toString();
+      const saleData = productSales[id] || { quantity: 0, revenue: 0 };
+
+      return {
+        _id: product._id,
+        product_code: product.product_code,
+        name: product.name,
+        generic_name: product.generic_name,
+        manufacturer: product.manufacturer,
+        categories: product.categories,
+        product_images: product.product_images,
+        pricing: product.pricing,
+        unit_price: product.pricing[0]?.unit_price || 0,
+        rating: product.rating,
+        prescription_required: product.prescription_required,
+        best_seller_manual: product.best_seller_manual,
+        alias: product.alias,
+        created_at: product.created_at,
+        quantity_sold: saleData.quantity,
+        total_revenue: saleData.revenue,
+      };
+    });
+
+    // 5. Get remaining best sellers from actual sales
+    const remainingCount = 10 - enrichedManualBestSellers.length;
+
+    const autoProductIds = Array.from(productIdsSet).filter(
+      (id) => !manualProductIds.includes(id)
+    );
+
+    const autoProducts = await Product.find({ _id: { $in: autoProductIds } });
 
     const productMap = {};
-    products.forEach((product) => {
+    autoProducts.forEach((product) => {
       productMap[product._id.toString()] = product;
     });
 
     const autoBestSellers = Object.entries(productSales)
+      .filter(([id]) => !manualProductIds.includes(id)) // Exclude manual
       .map(([id, data]) => {
         const product = productMap[id];
-        if (product) {
-          return {
-            _id: product._id,
-            product_code: product.product_code,
-            name: product.name,
-            generic_name: product.generic_name,
-            manufacturer: product.manufacturer,
-            categories: product.categories,
-            product_images: product.product_images,
-            quantity_sold: data.quantity,
-            total_revenue: data.revenue,
-            pricing: product.pricing,
-            unit_price: product.pricing[0]?.unit_price || 0,
-            rating: product.rating,
-            prescription_required: product.prescription_required,
-            best_seller_manual: product.best_seller_manual,
-            alias: product.alias,
-            created_at: product.created_at,
-          };
-        }
-        return null;
+        if (!product) return null;
+
+        return {
+          _id: product._id,
+          product_code: product.product_code,
+          name: product.name,
+          generic_name: product.generic_name,
+          manufacturer: product.manufacturer,
+          categories: product.categories,
+          product_images: product.product_images,
+          pricing: product.pricing,
+          unit_price: product.pricing[0]?.unit_price || 0,
+          rating: product.rating,
+          prescription_required: product.prescription_required,
+          best_seller_manual: product.best_seller_manual,
+          alias: product.alias,
+          created_at: product.created_at,
+          quantity_sold: data.quantity,
+          total_revenue: data.revenue,
+        };
       })
-      .filter((p) => p !== null)
+      .filter(Boolean)
       .sort((a, b) => b.quantity_sold - a.quantity_sold)
       .slice(0, remainingCount);
 
-    const finalList = [...manualBestSellers, ...autoBestSellers];
+    // 6. Combine both and respond
+    const finalList = [...enrichedManualBestSellers, ...autoBestSellers];
 
     res.status(200).json({
       success: true,

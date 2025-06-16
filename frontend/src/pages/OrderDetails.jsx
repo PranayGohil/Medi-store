@@ -28,7 +28,6 @@ const OrderDetails = () => {
   const { user } = useContext(AuthContext);
   const { currency } = useContext(ShopContext);
 
-  const notifyError = (message) => toast.error(message);
   const notifySuccess = (message) => toast.success(message);
 
   const fetchOrder = async () => {
@@ -103,7 +102,6 @@ const OrderDetails = () => {
 
   useEffect(() => {
     if (!user) {
-      notifyError("Please login to view order details.");
       navigate("/login");
     }
     fetchOrder();

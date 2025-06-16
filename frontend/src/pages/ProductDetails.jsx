@@ -8,10 +8,10 @@ import PageTitle from "../components/PageTitle";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
-import { toast } from "react-toastify";
 
 const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { id } = useParams();
   const alias = id;
   const { currency } = useContext(ShopContext);
@@ -27,8 +27,6 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([]);
 
   const [isProductInCart, setIsProductInCart] = useState(false);
-  const notifySuccess = (message) => toast.success(message);
-  const notifyError = (message) => toast.error(message);
 
   const fetchCart = async () => {
     try {
@@ -183,7 +181,7 @@ const ProductDetails = () => {
 
   const handleAddToCart = async () => {
     if (!user) {
-      notifyError("Please login to add items to your cart.");
+      setError("Please login to add items to your cart.");
       return;
     }
 
@@ -201,7 +199,6 @@ const ProductDetails = () => {
       );
 
       if (response.data.success) {
-        notifySuccess("Product added to cart!");
         fetchCart();
         addItemToCart({
           product_id: product._id,
@@ -211,11 +208,11 @@ const ProductDetails = () => {
         });
         setIsProductInCart(true);
       } else {
-        notifyError("Failed to add product to cart.");
+        setError("Failed to add product to cart.");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      notifyError("An error occurred while adding to cart.");
+      setError("An error occurred while adding to cart.");
     } finally {
       setIsLoading(false);
     }
@@ -410,6 +407,11 @@ const ProductDetails = () => {
                               {selectedPrice.total_price * quantity}
                             </h4>
                           </div>
+                          {!!error && (
+                            <div className="w-full px-[12px] my-4 text-red-500">
+                              {error}
+                            </div>
+                          )}
                           <div className="bb-single-qty flex flex-wrap m-[-2px]">
                             <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
                               <button
@@ -441,6 +443,7 @@ const ProductDetails = () => {
                                 +
                               </button>
                             </div>
+
                             <div className="buttons m-[2px]">
                               {isProductInCart ? (
                                 <Link

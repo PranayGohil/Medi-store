@@ -1,28 +1,27 @@
 import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
-import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 import ReCAPTCHA from "react-google-recaptcha";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const { login } = useContext(AuthContext);
   const { cartItems, addItemToCart } = useContext(CartContext);
   const [showPassword, setShowPassword] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
-
-  const notifySuccess = (message) => toast.success(message);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,7 +45,6 @@ const Login = () => {
       );
 
       if (response.data.success) {
-        notifySuccess(response.data.message);
         localStorage.setItem("token", response.data.token);
         login(response.data.user);
         response.data.cartData.forEach((item) => {
@@ -62,11 +60,11 @@ const Login = () => {
             console.log("Duplicate item found, not adding to cart:", item);
           }
         });
-        navigate("/");
+        navigate(from, { replace: true });
       } else {
         // Login failed
         setError(response.data.message);
-        setIsCaptchaVerified(false); 
+        setIsCaptchaVerified(false);
       }
     } catch (err) {
       setError("An error occurred during login.");

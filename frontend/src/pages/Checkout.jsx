@@ -9,7 +9,6 @@ import { LocationContext } from "../context/LocationContext";
 import { Country, State, City } from "country-state-city";
 import Modal from "../components/Modal";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Checkout = () => {
@@ -79,7 +78,7 @@ const Checkout = () => {
           }
         );
         if (response.data.allAvailable === false) {
-          toast.error("Some Cart Product is Not Available");
+          setError("Some Cart Product is Not Available");
           navigate("/cart");
         }
         setCartItems(response.data.cartItems);
@@ -150,7 +149,7 @@ const Checkout = () => {
       setShowModal(false);
 
       if (!isNewAddress && !selectedAddress) {
-        toast.error("Please select or add an address.");
+        setError("Please select or add an address.");
         setShowModal(false);
         return;
       }
@@ -174,7 +173,7 @@ const Checkout = () => {
 
       console.log("Order data:", orderData);
 
-      const response = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
         orderData,
         {
@@ -185,31 +184,21 @@ const Checkout = () => {
       );
 
       if (isNewAddress) {
-        await axios
-          .put(
-            `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
-            { address: newAddress },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then(() => {
-            toast.success("Address Saved Successfully.");
-          })
-          .catch((error) => {
-            console.error("Error adding address:", error);
-            toast.error("Failed to add address.");
-          });
+        await axios.put(
+          `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
+          { address: newAddress },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
       }
 
-      toast.success("Order placed successfully!");
       navigate("/order-history");
-      // Clear cart or redirect as needed
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Failed to create order.");
+      setError("Failed to create order.");
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +211,7 @@ const Checkout = () => {
 
   // const handlePlaceOrder = () => {
   //   if (!isNewAddress && !selectedAddress) {
-  //     toast.error("Please select or add an address.");
+  //     setError("Please select or add an address.");
   //     setShowModal(false);
   //     return;
   //   }
@@ -238,7 +227,7 @@ const Checkout = () => {
   //       newAddress.city === "" ||
   //       newAddress.pincode === ""
   //     ) {
-  //       toast.error("Please fill all the details.");
+  //       setError("Please fill all the details.");
   //       return;
   //     }
   //   }
@@ -296,7 +285,7 @@ const Checkout = () => {
         );
 
         if (!addOrder.data.success) {
-          toast.error(addOrder.data.message);
+          setError(addOrder.data.message);
           return;
         }
 
@@ -310,7 +299,7 @@ const Checkout = () => {
         );
 
         if (!deleteCart.data.success) {
-          toast.error(deleteCart.data.message);
+          setError(deleteCart.data.message);
           return;
         }
 
@@ -318,7 +307,7 @@ const Checkout = () => {
 
         console.log("Order created:", addOrder.data);
       } else {
-        toast.error("Payment Capturing Failed.");
+        setError("Payment Capturing Failed.");
       }
 
       navigate("/payment-completed");
@@ -335,7 +324,7 @@ const Checkout = () => {
       const token = localStorage.getItem("token");
 
       if (!isNewAddress && !selectedAddress) {
-        toast.error("Please select or add an address.");
+        setError("Please select or add an address.");
         setShowModal(false);
         return;
       }
@@ -351,29 +340,21 @@ const Checkout = () => {
           newAddress.city === "" ||
           newAddress.pincode === ""
         ) {
-          toast.error("Please fill all the details.");
+          setError("Please fill all the details.");
           return;
         }
       }
 
       if (isNewAddress) {
-        await axios
-          .put(
-            `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
-            { address: newAddress },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then(() => {
-            toast.success("Address Saved Successfully.");
-          })
-          .catch((error) => {
-            console.error("Error adding address:", error);
-            toast.error("Failed to add address.");
-          });
+        await axios.put(
+          `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
+          { address: newAddress },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
       }
       console.log("Total Amount:" + totalAmount);
       let product_id = "";
@@ -403,7 +384,7 @@ const Checkout = () => {
   const handleApplyCoupon = async () => {
     console.log("Coupon Code:", couponCode);
     if (!couponCode) {
-      toast.error("Please enter a coupon code");
+      setError("Please enter a coupon code");
       return;
     }
 
@@ -419,12 +400,9 @@ const Checkout = () => {
       );
       const { discount, discountedTotal } = response.data;
       setDiscount(discount);
-      toast.success(`Coupon applied! You saved $${discount.toFixed(2)}`);
     } catch (error) {
       console.error("Error verifying coupon:", error);
-      toast.error(
-        error.response?.data?.error || "Invalid or expired coupon code"
-      );
+      setError(error.response?.data?.error || "Invalid or expired coupon code");
     } finally {
       setIsApplying(false);
     }
@@ -433,7 +411,6 @@ const Checkout = () => {
   const handleRemoveCoupon = () => {
     setDiscount(0);
     setCouponCode("");
-    toast.success("Coupon removed!");
   };
 
   if (isLoading) {
@@ -898,6 +875,7 @@ const Checkout = () => {
                       Place Order
                     </button>
                   </div> */}
+                  {error && <p className="text-red-500 my-3 font-semibold">{error}</p>}
                   <h4 className="mt-5 font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
                     Place Order
                   </h4>
@@ -909,8 +887,6 @@ const Checkout = () => {
                       className="w-full"
                     >
                       <div>
-                        {error && <p style={{ color: "red" }}>{error}</p>}
-
                         <PayPalButtons
                           createOrder={createOrder}
                           onApprove={(data) => handleApprove(data.orderID)}

@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
 import Breadcrumb from "../components/Breadcrumb";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { user, login, logout } = useContext(AuthContext);
   const { clearCart } = useContext(CartContext);
@@ -34,7 +34,6 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const notifyError = (message) => toast.error(message);
 
   const getAddresses = async () => {
     try {
@@ -66,9 +65,6 @@ const Profile = () => {
         email: user.email,
         phone: user.phone,
       });
-    } else {
-      notifyError("Please login to view your profile.");
-      navigate("/login");
     }
   }, [user]);
 
@@ -206,6 +202,10 @@ const Profile = () => {
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   if (isLoading) {
     return <LoadingSpinner />;

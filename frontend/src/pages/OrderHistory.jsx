@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
-import { toast } from "react-toastify";
 import Breadcrumb from "../components/Breadcrumb";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -13,8 +12,6 @@ const OrderHistory = () => {
   const { user } = useContext(AuthContext);
   const { currency } = useContext(ShopContext);
   const [orders, setOrders] = useState([]);
-
-  const notifyError = (message) => toast.error(message);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -45,7 +42,6 @@ const OrderHistory = () => {
     if (user) {
       fetchOrders();
     } else {
-      notifyError("Please login to view your order history.");
       navigate("/login");
     }
   }, [user]);

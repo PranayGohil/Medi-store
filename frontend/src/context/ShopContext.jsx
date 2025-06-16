@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { toast } from "react-toastify";
 
 export const ShopContext = createContext();
 
@@ -37,7 +36,6 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log("Site Preferences : ", error);
-      toast.error("Failed to fetch settings");
     } finally {
       setIsLoading(false);
     }

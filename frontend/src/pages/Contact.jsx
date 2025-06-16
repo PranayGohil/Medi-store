@@ -2,13 +2,13 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from "../components/Breadcrumb";
-import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Contact = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { user } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
@@ -18,8 +18,6 @@ const Contact = () => {
     phone: "",
     feedback: "",
   });
-  const notifySuccess = (msg) => toast.success(msg);
-  const notifyError = (msg) => toast.error(msg);
 
   useEffect(() => {
     if (user) {
@@ -49,17 +47,17 @@ const Contact = () => {
       !formData.phone ||
       !formData.feedback
     ) {
-      notifyError("All fields are required.");
+      setError("All fields are required.");
       return;
     }
 
     if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
-      notifyError("Invalid email format.");
+      setError("Invalid email format.");
       return;
     }
 
     if (!/^\d{10}$/.test(formData.phone)) {
-      notifyError("Invalid phone number format.");
+      setError("Invalid phone number format.");
       return;
     }
 
@@ -72,7 +70,6 @@ const Contact = () => {
       console.log(" response : ", response);
 
       if (response.data.success) {
-        notifySuccess(response.data.message);
         setFormData({
           first_name: "",
           last_name: "",
@@ -82,10 +79,10 @@ const Contact = () => {
         });
         navigate("/");
       } else {
-        notifyError(response.data.message);
+        setError(response.data.message);
       }
     } catch (error) {
-      notifyError("Something went wrong. Please try again.");
+      setError("Something went wrong. Please try again.");
       console.error("Error submitting feedback:", error);
     } finally {
       setIsLoading(false);
@@ -120,7 +117,6 @@ const Contact = () => {
                 placeholder="Enter Your First Name"
                 value={formData.first_name}
                 onChange={handleChange}
-                required
                 className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
               />
               <input
@@ -129,7 +125,6 @@ const Contact = () => {
                 placeholder="Enter Your Last Name"
                 value={formData.last_name}
                 onChange={handleChange}
-                required
                 className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
               />
               <input
@@ -138,7 +133,6 @@ const Contact = () => {
                 placeholder="Enter Your Email"
                 value={formData.email}
                 onChange={handleChange}
-                required
                 className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
               />
               <input
@@ -154,10 +148,15 @@ const Contact = () => {
                 placeholder="Please leave your comments here.."
                 value={formData.feedback}
                 onChange={handleChange}
-                required
                 className="w-full h-[150px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
                 style={{ resize: "none" }}
               ></textarea>
+
+              {error && (
+                <div className="text-red-500 my-4">
+                  {error}
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={isLoading}

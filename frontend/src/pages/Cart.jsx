@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
-import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Cart = () => {
-  const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { user } = useContext(AuthContext);
@@ -21,12 +20,12 @@ const Cart = () => {
     id: null,
     net_quantity: null,
   });
-
-  const notifyError = (message) => toast.error(message);
+  const [error, setError] = useState("");
 
   const fetchCartData = async () => {
     try {
       setIsLoading(true);
+      setError("");
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
@@ -48,10 +47,6 @@ const Cart = () => {
   useEffect(() => {
     if (user) {
       fetchCartData();
-    } else {
-      console.log("User is not logged in.");
-      notifyError("Please login to view your cart.");
-      navigate("/login");
     }
   }, [user]);
 
@@ -109,13 +104,17 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Error removing item from cart:", error);
-      notifyError("Failed to remove item.");
+      setError("Failed to remove item.");
     } finally {
       setShowRemoveModal(false);
       setItemToRemove({ id: null, net_quantity: null });
       setIsLoading(false);
     }
   };
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -402,6 +401,7 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
+              {error && <div className="text-red-500 mt-4">{error}</div>}
 
               {cartItems.length > 0 && (
                 <Link

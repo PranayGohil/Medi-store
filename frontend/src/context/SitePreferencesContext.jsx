@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { toast } from "react-toastify";
 
 export const SitePreferencesContext = createContext();
 
@@ -26,7 +25,7 @@ export const SitePreferencesContextProvider = (props) => {
         setMobileBanners(response.data[0].mobile_banners);
       }
     } catch (error) {
-      toast.error("Failed to fetch settings");
+      console.log("Failed to fetch settings");
     } finally {
       setIsLoading(false);
     }
