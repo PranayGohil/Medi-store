@@ -1,12 +1,12 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-      user: 'rodrick23@ethereal.email',
-      pass: 'SMsKaJJE95tB9zEJT5'
-  }
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+        user: 'rhett51@ethereal.email',
+        pass: 'q125zke6EcESt4xX23'
+    }
 });
 
 async function sendEmail({ to, subject, html }) {
@@ -21,3 +21,4 @@ async function sendEmail({ to, subject, html }) {
 }
 
 export default sendEmail;
+
