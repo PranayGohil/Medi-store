@@ -234,7 +234,7 @@ const Checkout = () => {
   //   setShowPaymentOptions(true);
   // };
 
-  const handleApprove = async (orderID) => {
+  const handlePayPalApprove = async (orderID) => {
     try {
       setIsLoading(true);
 
@@ -268,7 +268,7 @@ const Checkout = () => {
           discount_code: couponCode,
           total: total,
           delivery_address: deliveryAddress,
-          payment_method: paymentMethod,
+          payment_method: "paypal",
           payment_status: "completed",
           payment_details: response.data.data,
           order_status: "Order Placed",
@@ -304,13 +304,10 @@ const Checkout = () => {
         }
 
         clearCart();
-
-        console.log("Order created:", addOrder.data);
+        navigate("/payment-completed");
       } else {
         setError("Payment Capturing Failed.");
       }
-
-      navigate("/payment-completed");
     } catch (error) {
       console.error("Error capturing order:", error);
       navigate("/payment-cancelled");
@@ -319,13 +316,12 @@ const Checkout = () => {
     }
   };
 
-  const createOrder = async () => {
+  const createPayPalOrder = async () => {
     try {
       const token = localStorage.getItem("token");
 
       if (!isNewAddress && !selectedAddress) {
         setError("Please select or add an address.");
-        setShowModal(false);
         return;
       }
       if (isNewAddress) {
@@ -356,9 +352,6 @@ const Checkout = () => {
           }
         );
       }
-      console.log("Total Amount:" + totalAmount);
-      let product_id = "";
-      cartItems.map((item) => (product_id = product_id + item.id + ","));
 
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/paypal/createorder`,
@@ -376,10 +369,126 @@ const Checkout = () => {
 
       return response.data.id;
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error("Error creating PayPal order:", error);
       setError("Failed to create order");
     }
   };
+
+  const handlePaylabsPayment = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem("token");
+
+      // Validate address
+      if (!isNewAddress && !selectedAddress) {
+        setError("Please select or add an address.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (isNewAddress) {
+        if (
+          newAddress.first_name === "" ||
+          newAddress.last_name === "" ||
+          newAddress.email === "" ||
+          newAddress.phone === "" ||
+          newAddress.address === "" ||
+          newAddress.country === "" ||
+          newAddress.state === "" ||
+          newAddress.city === "" ||
+          newAddress.pincode === ""
+        ) {
+          setError("Please fill all the details.");
+          setIsLoading(false);
+          return;
+        }
+
+        // Save new address
+        await axios.put(
+          `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
+          { address: newAddress },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
+      // Create Paylabs payment
+      const paylabsResponse = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/api/paylabs/create`,
+        {
+          amount: totalAmount,
+          productName: `Order from ${cartItems.length} products`,
+          redirectUrl: `${window.location.origin}/paylabs-callback`,
+        }
+      );
+
+      if (paylabsResponse.data.success) {
+        const paylabsData = paylabsResponse.data.data;
+
+        // Create order in database with pending status
+        let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
+
+        const orderData = {
+          order_id: paylabsData.merchantTradeNo,
+          products: cartItems.map((item) => ({
+            product_id: item.id,
+            net_quantity: item.net_quantity,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          sub_total: subtotal,
+          delivery_charge: delivery_fee,
+          discount: discount,
+          discount_code: couponCode,
+          total: total,
+          delivery_address: deliveryAddress,
+          payment_method: "paylabs",
+          payment_status: "pending",
+          payment_details: {
+            merchantTradeNo: paylabsData.merchantTradeNo,
+            platformTradeNo: paylabsData.platformTradeNo,
+            requestId: paylabsData.requestId,
+          },
+          order_status: "Payment Pending",
+        };
+
+        const addOrder = await axios.post(
+          `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
+          orderData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!addOrder.data.success) {
+          setError(addOrder.data.message);
+          setIsLoading(false);
+          return;
+        }
+
+        // Store order ID in localStorage for callback page
+        localStorage.setItem("pending_paylabs_order", paylabsData.merchantTradeNo);
+
+        // Redirect to Paylabs payment page
+        window.location.href = paylabsData.payUrl;
+      } else {
+        setError("Failed to create Paylabs payment");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Error creating Paylabs payment:", error);
+      setError(error.response?.data?.error || "Failed to create Paylabs payment");
+      setIsLoading(false);
+    }
+  };
+
 
   const handleApplyCoupon = async () => {
     console.log("Coupon Code:", couponCode);
@@ -879,23 +988,66 @@ const Checkout = () => {
                   <h4 className="mt-5 font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
                     Place Order
                   </h4>
-                  <div className="my-5 mx-8">
-                    <PayPalScriptProvider
-                      options={{
-                        "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
-                      }}
-                      className="w-full"
-                    >
-                      <div>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={(data) => handleApprove(data.orderID)}
-                          fundingSource="paypal"
-                          className="flex justify-center w-[100%]"
-                        />
-                      </div>
-                    </PayPalScriptProvider>
+                  {/* Payment Method Selection */}
+                  <div className="payment-method-selection my-4">
+                    <div className="flex gap-4 mb-4">
+                      <button
+                        className={`px-6 py-3 rounded-lg border-2 transition-all ${paymentMethod === "paypal"
+                            ? "border-blue-600 bg-blue-50 text-blue-600"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                          }`}
+                        onClick={() => setPaymentMethod("paypal")}
+                      >
+                        PayPal
+                      </button>
+                      <button
+                        className={`px-6 py-3 rounded-lg border-2 transition-all ${paymentMethod === "paylabs"
+                            ? "border-green-600 bg-green-50 text-green-600"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                          }`}
+                        onClick={() => setPaymentMethod("paylabs")}
+                      >
+                        Paylabs (Credit Card)
+                      </button>
+                    </div>
                   </div>
+
+                  {/* PayPal Payment */}
+                  {paymentMethod === "paypal" && (
+                    <div className="my-5 mx-8">
+                      <PayPalScriptProvider
+                        options={{
+                          "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
+                        }}
+                        className="w-full"
+                      >
+                        <div>
+                          <PayPalButtons
+                            createOrder={createPayPalOrder}
+                            onApprove={(data) => handlePayPalApprove(data.orderID)}
+                            fundingSource="paypal"
+                            className="flex justify-center w-[100%]"
+                          />
+                        </div>
+                      </PayPalScriptProvider>
+                    </div>
+                  )}
+
+                  {/* Paylabs Payment */}
+                  {paymentMethod === "paylabs" && (
+                    <div className="my-5">
+                      <button
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold text-lg shadow-lg"
+                        onClick={handlePaylabsPayment}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Processing..." : "Pay with Paylabs Credit Card"}
+                      </button>
+                      <p className="text-sm text-gray-600 mt-2 text-center">
+                        You will be redirected to Paylabs secure payment page
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

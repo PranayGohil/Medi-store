@@ -17,6 +17,7 @@ import adminRouter from "./routes/adminRoutes.js";
 import paypalRouter from "./routes/paypalRoutes.js";
 import couponRouter from "./routes/couponRoutes.js";
 import dosageformRouter from "./routes/dosageformRoutes.js";
+import paylabsRouter from "./routes/paylabsRoutes.js";
 
 // App config
 const app = express();
@@ -40,6 +41,7 @@ app.use("/api/dosageform", dosageformRouter);
 app.use("/api/site", sitePreferencesRouter);
 app.use("/api/statistics", statisticsRouter);
 app.use("/api/paypal", paypalRouter);
+app.use("/api/paylabs", paylabsRouter);
 app.use("/api/coupon", couponRouter);
 app.get("/", (req, res) => {
   res.status(200).send("Hello World!");
