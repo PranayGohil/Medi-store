@@ -26,6 +26,7 @@ import PrivacyAndPolicy from "./pages/PrivacyAndPolicy";
 import AllCategories from "./pages/AllCategories";
 import PaymentCompleted from "./pages/PaymentCompleted";
 import PaymentCancelled from "./pages/PaymentCancelled";
+import PaylabsCallback from "./pages/PaylabsCallback";
 
 function App() {
   return (
@@ -185,6 +186,15 @@ function App() {
             <>
               <PageTitle title="Payment Cancelled" />
               <PaymentCancelled />
+            </>
+          }
+        />
+        <Route
+          path="/paylabs-callback"
+          element={
+            <>
+              <PageTitle title="Paylabs Payment Callback" />
+              <PaylabsCallback />
             </>
           }
         />

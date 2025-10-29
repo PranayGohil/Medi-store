@@ -4,7 +4,7 @@ import { createPaylabsPayment, queryPaylabsPayment, paylabsCallback } from "../c
 const paylabsRouter = express.Router();
 
 paylabsRouter.post("/create", createPaylabsPayment);
-paylabsRouter.post("/query-payment", queryPaylabsPayment);
+paylabsRouter.post("/query", queryPaylabsPayment);
 paylabsRouter.post("/callback", paylabsCallback);
 
 export default paylabsRouter;

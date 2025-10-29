@@ -472,7 +472,7 @@ const Checkout = () => {
           setIsLoading(false);
           return;
         }
-
+        console.log("Paylabs Data:", paylabsData);
         // Store order ID in localStorage for callback page
         localStorage.setItem("pending_paylabs_order", paylabsData.merchantTradeNo);
 

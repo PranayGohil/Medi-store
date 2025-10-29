@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addOrder,
+  updatePaymentStatus,
   removeOrder,
   getAllOrders,
   getSingleOrder,
@@ -14,6 +15,7 @@ import adminAuth from "../middleware/adminAuth.js";
 const orderRouter = express.Router();
 
 orderRouter.post("/add", addOrder);
+orderRouter.put("/update-payment-status", updatePaymentStatus);
 orderRouter.delete("/remove/:id", removeOrder);
 orderRouter.get("/all", adminAuth, getAllOrders);
 orderRouter.get("/single/:id", getSingleOrder);

@@ -83,6 +83,7 @@ class PaylabsAPI {
 
             const path = `/payment/${this.version}/cc/create`;
             const url = `${this.baseUrl}${path}`;
+            console.log('Paylabs Create Payment URL:', url);
 
             const timestamp = this.generateTimestamp();
             const requestId = this.generateRequestId();
@@ -98,7 +99,7 @@ class PaylabsAPI {
                     redirectUrl: paymentData.redirectUrl
                 }
             };
-
+            console.log('Paylabs Create Payment Request Body:', requestBody);
             const signature = this.generateSignature('POST', path, requestBody, timestamp);
             const headers = this.generateHeaders(timestamp, signature, requestId);
 
@@ -107,7 +108,7 @@ class PaylabsAPI {
                 timeout: 30000,
                 validateStatus: null
             });
-
+            console.log('Paylabs Create Payment Response:', response.data);
             if (response.status >= 400) {
                 throw new Error(`HTTP ${response.status}: ${JSON.stringify(response.data)}`);
             }
@@ -124,7 +125,7 @@ class PaylabsAPI {
                 expiredTime: response.data.expiredTime
             };
 
-            console.log('✅ Paylabs payment created successfully');
+            console.log('✅ Paylabs payment created successfully', result);
             return result;
         } catch (error) {
             console.error('❌ Paylabs payment creation error:', error);
@@ -173,6 +174,7 @@ const paylabs = new PaylabsAPI(paylabsConfig);
 export const createPaylabsPayment = async (req, res) => {
     try {
         const { amount, productName, redirectUrl } = req.body;
+        console.log('💥 Paylabs payment creation request body:', req.body);
 
         if (!amount || !productName || !redirectUrl) {
             return res.status(400).json({
@@ -191,7 +193,7 @@ export const createPaylabsPayment = async (req, res) => {
         };
 
         const result = await paylabs.createPayment(paymentData);
-
+        console.log('💥 Paylabs payment creation result:', result);
         res.json({
             success: true,
             data: result
@@ -218,7 +220,7 @@ export const queryPaylabsPayment = async (req, res) => {
 
         const { merchantTradeNo } = req.body;
         const result = await paylabs.queryPayment(merchantTradeNo);
-
+        console.log('✅ Paylabs payment query result:', result);
         res.json({
             success: true,
             data: result

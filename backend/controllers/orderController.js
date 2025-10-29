@@ -138,23 +138,73 @@ export const addOrder = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decoded.id;
 
-    const order_id = "ORD-" + Date.now() + Math.floor(Math.random() * 1000);
+    // Use provided order_id or generate new one
+    const order_id =
+      orderData.order_id ||
+      "ORD-" + Date.now() + Math.floor(Math.random() * 1000);
 
     const order = await Order.create({
       ...orderData,
       user_id: userId,
       order_id,
-      status_history: {
-        status: orderData.order_status,
-        changed_at: new Date(),
-      },
+      status_history: [
+        {
+          status: orderData.order_status,
+          changed_at: new Date(),
+        },
+      ],
     });
 
-    await addOrderEmail(order);
+    // Send order confirmation email
+    try {
+      await addOrderEmail(order);
+    } catch (emailError) {
+      console.error("Error sending order email:", emailError);
+      // Continue even if email fails
+    }
 
     return res.json({ success: true, order });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { order_id, payment_status, payment_details, order_status } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userId = decoded.id;
+
+    // Find the order
+    const order = await Order.findOne({ order_id, user_id: userId });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Update order
+    order.payment_status = payment_status;
+    order.order_status = order_status;
+    order.payment_details = payment_details;
+
+    // Add to status history
+    order.status_history.push({
+      status: order_status,
+      changed_at: new Date(),
+    });
+
+    await order.save();
+
+    return res.json({ success: true, order });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
