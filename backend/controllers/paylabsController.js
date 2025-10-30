@@ -1,6 +1,7 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import rs from 'node-jsrsasign';
+import { convertUSDtoIDR } from '../utils/currencyConverter.js';
 
 // Paylabs API Helper Class
 class PaylabsAPI {
@@ -185,9 +186,11 @@ export const createPaylabsPayment = async (req, res) => {
 
         const merchantTradeNo = `TXN${Date.now()}`;
 
+        let amountInIDR = await convertUSDtoIDR(amount, true);
+
         const paymentData = {
             merchantTradeNo,
-            amount: amount.toString(),
+            amount: amountInIDR.toString(),
             productName,
             redirectUrl
         };

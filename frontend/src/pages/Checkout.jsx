@@ -120,7 +120,6 @@ const Checkout = () => {
   }, [user]);
 
   useEffect(() => {
-    // Update LocationContext when local states change
     updateLocationData({
       country: selectedCountry,
       state: selectedState,
@@ -140,100 +139,11 @@ const Checkout = () => {
     setSelectedAddress(address);
   };
 
-  const confirmOrder = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem("token");
-      let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
-
-      setShowModal(false);
-
-      if (!isNewAddress && !selectedAddress) {
-        setError("Please select or add an address.");
-        setShowModal(false);
-        return;
-      }
-
-      const orderData = {
-        products: cartItems.map((item) => ({
-          product_id: item.id,
-          net_quantity: item.net_quantity,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        sub_total: subtotal,
-        delivery_charge: delivery_fee,
-        discount: discount,
-        total: total,
-        delivery_address: deliveryAddress,
-        payment_method: paymentMethod,
-        payment_status: "pending",
-        order_status: "pending",
-      };
-
-      console.log("Order data:", orderData);
-
-      await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
-        orderData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (isNewAddress) {
-        await axios.put(
-          `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
-          { address: newAddress },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      navigate("/order-history");
-    } catch (error) {
-      console.error("Error creating order:", error);
-      setError("Failed to create order.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const [paymentMethod, setPaymentMethod] = useState("paypal");
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
   const totalAmount = (subtotal + delivery_fee - discount).toFixed(2);
 
-  // const handlePlaceOrder = () => {
-  //   if (!isNewAddress && !selectedAddress) {
-  //     setError("Please select or add an address.");
-  //     setShowModal(false);
-  //     return;
-  //   }
-  //   if (isNewAddress) {
-  //     if (
-  //       newAddress.first_name === "" ||
-  //       newAddress.last_name === "" ||
-  //       newAddress.email === "" ||
-  //       newAddress.phone === "" ||
-  //       newAddress.address === "" ||
-  //       newAddress.country === "" ||
-  //       newAddress.state === "" ||
-  //       newAddress.city === "" ||
-  //       newAddress.pincode === ""
-  //     ) {
-  //       setError("Please fill all the details.");
-  //       return;
-  //     }
-  //   }
-  //   setShowPaymentOptions(true);
-  // };
-
+  // PayPal Handlers
   const handlePayPalApprove = async (orderID) => {
     try {
       setIsLoading(true);
@@ -374,6 +284,7 @@ const Checkout = () => {
     }
   };
 
+  // Paylabs Handlers
   const handlePaylabsPayment = async () => {
     try {
       setIsLoading(true);
@@ -417,11 +328,12 @@ const Checkout = () => {
         );
       }
 
-      // Create Paylabs payment
+      // Create Paylabs payment with currency conversion
       const paylabsResponse = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/paylabs/create`,
         {
           amount: totalAmount,
+          currency: "USD", // Specify the currency
           productName: `Order from ${cartItems.length} products`,
           redirectUrl: `${window.location.origin}/paylabs-callback`,
         }
@@ -430,11 +342,14 @@ const Checkout = () => {
       if (paylabsResponse.data.success) {
         const paylabsData = paylabsResponse.data.data;
 
-        // Create order in database with pending status
-        let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
+        console.log("💰 Payment Details:", {
+          originalAmount: `${paylabsData.originalAmount} ${paylabsData.originalCurrency}`,
+          convertedAmount: `${paylabsData.convertedAmount} ${paylabsData.convertedCurrency}`,
+        });
 
-        const orderData = {
-          order_id: paylabsData.merchantTradeNo,
+        // Store payment and order data in localStorage (DO NOT create order yet)
+        const pendingOrderData = {
+          merchantTradeNo: paylabsData.merchantTradeNo,
           products: cartItems.map((item) => ({
             product_id: item.id,
             net_quantity: item.net_quantity,
@@ -446,35 +361,26 @@ const Checkout = () => {
           discount: discount,
           discount_code: couponCode,
           total: total,
-          delivery_address: deliveryAddress,
-          payment_method: "paylabs",
-          payment_status: "pending",
+          delivery_address: isNewAddress ? [newAddress] : [selectedAddress],
           payment_details: {
             merchantTradeNo: paylabsData.merchantTradeNo,
             platformTradeNo: paylabsData.platformTradeNo,
             requestId: paylabsData.requestId,
+            originalAmount: paylabsData.originalAmount,
+            originalCurrency: paylabsData.originalCurrency,
+            convertedAmount: paylabsData.convertedAmount,
+            convertedCurrency: paylabsData.convertedCurrency,
           },
-          order_status: "Payment Pending",
         };
 
-        const addOrder = await axios.post(
-          `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
-          orderData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        // Store in localStorage for callback page to create order after successful payment
+        localStorage.setItem(
+          "pending_paylabs_order",
+          JSON.stringify(pendingOrderData)
         );
 
-        if (!addOrder.data.success) {
-          setError(addOrder.data.message);
-          setIsLoading(false);
-          return;
-        }
-        console.log("Paylabs Data:", paylabsData);
-        // Store order ID in localStorage for callback page
-        localStorage.setItem("pending_paylabs_order", paylabsData.merchantTradeNo);
+        console.log(`Redirecting to Paylabs payment page...`);
+        console.log(`Amount in IDR: ${paylabsData.convertedAmount} IDR`);
 
         // Redirect to Paylabs payment page
         window.location.href = paylabsData.payUrl;
@@ -484,14 +390,14 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Error creating Paylabs payment:", error);
-      setError(error.response?.data?.error || "Failed to create Paylabs payment");
+      setError(
+        error.response?.data?.error || "Failed to create Paylabs payment"
+      );
       setIsLoading(false);
     }
   };
 
-
   const handleApplyCoupon = async () => {
-    console.log("Coupon Code:", couponCode);
     if (!couponCode) {
       setError("Please enter a coupon code");
       return;
@@ -714,7 +620,6 @@ const Checkout = () => {
                   <div className="input-box-form py-[20px] border-b-[1px] border-solid border-[#eee]">
                     <form>
                       <div className="flex flex-wrap mx-[-12px]">
-                        {/* ... (new address input fields) */}
                         <div className="min-[992px]:w-[50%] w-full px-[12px]">
                           <div className="input-item mb-[24px]">
                             <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
@@ -740,7 +645,7 @@ const Checkout = () => {
                               type="text"
                               name="last_name"
                               placeholder="Enter your Last Name"
-                              className="w-full p-[10px] text-4px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.last_name}
                               onChange={handleInputChange}
@@ -976,35 +881,33 @@ const Checkout = () => {
                     Total: ${totalAmount}
                   </h2>
 
-                  {/* <div className="w-full">
-                    <button
-                      className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
-                      onClick={handlePlaceOrder}
-                    >
-                      Place Order
-                    </button>
-                  </div> */}
-                  {error && <p className="text-red-500 my-3 font-semibold">{error}</p>}
+                  {error && (
+                    <p className="text-red-500 my-3 font-semibold">{error}</p>
+                  )}
+
                   <h4 className="mt-5 font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
-                    Place Order
+                    Select Payment Method
                   </h4>
+
                   {/* Payment Method Selection */}
                   <div className="payment-method-selection my-4">
                     <div className="flex gap-4 mb-4">
                       <button
-                        className={`px-6 py-3 rounded-lg border-2 transition-all ${paymentMethod === "paypal"
+                        className={`px-6 py-3 rounded-lg border-2 transition-all ${
+                          paymentMethod === "paypal"
                             ? "border-blue-600 bg-blue-50 text-blue-600"
                             : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                          }`}
+                        }`}
                         onClick={() => setPaymentMethod("paypal")}
                       >
                         PayPal
                       </button>
                       <button
-                        className={`px-6 py-3 rounded-lg border-2 transition-all ${paymentMethod === "paylabs"
+                        className={`px-6 py-3 rounded-lg border-2 transition-all ${
+                          paymentMethod === "paylabs"
                             ? "border-green-600 bg-green-50 text-green-600"
                             : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                          }`}
+                        }`}
                         onClick={() => setPaymentMethod("paylabs")}
                       >
                         Paylabs (Credit Card)
@@ -1024,7 +927,9 @@ const Checkout = () => {
                         <div>
                           <PayPalButtons
                             createOrder={createPayPalOrder}
-                            onApprove={(data) => handlePayPalApprove(data.orderID)}
+                            onApprove={(data) =>
+                              handlePayPalApprove(data.orderID)
+                            }
                             fundingSource="paypal"
                             className="flex justify-center w-[100%]"
                           />
@@ -1041,7 +946,9 @@ const Checkout = () => {
                         onClick={handlePaylabsPayment}
                         disabled={isLoading}
                       >
-                        {isLoading ? "Processing..." : "Pay with Paylabs Credit Card"}
+                        {isLoading
+                          ? "Processing..."
+                          : "Pay with Paylabs Credit Card"}
                       </button>
                       <p className="text-sm text-gray-600 mt-2 text-center">
                         You will be redirected to Paylabs secure payment page
@@ -1059,7 +966,7 @@ const Checkout = () => {
           <h2>Confirm Order</h2>
           <p>Are you sure you want to place this order?</p>
           <div className="modal-buttons">
-            <button onClick={confirmOrder} className="m-2">
+            <button onClick={() => setShowModal(false)} className="m-2">
               Confirm
             </button>
             <button onClick={() => setShowModal(false)} className="m-2">
