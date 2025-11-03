@@ -22,9 +22,9 @@ const Header = () => {
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState("");
 
   const [categories, setCategories] = useState([]);
-
   const [hoverCartItems, setHoverCartItems] = useState([]);
   const [showCartPreview, setShowCartPreview] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -102,11 +102,16 @@ const Header = () => {
   useEffect(() => {
     fetchCategories();
     const handleResize = () => {
-      if (window.innerWidth > 991) {
+      const width = window.innerWidth;
+      setIsTablet(width >= 768 && width <= 991);
+
+      if (width > 991) {
         setIsMobileMenuOpen(false);
         setIsMobileCartOpen(false);
       }
     };
+
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -239,7 +244,6 @@ const Header = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -249,17 +253,26 @@ const Header = () => {
     setOpenMobileSubMenu((prevId) => (prevId === category ? "" : category));
   };
 
+  const handleCartClick = (e) => {
+    if (isTablet) {
+      e.preventDefault();
+      toggleMobileCart();
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
   return (
     <header className="bb-header relative z-[5] border-b-[1px] border-solid border-[#eee]">
+      {/* Top Header Section */}
       <div className="bottom-header py-[20px] max-[991px]:py-[15px]">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
             <div className="w-full px-[12px]">
               <div className="inner-bottom-header flex justify-between max-[767px]:flex-col">
+                {/* Logo and Mobile Icons */}
                 <div className="cols bb-logo-detail flex max-[767px]:justify-between">
                   <div className="header-logo flex items-center max-[575px]:justify-center">
                     <Link to={"/"}>
@@ -270,9 +283,12 @@ const Header = () => {
                       />
                     </Link>
                   </div>
-                  <div className="cols bb-icons justify-center md:hidden flex">
+
+                  {/* Mobile Icons (below 768px) */}
+                  <div className="cols bb-icons justify-center min-[768px]:hidden flex">
                     <div className="bb-flex-justify max-[575px]:flex max-[575px]:justify-between">
                       <div className="bb-header-buttons h-full flex justify-end items-center">
+                        {/* Account Icon */}
                         <div className="bb-acc-drop relative">
                           <Link
                             to={`${user ? "/profile" : "/login"}`}
@@ -295,6 +311,7 @@ const Header = () => {
                           </Link>
                         </div>
 
+                        {/* Cart Icon */}
                         <button
                           onClick={toggleMobileCart}
                           className="bb-header-btn transition-all duration-[0.3s] ease-in-out relative flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
@@ -312,7 +329,7 @@ const Header = () => {
                                 d="M351.552 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C415.52 860.064 386.88 831.424 351.552 831.424L351.552 831.424 351.552 831.424zM799.296 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C863.264 860.064 834.624 831.424 799.296 831.424L799.296 831.424 799.296 831.424zM862.752 799.456 343.264 799.456c-46.08 0-86.592-36.448-92.224-83.008L196.8 334.592 165.92 156.128c-1.92-15.584-16.128-28.288-29.984-28.288L95.2 127.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-32 32-32l40.736 0c46.656 0 87.616 36.448 93.28 83.008l30.784 177.792 54.464 383.488c1.792 14.848 15.232 27.36 28.768 27.36l519.488 0c17.696 0 32 14.304 32 31.968S880.416 799.456 862.752 799.456L862.752 799.456zM383.232 671.52c-16.608 0-30.624-12.8-31.872-29.632-1.312-17.632 11.936-32.928 29.504-34.208l433.856-31.968c15.936-0.096 29.344-12.608 31.104-26.816l50.368-288.224c1.28-10.752-1.696-22.528-8.128-29.792-4.128-4.672-9.312-7.04-15.36-7.04L319.04 223.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-31.968 32-31.968l553.728 0c24.448 0 46.88 10.144 63.232 28.608 18.688 21.088 27.264 50.784 23.52 81.568l-50.4 288.256c-5.44 44.832-45.92 81.28-92 81.28L385.6 671.424C384.8 671.488 384 671.52 383.232 671.52L383.232 671.52zM383.232 671.52"
                               />
                             </svg>
-                            {totalCartItems > 0 && (
+                            {isTablet && totalCartItems > 0 && (
                               <span className="absolute -top-[8px] -right-[8px] bg-[#ff0000] text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center">
                                 {totalCartItems}
                               </span>
@@ -320,6 +337,7 @@ const Header = () => {
                           </div>
                         </button>
 
+                        {/* Mobile Menu Toggle */}
                         <button
                           onClick={toggleMobileMenu}
                           className="bb-toggle-menu hidden max-[991px]:flex max-[991px]:ml-[20px]"
@@ -333,6 +351,7 @@ const Header = () => {
                   </div>
                 </div>
 
+                {/* Search Bar */}
                 <div className="cols flex justify-center items-center">
                   <div className="header-search flex flex-wrap justify-between align-middle w-[600px] max-[1399px]:w-[500px] max-[1199px]:w-[400px] max-[991px]:w-full max-[991px]:min-w-[300px] max-[767px]:py-[15px] max-[480px]:min-w-[auto]">
                     <div
@@ -417,9 +436,11 @@ const Header = () => {
                   </div>
                 </div>
 
-                <div className="cols bb-icons justify-center md:flex hidden">
+                {/* Desktop/Tablet Icons (768px and above) */}
+                <div className="cols bb-icons justify-center hidden min-[768px]:flex">
                   <div className="bb-flex-justify max-[575px]:flex max-[575px]:justify-between">
                     <div className="bb-header-buttons h-full flex justify-end items-center">
+                      {/* Account */}
                       <div className="bb-acc-drop relative">
                         <Link
                           to={`${user ? "/profile" : "/login"}`}
@@ -443,20 +464,28 @@ const Header = () => {
                             <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
                               Account
                             </span>
-                            <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
+                            <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750] tracking-[0.03rem] whitespace-nowrap">
                               {user ? "Profile" : "Login"}
                             </span>
                           </div>
                         </Link>
                       </div>
 
+                      {/* Cart */}
                       <Link
                         to="/cart"
+                        onClick={handleCartClick}
                         onMouseEnter={() => {
-                          setShowCartPreview(true);
-                          fetchHoverCartItems();
+                          if (!isTablet) {
+                            setShowCartPreview(true);
+                            fetchHoverCartItems();
+                          }
                         }}
-                        onMouseLeave={() => setShowCartPreview(false)}
+                        onMouseLeave={() => {
+                          if (!isTablet) {
+                            setShowCartPreview(false);
+                          }
+                        }}
                         className="relative bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
                         title="Cart"
                       >
@@ -472,19 +501,25 @@ const Header = () => {
                               d="M351.552 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C415.52 860.064 386.88 831.424 351.552 831.424L351.552 831.424 351.552 831.424zM799.296 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C863.264 860.064 834.624 831.424 799.296 831.424L799.296 831.424 799.296 831.424zM862.752 799.456 343.264 799.456c-46.08 0-86.592-36.448-92.224-83.008L196.8 334.592 165.92 156.128c-1.92-15.584-16.128-28.288-29.984-28.288L95.2 127.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-32 32-32l40.736 0c46.656 0 87.616 36.448 93.28 83.008l30.784 177.792 54.464 383.488c1.792 14.848 15.232 27.36 28.768 27.36l519.488 0c17.696 0 32 14.304 32 31.968S880.416 799.456 862.752 799.456L862.752 799.456zM383.232 671.52c-16.608 0-30.624-12.8-31.872-29.632-1.312-17.632 11.936-32.928 29.504-34.208l433.856-31.968c15.936-0.096 29.344-12.608 31.104-26.816l50.368-288.224c1.28-10.752-1.696-22.528-8.128-29.792-4.128-4.672-9.312-7.04-15.36-7.04L319.04 223.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-31.968 32-31.968l553.728 0c24.448 0 46.88 10.144 63.232 28.608 18.688 21.088 27.264 50.784 23.52 81.568l-50.4 288.256c-5.44 44.832-45.92 81.28-92 81.28L385.6 671.424C384.8 671.488 384 671.52 383.232 671.52L383.232 671.52zM383.232 671.52"
                             />
                           </svg>
-                          <span className="main-label-note-new" />
+                          {totalCartItems > 0 && (
+                            <span className="absolute -top-[8px] -right-[8px] bg-[#ff0000] text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center">
+                              {totalCartItems}
+                            </span>
+                          )}
                         </div>
                         <div className="bb-btn-desc flex flex-col ml-[10px] max-[1199px]:hidden">
                           <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
                             <b className="bb-cart-count">{totalCartItems}</b>{" "}
                             items
                           </span>
-                          <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
+                          <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750] tracking-[0.03rem] whitespace-nowrap">
                             Cart
                           </span>
                         </div>
 
+                        {/* Desktop hover preview */}
                         {showCartPreview &&
+                          !isTablet &&
                           (hoverCartItems.length > 0 ? (
                             <div
                               onMouseEnter={() => {
@@ -538,15 +573,6 @@ const Header = () => {
                             </div>
                           ))}
                       </Link>
-
-                      <button
-                        onClick={toggleMobileMenu}
-                        className="bb-toggle-menu hidden max-[991px]:flex max-[991px]:ml-[20px]"
-                      >
-                        <div className="header-icon">
-                          <i className="ri-menu-3-fill text-[22px] text-[#0097b2]" />
-                        </div>
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -556,6 +582,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Desktop Navigation Menu */}
       <div className="bb-main-menu-desk bg-[#fff] py-[5px] border-t-[1px] border-solid border-[#eee] max-[991px]:hidden">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
@@ -569,9 +596,9 @@ const Header = () => {
                     <li className="nav-item ">
                       <Link
                         to="/all-categories"
-                        className="flex items-center mr-[25px] text-[#fff] hover:text-[#0097b2] bg-[#0097b2] hover:bg-[#fff] hover:border-[1px] border-solid border-[#0097b2] rounded-[10px]  py-3 px-4"
+                        className="flex items-center mr-[25px] text-[#fff] hover:text-[#0097b2] bg-[#0097b2] hover:bg-[#fff] hover:border-[1px] border-solid border-[#0097b2] rounded-[10px] py-3 px-4"
                       >
-                        <p className=" font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium  block tracking-[0.03rem]">
+                        <p className="font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium block tracking-[0.03rem]">
                           All Categories
                         </p>
                       </Link>
@@ -650,7 +677,7 @@ const Header = () => {
                     <li className="nav-item flex items-center">
                       <Link
                         to="/offers"
-                        className="nav-link font-Poppins  p-[0] leading-[28px] text-[15px] font-medium tracking-[0.03rem] text-[#3d4750] flex"
+                        className="nav-link font-Poppins p-[0] leading-[28px] text-[15px] font-medium tracking-[0.03rem] text-[#3d4750] flex"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -690,6 +717,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Mobile Menu Overlay */}
       <div
         className={`bb-mobile-menu-overlay ${
           isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
@@ -700,6 +728,7 @@ const Header = () => {
         }}
       />
 
+      {/* Mobile Menu Sidebar */}
       <div
         id="bb-mobile-menu"
         className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
@@ -752,18 +781,18 @@ const Header = () => {
                             closeMobileMenu();
                             handleCategoryClick(category.category);
                           }}
-                          className=" w-[80%] text-start"
+                          className="w-[80%] text-start"
                         >
                           {category.category}
                         </button>
                         {openMobileSubMenu === category.category ? (
                           <i
-                            className="ri-arrow-down-s-line float-right leading-[28px]w-[15%]"
+                            className="ri-arrow-down-s-line float-right leading-[28px] w-[15%]"
                             onClick={() => toggleMobileSubMenu("")}
                           ></i>
                         ) : (
                           <i
-                            className="ri-arrow-right-s-line float-right leading-[28px]w-[15%]"
+                            className="ri-arrow-right-s-line float-right leading-[28px] w-[15%]"
                             onClick={() =>
                               toggleMobileSubMenu(category.category)
                             }
@@ -771,11 +800,29 @@ const Header = () => {
                         )}
                       </div>
                       {openMobileSubMenu === category.category && (
-                        <>
-                          <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
-                            <li className="relative">
-                              <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
-                                {category.subcategory.map((subCategory) => (
+                        <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
+                          <li className="relative">
+                            <ul className="sub-menu w-full min-w-[auto] p-[0] static visible opacity-[1]">
+                              {category.subcategory.map((subCategory) => (
+                                <li
+                                  key={subCategory}
+                                  className="relative border-b border-[#eee]"
+                                >
+                                  <button
+                                    onClick={() =>
+                                      handleSubCategoryClick(
+                                        category.category,
+                                        subCategory
+                                      )
+                                    }
+                                    className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
+                                  >
+                                    {subCategory}
+                                  </button>
+                                </li>
+                              ))}
+                              {category.special_subcategory.map(
+                                (subCategory) => (
                                   <li
                                     key={subCategory}
                                     className="relative border-b border-[#eee]"
@@ -787,37 +834,17 @@ const Header = () => {
                                           subCategory
                                         )
                                       }
-                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
+                                      className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
                                     >
+                                      <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
                                       {subCategory}
                                     </button>
                                   </li>
-                                ))}
-                                {category.special_subcategory.map(
-                                  (subCategory) => (
-                                    <li
-                                      key={subCategory}
-                                      className="relative border-b border-[#eee]"
-                                    >
-                                      <button
-                                        onClick={() =>
-                                          handleSubCategoryClick(
-                                            category.category,
-                                            subCategory
-                                          )
-                                        }
-                                        className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
-                                      >
-                                        <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
-                                        {subCategory}
-                                      </button>
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            </li>
-                          </ul>
-                        </>
+                                )
+                              )}
+                            </ul>
+                          </li>
+                        </ul>
                       )}
                     </li>
                   )
@@ -826,7 +853,7 @@ const Header = () => {
                 <Link
                   to="/offers"
                   onClick={closeMobileMenu}
-                  className="ntransition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] flex font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] flex font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -863,6 +890,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Mobile/Tablet Cart Sidebar */}
       <div
         id="bb-mobile-cart"
         className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
@@ -903,9 +931,6 @@ const Header = () => {
                         {item.net_quantity}
                       </p>
                       <div className="flex justify-between items-center">
-                        <p className="text-xs text-gray-600">
-                          Qty: {item.quantity}
-                        </p>
                         <p className="text-sm font-bold text-[#0097b2]">
                           {currency} {(item.price * item.quantity).toFixed(2)}
                         </p>
