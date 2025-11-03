@@ -259,8 +259,8 @@ const Header = () => {
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
             <div className="w-full px-[12px]">
-              <div className="inner-bottom-header flex justify-between max-[767px]:flex-col">
-                <div className="cols bb-logo-detail flex max-[767px]:justify-between">
+              <div className="inner-bottom-header flex justify-between max-lg:flex-col">
+                <div className="cols bb-logo-detail flex max-lg:justify-between">
                   <div className="header-logo flex items-center max-[575px]:justify-center">
                     <Link to={"/"}>
                       <img
@@ -270,7 +270,7 @@ const Header = () => {
                       />
                     </Link>
                   </div>
-                  <div className="cols bb-icons justify-center md:hidden flex">
+                  <div className="cols bb-icons justify-center lg:hidden flex">
                     <div className="bb-flex-justify max-[575px]:flex max-[575px]:justify-between">
                       <div className="bb-header-buttons h-full flex justify-end items-center">
                         <div className="bb-acc-drop relative">
@@ -417,7 +417,7 @@ const Header = () => {
                   </div>
                 </div>
 
-                <div className="cols bb-icons justify-center md:flex hidden">
+                <div className="cols bb-icons justify-center lg:flex hidden">
                   <div className="bb-flex-justify max-[575px]:flex max-[575px]:justify-between">
                     <div className="bb-header-buttons h-full flex justify-end items-center">
                       <div className="bb-acc-drop relative">
@@ -428,7 +428,7 @@ const Header = () => {
                         >
                           <div className="header-icon relative flex">
                             <svg
-                              className="svg-icon w-[30px] h-[30px] max-[1199px]:w-[25px] max-[1199px]:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
+                              className="svg-icon w-[30px] h-[30px] max-lg:w-[25px] max-lg:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
                               viewBox="0 0 1024 1024"
                               version="1.1"
                               xmlns="http://www.w3.org/2000/svg"
@@ -439,7 +439,7 @@ const Header = () => {
                               />
                             </svg>
                           </div>
-                          <div className="bb-btn-desc flex flex-col ml-[10px] max-[1199px]:hidden">
+                          <div className="bb-btn-desc flex flex-col ml-[10px] max-lg:hidden">
                             <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
                               Account
                             </span>
@@ -457,12 +457,12 @@ const Header = () => {
                           fetchHoverCartItems();
                         }}
                         onMouseLeave={() => setShowCartPreview(false)}
-                        className="relative bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-[1199px]:ml-[20px]"
+                        className="relative bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-lg:ml-[20px]"
                         title="Cart"
                       >
                         <div className="header-icon relative flex">
                           <svg
-                            className="svg-icon w-[30px] h-[30px] max-[1199px]:w-[25px] max-[1199px]:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
+                            className="svg-icon w-[30px] h-[30px] max-lg:w-[25px] max-lg:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
                             viewBox="0 0 1024 1024"
                             version="1.1"
                             xmlns="http://www.w3.org/2000/svg"
@@ -474,7 +474,7 @@ const Header = () => {
                           </svg>
                           <span className="main-label-note-new" />
                         </div>
-                        <div className="bb-btn-desc flex flex-col ml-[10px] max-[1199px]:hidden">
+                        <div className="bb-btn-desc flex flex-col ml-[10px] max-lg:hidden">
                           <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
                             <b className="bb-cart-count">{totalCartItems}</b>{" "}
                             items
