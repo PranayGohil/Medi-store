@@ -139,8 +139,6 @@ const Checkout = () => {
     setSelectedAddress(address);
   };
 
-  const [paymentMethod, setPaymentMethod] = useState("paypal");
-
   const totalAmount = (subtotal + delivery_fee - discount).toFixed(2);
 
   // PayPal Handlers
@@ -885,76 +883,22 @@ const Checkout = () => {
                     <p className="text-red-500 my-3 font-semibold">{error}</p>
                   )}
 
-                  <h4 className="mt-5 font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
-                    Select Payment Method
-                  </h4>
-
-                  {/* Payment Method Selection */}
-                  <div className="payment-method-selection my-4">
-                    <div className="flex gap-4 mb-4">
-                      <button
-                        className={`px-6 py-3 rounded-lg border-2 transition-all ${
-                          paymentMethod === "paypal"
-                            ? "border-blue-600 bg-blue-50 text-blue-600"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                        }`}
-                        onClick={() => setPaymentMethod("paypal")}
-                      >
-                        PayPal
-                      </button>
-                      <button
-                        className={`px-6 py-3 rounded-lg border-2 transition-all ${
-                          paymentMethod === "paylabs"
-                            ? "border-green-600 bg-green-50 text-green-600"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                        }`}
-                        onClick={() => setPaymentMethod("paylabs")}
-                      >
-                        Paylabs (Credit Card)
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* PayPal Payment */}
-                  {paymentMethod === "paypal" && (
-                    <div className="my-5 mx-8">
-                      <PayPalScriptProvider
-                        options={{
-                          "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
-                        }}
-                        className="w-full"
-                      >
-                        <div>
-                          <PayPalButtons
-                            createOrder={createPayPalOrder}
-                            onApprove={(data) =>
-                              handlePayPalApprove(data.orderID)
-                            }
-                            fundingSource="paypal"
-                            className="flex justify-center w-[100%]"
-                          />
-                        </div>
-                      </PayPalScriptProvider>
-                    </div>
-                  )}
-
                   {/* Paylabs Payment */}
-                  {paymentMethod === "paylabs" && (
-                    <div className="my-5">
-                      <button
-                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold text-lg shadow-lg"
-                        onClick={handlePaylabsPayment}
-                        disabled={isLoading}
-                      >
-                        {isLoading
-                          ? "Processing..."
-                          : "Pay with Paylabs Credit Card"}
-                      </button>
-                      <p className="text-sm text-gray-600 mt-2 text-center">
-                        You will be redirected to Paylabs secure payment page
-                      </p>
-                    </div>
-                  )}
+
+                  <div className="my-5">
+                    <button
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold text-lg shadow-lg"
+                      onClick={handlePaylabsPayment}
+                      disabled={isLoading}
+                    >
+                      {isLoading
+                        ? "Processing..."
+                        : "Pay with Paylabs Credit Card"}
+                    </button>
+                    <p className="text-sm text-gray-600 mt-2 text-center">
+                      You will be redirected to Paylabs secure payment page
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

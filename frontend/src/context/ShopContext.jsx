@@ -7,7 +7,7 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const currency = "$";
+  const currency = "Rp";
   const [delivery_fee, set_delivery_charge] = useState(0);
 
   const fetchProducts = async () => {
@@ -16,6 +16,7 @@ const ShopContextProvider = (props) => {
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/product/all`
       );
+      console.log("Products Data : ", response.data.products);
       setProducts(response.data.products);
     } catch (error) {
       console.error(error);

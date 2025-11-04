@@ -5,6 +5,7 @@ import RelatedProducts from "../components/RelatedProducts";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageTitle from "../components/PageTitle";
+import ExpandableContent from "../components/ExpandableContent";
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -21,12 +22,11 @@ const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("detail");
   const [mainImage, setMainImage] = useState(null);
   const [rating, setrating] = useState(0);
-  const [selectedPrice, setSelectedPrice] = useState({});
-  const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState([]);
   const [reviews, setReviews] = useState([]);
 
-  const [isProductInCart, setIsProductInCart] = useState(false);
+  // Create quantity state for each pricing option
+  const [quantities, setQuantities] = useState({});
 
   const fetchCart = async () => {
     try {
@@ -63,7 +63,6 @@ const ProductDetails = () => {
       if (response.data.success) {
         let reviewsData = response.data.reviews;
 
-        // Fetch user data for all reviews in parallel
         const reviewsWithUserInfo = await Promise.all(
           reviewsData.map(async (review) => {
             try {
@@ -123,7 +122,13 @@ const ProductDetails = () => {
           setMainImage(response.data.product.product_images[0]);
         }
         setrating(response.data.product.rating);
-        setSelectedPrice(response.data.product.pricing[0]);
+
+        // Initialize quantities for each pricing option
+        const initialQuantities = {};
+        response.data.product.pricing.forEach((price) => {
+          initialQuantities[price.net_quantity] = 1;
+        });
+        setQuantities(initialQuantities);
       } else {
         console.error("Failed to fetch product");
       }
@@ -138,25 +143,10 @@ const ProductDetails = () => {
   useEffect(() => {
     fetchCart();
   }, []);
+
   useEffect(() => {
     fetchProduct();
   }, [alias]);
-
-  useEffect(() => {
-    if (cart && product && selectedPrice) {
-      const productExists = cart.some(
-        (item) =>
-          item.id === product._id &&
-          item.net_quantity === selectedPrice.net_quantity
-      );
-      // if (productExists === true) {
-      //   setQuantity(productExists.quantity);
-      // } else {
-      //   setQuantity(1);
-      // }
-      setIsProductInCart(productExists);
-    }
-  }, [cart, product, selectedPrice]);
 
   const handleThumbnailClick = (image) => {
     setMainImage(image);
@@ -170,8 +160,8 @@ const ProductDetails = () => {
           key={i}
           className={
             i < rating
-              ? "ri-star-fill float-left text-[15px] mr-[3px] text-[#0097b2]"
-              : "ri-star-line float-left text-[15px] mr-[3px] text-[#0097b2]"
+              ? "ri-star-fill float-left text-[15px] mr-[3px] text-yellow-500"
+              : "ri-star-line float-left text-[15px] mr-[3px] text-yellow-500"
           }
         ></i>
       );
@@ -179,9 +169,24 @@ const ProductDetails = () => {
     return stars;
   };
 
-  const handleAddToCart = async () => {
+  const handleQuantityChange = (netQuantity, change) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [netQuantity]: Math.max(1, prev[netQuantity] + change),
+    }));
+  };
+
+  const isInCart = (netQuantity) => {
+    if (!cart || !product) return false;
+    return cart.some(
+      (item) => item.id === product._id && item.net_quantity === netQuantity
+    );
+  };
+
+  const handleAddToCart = async (price) => {
     if (!user) {
       setError("Please login to add items to your cart.");
+      setTimeout(() => setError(null), 3000);
       return;
     }
 
@@ -192,9 +197,9 @@ const ProductDetails = () => {
         {
           userId: user._id,
           product_id: product._id,
-          net_quantity: selectedPrice.net_quantity,
-          price: selectedPrice.total_price,
-          quantity: quantity,
+          net_quantity: price.net_quantity,
+          price: price.total_price,
+          quantity: quantities[price.net_quantity],
         }
       );
 
@@ -202,20 +207,29 @@ const ProductDetails = () => {
         fetchCart();
         addItemToCart({
           product_id: product._id,
-          net_quantity: selectedPrice.net_quantity,
-          price: selectedPrice.total_price,
-          quantity: quantity,
+          net_quantity: price.net_quantity,
+          price: price.total_price,
+          quantity: quantities[price.net_quantity],
         });
-        setIsProductInCart(true);
       } else {
         setError("Failed to add product to cart.");
+        setTimeout(() => setError(null), 3000);
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
       setError("An error occurred while adding to cart.");
+      setTimeout(() => setError(null), 3000);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   if (!product || isLoading) {
@@ -248,11 +262,11 @@ const ProductDetails = () => {
                           />
                         </div>
                       </div>
-                      <div className="flex mt-4 space-x-2">
+                      <div className="flex mt-4 space-x-2 overflow-x-auto">
                         {product.product_images.map((image, index) => (
                           <img
                             key={index}
-                            className="w-32 overflow-scroll border border-transparent hover:border-gray-400 rounded-md cursor-pointer"
+                            className="w-20 h-20 min-w-[80px] border-2 border-transparent hover:border-gray-400 rounded-md cursor-pointer object-cover"
                             src={image}
                             alt={`product-${index}`}
                             onClick={() => handleThumbnailClick(image)}
@@ -263,7 +277,7 @@ const ProductDetails = () => {
                   </div>
 
                   {/* Product Details Section */}
-                  <div className="min-[992px]:w-[58.33%] w-full px-[12px] mb-[24px]">
+                  <div className="min-[992px]:w-[58.33%] w-full px-[24px] mb-[24px]">
                     <div className="bb-single-pro-contact">
                       <div className="bb-sub-title mb-[20px]">
                         <h4 className="font-quicksand text-[22px] mt-2 tracking-[0.03rem] font-bold leading-[1.2] text-[#3d4750]">
@@ -283,7 +297,7 @@ const ProductDetails = () => {
                           |&nbsp;&nbsp;
                           <Link
                             to="#bb-spt-nav-review"
-                            className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem] text-[#0097b2]"
+                            className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]"
                           >
                             {product.reviews.length} Reviews
                           </Link>
@@ -335,131 +349,198 @@ const ProductDetails = () => {
                         </p>
                       </div>
 
-                      {/* <div className="bb-single-price-wrap flex justify-between py-[10px]">
-                        <div className="bb-single-price py-[15px]">
-                          <div className="price mb-[8px]">
-                            <h5 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[20px] font-extrabold text-[#3d4750]">
-                              {currency + " " + selectedPrice.total_price}
-                            </h5>
-                          </div>
-                          <div className="mrp">
-                            <p className="font-Poppins text-[16px] font-light text-[#686e7d] leading-[28px] tracking-[0.03rem]">
-                              M.R.P. :{" "}
-                              <span className="text-[15px] line-through">
-                                $1,999.00
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="bb-single-price py-[15px]">
-                          <div className="sku mb-[8px]">
-                            <h5 className="font-quicksand text-[18px] font-extrabold leading-[1.2] tracking-[0.03rem] text-[#3d4750]">
-                              SKU#: WH12
-                            </h5>
-                          </div>
-                          <div className="stock">
-                            <span className="text-[18px] text-[#0097b2]">
-                              In stock
-                            </span>
-                          </div>
-                        </div>
-                      </div> */}
                       {product.available ? (
                         <>
-                          <div className="bb-single-pro-weight my-[24px]">
+                          {!!error && (
+                            <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                              {error}
+                            </div>
+                          )}
+
+                          {/* Table Format for Pricing */}
+                          <div className="bb-pricing-table my-[24px]">
                             <div className="pro-title mb-[12px]">
                               <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
                                 Select Quantity
                               </h4>
                             </div>
-                            <div className="bb-pro-variation-contant">
-                              <ul className="flex flex-wrap m-[-2px]">
-                                <div>
+
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block overflow-x-auto">
+                              <table className="w-full border-collapse">
+                                <thead>
+                                  <tr className="bg-[#0097b2] text-white">
+                                    <th className="py-3 px-4 text-left font-Poppins text-[14px] font-semibold">
+                                      PACK SIZE
+                                    </th>
+                                    <th className="py-3 px-4 text-left font-Poppins text-[14px] font-semibold">
+                                      PRICE
+                                    </th>
+                                    <th className="py-3 px-4 text-center font-Poppins text-[14px] font-semibold">
+                                      QUANTITY
+                                    </th>
+                                    <th className="py-3 px-4 text-center font-Poppins text-[14px] font-semibold">
+                                      ACTION
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
                                   {product.pricing.map((price, index) => (
-                                    <li
+                                    <tr
                                       key={index}
-                                      className={`my-[10px] mx-[2px] py-[2px] px-[15px] border-[1px] border-solid border-[#eee] rounded-[10px] cursor-pointer ${
-                                        price.net_quantity ===
-                                        selectedPrice.net_quantity
-                                          ? "active-variation"
-                                          : ""
-                                      }`}
-                                      onClick={() => setSelectedPrice(price)}
+                                      className="border-b border-[#eee] hover:bg-gray-50"
                                     >
-                                      <span className="font-Poppins text-[#000000] font-light text-[14px] leading-[28px] tracking-[0.03rem]">
-                                        {price.net_quantity}{" "}
-                                        {product.dosage_form} /s -
-                                        &nbsp;&nbsp;&nbsp;&nbsp; {currency}
-                                        {price.total_price}{" "}
-                                        &nbsp;&nbsp;&nbsp;&nbsp; ( {currency}
-                                        {price.unit_price} per{" "}
-                                        {product.dosage_form} )
-                                      </span>
-                                    </li>
+                                      <td className="py-3 px-4">
+                                        <span className="font-Poppins text-[14px] text-[#3d4750] font-medium">
+                                          {price.net_quantity}{" "}
+                                          {product.dosage_form}/s
+                                        </span>
+                                      </td>
+                                      <td className="py-3 px-4">
+                                        <div>
+                                          <span className="font-Poppins text-[16px] font-bold text-[#0097b2]">
+                                            {currency}
+                                            {price.total_price}
+                                          </span>
+                                          <p className="font-Poppins text-[12px] text-[#777]">
+                                            ({currency}
+                                            {price.unit_price} per{" "}
+                                            {product.dosage_form})
+                                          </p>
+                                        </div>
+                                      </td>
+                                      <td className="py-3 px-4">
+                                        <div className="flex justify-center">
+                                          <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                                            <button
+                                              className="bb-qtybtn px-3"
+                                              type="button"
+                                              onClick={() =>
+                                                handleQuantityChange(
+                                                  price.net_quantity,
+                                                  -1
+                                                )
+                                              }
+                                            >
+                                              -
+                                            </button>
+                                            <span className="qty-input text-[#777] text-[14px] font-normal">
+                                              {quantities[price.net_quantity]}
+                                            </span>
+                                            <button
+                                              className="bb-qtybtn px-3"
+                                              type="button"
+                                              onClick={() =>
+                                                handleQuantityChange(
+                                                  price.net_quantity,
+                                                  1
+                                                )
+                                              }
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td className="py-3 px-4 text-center">
+                                        {isInCart(price.net_quantity) ? (
+                                          <Link
+                                            to="/cart"
+                                            className="inline-block bg-[#6c757d] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#5a6268] transition-all"
+                                          >
+                                            View Cart
+                                          </Link>
+                                        ) : (
+                                          <button
+                                            onClick={() =>
+                                              handleAddToCart(price)
+                                            }
+                                            className="bg-[#0097b2] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#007a8f] transition-all"
+                                          >
+                                            ADD
+                                          </button>
+                                        )}
+                                      </td>
+                                    </tr>
                                   ))}
-                                </div>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="pro-title mb-[18px]">
-                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] text-[16px] font-bold uppercase text-[#3d4750]">
-                              Total: {currency}{" "}
-                              {selectedPrice.total_price * quantity}
-                            </h4>
-                          </div>
-                          {!!error && (
-                            <div className="w-full px-[12px] my-4 text-red-500">
-                              {error}
-                            </div>
-                          )}
-                          <div className="bb-single-qty flex flex-wrap m-[-2px]">
-                            <div className="qty-plus-minus m-[2px] w-[85px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                              <button
-                                className="bb-qtybtn"
-                                type="button"
-                                onClick={() => {
-                                  setQuantity((prevQuantity) => {
-                                    if (prevQuantity > 1) {
-                                      return prevQuantity - 1;
-                                    }
-                                    return prevQuantity; // Ensure it doesn't go below 1
-                                  });
-                                }}
-                              >
-                                -
-                              </button>
-                              <p className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full qty-input text-[#777] float-left text-[14px] h-auto m-[0] p-[0] text-center outline-[0] font-normal leading-[35px] rounded-[10px]">
-                                {quantity}
-                              </p>
-                              <button
-                                className="bb-qtybtn"
-                                type="button"
-                                onClick={() => {
-                                  setQuantity(
-                                    (prevQuantity) => prevQuantity + 1
-                                  );
-                                }}
-                              >
-                                +
-                              </button>
+                                </tbody>
+                              </table>
                             </div>
 
-                            <div className="buttons m-[2px]">
-                              {isProductInCart ? (
-                                <Link
-                                  to="/cart"
-                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                              {product.pricing.map((price, index) => (
+                                <div
+                                  key={index}
+                                  className="border-[1px] border-solid border-[#eee] rounded-[15px] p-4 bg-white shadow-sm"
                                 >
-                                  View Cart
-                                </Link>
-                              ) : (
-                                <button
-                                  onClick={handleAddToCart}
-                                  className="bb-btn-2 transition-all duration-[0.3s] ease-in-out h-[40px] flex font-Poppins leading-[28px] tracking-[0.03rem] py-[6px] px-[25px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
-                                >
-                                  Add to Cart
-                                </button>
-                              )}
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                      <h5 className="font-Poppins text-[15px] font-bold text-[#3d4750] mb-1">
+                                        {price.net_quantity}{" "}
+                                        {product.dosage_form}/s
+                                      </h5>
+                                      <p className="font-Poppins text-[12px] text-[#777]">
+                                        {currency}
+                                        {price.unit_price} per{" "}
+                                        {product.dosage_form}
+                                      </p>
+                                    </div>
+                                    <span className="font-Poppins text-[18px] font-bold text-[#0097b2]">
+                                      {currency}
+                                      {price.total_price}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#eee]">
+                                    <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                                      <button
+                                        className="bb-qtybtn px-3"
+                                        type="button"
+                                        onClick={() =>
+                                          handleQuantityChange(
+                                            price.net_quantity,
+                                            -1
+                                          )
+                                        }
+                                      >
+                                        -
+                                      </button>
+                                      <span className="qty-input text-[#777] text-[14px] font-normal">
+                                        {quantities[price.net_quantity]}
+                                      </span>
+                                      <button
+                                        className="bb-qtybtn px-3"
+                                        type="button"
+                                        onClick={() =>
+                                          handleQuantityChange(
+                                            price.net_quantity,
+                                            1
+                                          )
+                                        }
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+
+                                    {isInCart(price.net_quantity) ? (
+                                      <Link
+                                        to="/cart"
+                                        className="bg-[#6c757d] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#5a6268] transition-all"
+                                      >
+                                        View Cart
+                                      </Link>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleAddToCart(price)}
+                                        className="bg-[#0097b2] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#007a8f] transition-all"
+                                      >
+                                        ADD
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </>
@@ -472,6 +553,7 @@ const ProductDetails = () => {
                   </div>
                 </div>
               </div>
+
               <div className="bb-single-pro-tab">
                 <div className="bb-pro-tab mb-[24px]">
                   <ul className="bb-pro-tab-nav flex flex-wrap mx-[-20px] max-[991px]:justify-center">
@@ -516,14 +598,14 @@ const ProductDetails = () => {
                 <div className="tab-content">
                   {activeTab === "detail" && (
                     <div className="tab-pro-pane" id="detail">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
+                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] rounded-[20px]">
                         {product.description ? (
-                          <div
-                            className="bb-details prose max-w-full ql-editor mx-3"
-                            dangerouslySetInnerHTML={{
-                              __html: product.description,
-                            }}
-                          ></div>
+                          <div className="bb-details mx-3">
+                            <ExpandableContent
+                              html={product.description}
+                              limit={400}
+                            />
+                          </div>
                         ) : (
                           <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
                             No description found
@@ -535,14 +617,14 @@ const ProductDetails = () => {
 
                   {activeTab === "information" && (
                     <div className="tab-pro-pane" id="information">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
+                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] rounded-[20px]">
                         {product.information ? (
-                          <div
-                            className="information prose max-w-full ql-editor mx-3"
-                            dangerouslySetInnerHTML={{
-                              __html: product.information,
-                            }}
-                          ></div>
+                          <div className="bb-details mx-3">
+                            <ExpandableContent
+                              html={product.information}
+                              limit={400}
+                            />
+                          </div>
                         ) : (
                           <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
                             No information found
@@ -554,7 +636,7 @@ const ProductDetails = () => {
 
                   {activeTab === "reviews" && (
                     <div className="tab-pro-pane" id="reviews">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] p-[15px] rounded-[20px]">
+                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] pt-[15px] rounded-[20px]">
                         <div className="bb-reviews mx-3">
                           {reviews.length === 0 && (
                             <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
@@ -563,26 +645,25 @@ const ProductDetails = () => {
                           )}
                           {reviews.map((review) => (
                             <div
-                              className="reviews-bb-box flex mb-[24px] max-[575px]:flex-col"
+                              className="reviews-bb-box flex mb-[24px]"
                               key={review._id}
                             >
-                              <div className="inner-image mr-[12px] max-[575px]:mr-[0] max-[575px]:mb-[12px]">
-                                <img
-                                  src="../assets/img/reviews/1.jpg"
-                                  alt="img-1"
-                                  className="w-[50px] h-[50px] max-w-[50px] rounded-[10px]"
-                                />
+                              <div className="inner-image max-[575px]:mb-[12px] mr-2">
+                               <div className="w-[100px]">
+                                  <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#0097b2]">
+                                    {review.user_name}
+                                  </h4>
+                                  <small>{formatDate(review.created_at)}</small>
+                                </div>
                               </div>
                               <div className="inner-contact">
-                                <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                                  {review.user_name}
-                                </h4>
+                                
                                 <div className="bb-pro-rating flex">
                                   {[...Array(review.rating)].map(
                                     (star, index) => (
                                       <i
                                         key={index}
-                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-[#0097b2]"
+                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-yellow-500"
                                       ></i>
                                     )
                                   )}
