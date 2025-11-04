@@ -142,7 +142,7 @@ const Cart = () => {
                             Sub-Total
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            {currency}
+                            {currency}{" "}
                             {cartTotal}
                           </span>
                         </li>
@@ -151,7 +151,7 @@ const Cart = () => {
                             Delivery Charges
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            {currency}
+                            {currency}{" "}
                             {delivery_fee}
                           </span>
                         </li>
@@ -164,7 +164,7 @@ const Cart = () => {
                             Total Amount
                           </span>
                           <span className="text-right font-Poppins text-[16px] leading-[28px] tracking-[0.03rem] font-semibold text-[#686e7d]">
-                            {currency}
+                            {currency}{" "}
                             {(cartTotal + delivery_fee).toFixed(2)}
                           </span>
                         </li>
@@ -218,7 +218,7 @@ const Cart = () => {
                           <>
                             <td className="p-[12px]">
                               <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                {currency}
+                                {currency}{" "}
                                 {item.price}
                               </span>
                             </td>
@@ -257,7 +257,7 @@ const Cart = () => {
                             </td>
                             <td className="p-[12px]">
                               <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                {currency}
+                                {currency}{" "}
                                 {item.total.toFixed(2)}
                               </span>
                             </td>
@@ -332,7 +332,7 @@ const Cart = () => {
                               <div className="p-[12px]  flex flex-col gap-1">
                                 Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                  {currency}
+                                  {currency}{" "}
                                   {item.price}
                                 </span>
                               </div>
@@ -376,7 +376,7 @@ const Cart = () => {
                               <div className="p-[12px] flex flex-col gap-1">
                                 Total Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                  {currency}
+                                  {currency}{" "}
                                   {item.total.toFixed(2)}
                                 </span>
                               </div>

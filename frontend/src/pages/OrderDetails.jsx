@@ -260,7 +260,7 @@ const OrderDetails = () => {
                         Total Price
                       </h6>
                       <p className="font-Poppins text-[14px] font-normal leading-[28px] tracking-[0.03rem] text-[#686e7d]">
-                        {currency} {order.total}
+                        {currency} {" "} {order.total}
                       </p>
                     </div>
                   </div>
@@ -295,13 +295,13 @@ const OrderDetails = () => {
                           {/* Pricing Info */}
                           <div className="flex flex-col mx-7 items-start md:items-center md:ml-6 mt-3 md:mt-0">
                             <span className="text-gray-500 text-xs md:text-sm">
-                              Price: {currency} {product.price}
+                              Price: {currency} {" "} {product.price}
                             </span>
                             <span className="text-gray-500 text-xs md:text-sm">
                               Quantity: {product.quantity}
                             </span>
                             <span className="text-gray-500 text-xs md:text-base font-semibold">
-                              Total: ${product.price * product.quantity}
+                              Total: {currency} {" "}{product.price * product.quantity}
                             </span>
                           </div>
 
@@ -497,7 +497,7 @@ const OrderDetails = () => {
                         {product.net_quantity} {product.dosage_form} /s
                       </td>
                       <td className="border p-2 text-center">
-                        {currency} {product.price}
+                        {currency} {" "} {product.price}
                       </td>
                       <td className="border p-2 text-center">
                         {product.quantity}
@@ -513,7 +513,7 @@ const OrderDetails = () => {
                       Subtotal:
                     </td>
                     <td className=" p-2 text-center">
-                      {currency} {order.sub_total}
+                      {currency} {" "} {order.sub_total}
                     </td>
                   </tr>
                   <tr className="">
@@ -521,7 +521,7 @@ const OrderDetails = () => {
                       Discount:
                     </td>
                     <td className=" p-2 text-center">
-                      {currency} {order.discount || 0}
+                      {currency} {" "} {order.discount || 0}
                     </td>
                   </tr>
                   <tr className="">
@@ -529,7 +529,7 @@ const OrderDetails = () => {
                       Delivery:
                     </td>
                     <td className=" p-2 text-center">
-                      {currency} {order.delivery_charge}
+                      {currency} {" "} {order.delivery_charge}
                     </td>
                   </tr>
                   <tr className="border-t-2 border-gray-400">
@@ -537,7 +537,7 @@ const OrderDetails = () => {
                       Total:
                     </td>
                     <td className=" p-2 text-center">
-                      {currency} {order.total}
+                      {currency} {" "} {order.total}
                     </td>
                   </tr>
                 </tbody>
