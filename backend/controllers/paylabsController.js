@@ -186,11 +186,11 @@ export const createPaylabsPayment = async (req, res) => {
 
         const merchantTradeNo = `TXN${Date.now()}`;
 
-        let amountInIDR = await convertUSDtoIDR(amount, true);
+        // let amountInIDR = await convertUSDtoIDR(amount, true);
 
         const paymentData = {
             merchantTradeNo,
-            amount: amountInIDR.toString(),
+            amount,
             productName,
             redirectUrl
         };

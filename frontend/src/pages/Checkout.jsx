@@ -455,7 +455,7 @@ const Checkout = () => {
                           sub-total
                         </span>
                         <span className="font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
-                          {currency}
+                          {currency}{" "}
                           {subtotal.toFixed(2)}
                         </span>
                       </li>
@@ -464,7 +464,7 @@ const Checkout = () => {
                           Delivery Charges
                         </span>
                         <span className="font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
-                          {currency}
+                          {currency}{" "}
                           {delivery_fee.toFixed(2)}
                         </span>
                       </li>
@@ -480,7 +480,7 @@ const Checkout = () => {
                               {couponCode}
                             </span>
                             <span className="font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
-                              - {currency}
+                              - {currency}{" "}
                               {discount.toFixed(2)}
                             </span>
                           </li>
@@ -556,13 +556,13 @@ const Checkout = () => {
                           </div>
                           <div className="inner-price flex items-center justify-left mb-[2px]">
                             <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[12px]">
-                              {currency}
+                              {currency}{" "}
                               {item.price.toFixed(2)} x {item.quantity}
                             </span>
                           </div>
                           <div className="inner-price flex items-center justify-left mb-[2px]">
                             <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[15px]">
-                              Total : {currency}
+                              Total : {currency}{" "}
                               {item.price.toFixed(2) * item.quantity.toFixed(2)}
                             </span>
                           </div>
@@ -851,14 +851,14 @@ const Checkout = () => {
                       <li className="flex justify-between mb-2">
                         <span className="text-gray-600">Sub-total:</span>
                         <span>
-                          {currency}
+                          {currency}{" "}
                           {subtotal.toFixed(2)}
                         </span>
                       </li>
                       <li className="flex justify-between mb-2">
                         <span className="text-gray-600">Delivery Charges:</span>
                         <span>
-                          {currency}
+                          {currency}{" "}
                           {delivery_fee.toFixed(2)}
                         </span>
                       </li>
@@ -868,7 +868,7 @@ const Checkout = () => {
                             Coupon Discount:
                           </span>
                           <span>
-                            - {currency}
+                            - {currency}{" "}
                             {discount.toFixed(2)}
                           </span>
                         </li>

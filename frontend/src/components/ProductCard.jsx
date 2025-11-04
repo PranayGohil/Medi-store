@@ -56,7 +56,7 @@ const ProductCard = (product) => {
           </small> */}
           <div className="flex justify-between items-center">
             <span className="new-price px-[3px] text-[16px] text-[#686e7d] font-bold">
-              {currency}
+              {currency}{" "}
               {product.pricing[0].unit_price} /Piece
             </span>
           </div>
@@ -88,7 +88,7 @@ const ProductCard = (product) => {
         {/* Price and Rating */}
         <div className="w-1/4 text-right">
           <span className="md:text-lg text-sm font-bold">
-            {currency} {product.pricing[0].unit_price} /Piece
+            {currency} {" "} {product.pricing[0].unit_price} /Piece
           </span>
           <Link to={`/product/${product.alias}`} className="block text-center mt-2 bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[5px] text-[11px] md:text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]">
             View Details

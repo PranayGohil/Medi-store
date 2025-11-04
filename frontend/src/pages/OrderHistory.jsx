@@ -98,7 +98,7 @@ const OrderHistory = () => {
                       </span>
                       <br />
                       <span className="font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                        {currency} {order.total.toFixed(2)}
+                        {currency} {" "} {order.total.toFixed(2)}
                       </span>
                     </div>
                   </div>

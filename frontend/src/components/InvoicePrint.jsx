@@ -37,8 +37,8 @@ const InvoicePrint = ({ order, products }) => {
               <tr key={index}>
                 <td className="border p-2">{product?.name || "N/A"}</td>
                 <td className="border p-2 text-center">{item.quantity}</td>
-                <td className="border p-2 text-center">{order.currency || "₹"} {item.price}</td>
-                <td className="border p-2 text-center">{order.currency || "₹"} {(item.price * item.quantity).toFixed(2)}</td>
+                <td className="border p-2 text-center">{order.currency || "₹"} {" "} {item.price}</td>
+                <td className="border p-2 text-center">{order.currency || "₹"} {" "} {(item.price * item.quantity).toFixed(2)}</td>
               </tr>
             );
           })}
@@ -46,10 +46,10 @@ const InvoicePrint = ({ order, products }) => {
       </table>
 
       <div className="mt-4 text-right">
-        <p><strong>Subtotal:</strong> {order.currency || "₹"} {order.sub_total.toFixed(2)}</p>
-        <p><strong>Discount:</strong> {order.currency || "₹"} {order.discount || 0}</p>
-        <p><strong>Delivery:</strong> {order.currency || "₹"} {order.delivery_charge}</p>
-        <p className="text-xl mt-2"><strong>Total:</strong> {order.currency || "₹"} {order.total.toFixed(2)}</p>
+        <p><strong>Subtotal:</strong> {order.currency || "₹"} {" "} {order.sub_total.toFixed(2)}</p>
+        <p><strong>Discount:</strong> {order.currency || "₹"} {" "} {order.discount || 0}</p>
+        <p><strong>Delivery:</strong> {order.currency || "₹"} {" "} {order.delivery_charge}</p>
+        <p className="text-xl mt-2"><strong>Total:</strong> {order.currency || "₹"} {" "} {order.total.toFixed(2)}</p>
       </div>
 
       <div className="text-center mt-10 italic text-gray-600">

@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
+import { convertUSDtoIDR } from "../utils/currencyConverter.js";
 
 const getStartOfPeriod = (period) => {
   const now = new Date();
@@ -160,7 +161,6 @@ export const getBestSellers = async (req, res) => {
 
         productSales[productId].quantity += product.quantity;
         productSales[productId].revenue += product.price * product.quantity;
-
         productIdsSet.add(productId);
       });
     });
@@ -172,38 +172,43 @@ export const getBestSellers = async (req, res) => {
 
     const manualProductIds = manualBestSellers.map((p) => p._id.toString());
 
-    // 4. Enrich manual best sellers with actual sales
-    const enrichedManualBestSellers = manualBestSellers.map((product) => {
-      const id = product._id.toString();
-      const saleData = productSales[id] || { quantity: 0, revenue: 0 };
+    // Helper to convert pricing to IDR
+    const convertPricingToIDR = async (pricingArray) => {
+      return await Promise.all(
+        pricingArray.map(async (p) => {
+          const totalIDR = await convertUSDtoIDR(p.total_price, false);
+          const unitIDR = await convertUSDtoIDR(p.unit_price, false);
+          return {
+            ...p.toObject(),
+            total_price: totalIDR,
+            unit_price: unitIDR,
+          };
+        })
+      );
+    };
 
-      return {
-        _id: product._id,
-        product_code: product.product_code,
-        name: product.name,
-        generic_name: product.generic_name,
-        manufacturer: product.manufacturer,
-        categories: product.categories,
-        product_images: product.product_images,
-        pricing: product.pricing,
-        unit_price: product.pricing[0]?.unit_price || 0,
-        rating: product.rating,
-        prescription_required: product.prescription_required,
-        best_seller_manual: product.best_seller_manual,
-        alias: product.alias,
-        created_at: product.created_at,
-        quantity_sold: saleData.quantity,
-        total_revenue: saleData.revenue,
-      };
-    });
+    // 4. Enrich manual best sellers with actual sales + convert pricing
+    const enrichedManualBestSellers = await Promise.all(
+      manualBestSellers.map(async (product) => {
+        const id = product._id.toString();
+        const saleData = productSales[id] || { quantity: 0, revenue: 0 };
+        const convertedPricing = await convertPricingToIDR(product.pricing);
 
-    // 5. Get remaining best sellers from actual sales
+        return {
+          ...product.toObject(),
+          pricing: convertedPricing,
+          unit_price: convertedPricing[0]?.unit_price_idr || 0,
+          quantity_sold: saleData.quantity,
+          total_revenue: saleData.revenue,
+        };
+      })
+    );
+
+    // 5. Auto best sellers (based on actual sales)
     const remainingCount = 10 - enrichedManualBestSellers.length;
-
     const autoProductIds = Array.from(productIdsSet).filter(
       (id) => !manualProductIds.includes(id)
     );
-
     const autoProducts = await Product.find({ _id: { $in: autoProductIds } });
 
     const productMap = {};
@@ -211,37 +216,32 @@ export const getBestSellers = async (req, res) => {
       productMap[product._id.toString()] = product;
     });
 
-    const autoBestSellers = Object.entries(productSales)
-      .filter(([id]) => !manualProductIds.includes(id)) // Exclude manual
-      .map(([id, data]) => {
-        const product = productMap[id];
-        if (!product) return null;
+    const autoBestSellers = await Promise.all(
+      Object.entries(productSales)
+        .filter(([id]) => !manualProductIds.includes(id))
+        .map(async ([id, data]) => {
+          const product = productMap[id];
+          if (!product) return null;
 
-        return {
-          _id: product._id,
-          product_code: product.product_code,
-          name: product.name,
-          generic_name: product.generic_name,
-          manufacturer: product.manufacturer,
-          categories: product.categories,
-          product_images: product.product_images,
-          pricing: product.pricing,
-          unit_price: product.pricing[0]?.unit_price || 0,
-          rating: product.rating,
-          prescription_required: product.prescription_required,
-          best_seller_manual: product.best_seller_manual,
-          alias: product.alias,
-          created_at: product.created_at,
-          quantity_sold: data.quantity,
-          total_revenue: data.revenue,
-        };
-      })
+          const convertedPricing = await convertPricingToIDR(product.pricing);
+
+          return {
+            ...product.toObject(),
+            pricing: convertedPricing,
+            unit_price: convertedPricing[0]?.unit_price_idr || 0,
+            quantity_sold: data.quantity,
+            total_revenue: data.revenue,
+          };
+        })
+    );
+
+    const filteredAuto = autoBestSellers
       .filter(Boolean)
       .sort((a, b) => b.quantity_sold - a.quantity_sold)
       .slice(0, remainingCount);
 
     // 6. Combine both and respond
-    const finalList = [...enrichedManualBestSellers, ...autoBestSellers];
+    const finalList = [...enrichedManualBestSellers, ...filteredAuto];
 
     res.status(200).json({
       success: true,

@@ -399,11 +399,11 @@ const ProductDetails = () => {
                                       <td className="py-3 px-4">
                                         <div>
                                           <span className="font-Poppins text-[16px] font-bold text-[#0097b2]">
-                                            {currency}
+                                            {currency}{" "}
                                             {price.total_price}
                                           </span>
                                           <p className="font-Poppins text-[12px] text-[#777]">
-                                            ({currency}
+                                            ({currency}{" "}
                                             {price.unit_price} per{" "}
                                             {product.dosage_form})
                                           </p>
@@ -481,13 +481,13 @@ const ProductDetails = () => {
                                         {product.dosage_form}/s
                                       </h5>
                                       <p className="font-Poppins text-[12px] text-[#777]">
-                                        {currency}
+                                        {currency}{" "}
                                         {price.unit_price} per{" "}
                                         {product.dosage_form}
                                       </p>
                                     </div>
                                     <span className="font-Poppins text-[18px] font-bold text-[#0097b2]">
-                                      {currency}
+                                      {currency}{" "}
                                       {price.total_price}
                                     </span>
                                   </div>
