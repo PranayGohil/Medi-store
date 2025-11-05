@@ -30,7 +30,7 @@ const About = () => {
                 </div>
                 <div className="about-inner-contact px-[12px] mb-[14px]">
                   <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-                    Medi Store Pharmacy is a mass distributor of generic drugs
+                    Foreever Cure Pharmacy is a mass distributor of generic drugs
                     and OTC healthcare items since 2011. We have proudly been
                     providing quality service and products to consumers all over
                     the world for 5 years.
@@ -39,7 +39,7 @@ const About = () => {
                     Exceptional Quality
                   </h4>
                   <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-                    At Medi Store, you get high-quality products
+                    At Foreever Cure, you get high-quality products
                     because we work with intelligent direction to ensure that
                     every drug and order is made and processed with sincere
                     efforts and skillful execution.
@@ -73,7 +73,7 @@ const About = () => {
                 </h4>
                 <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
                   You don’t have to spend a fortune just to get quality
-                  medications. Here at Medi Store, you are guaranteed
+                  medications. Here at Foreever Cure, you are guaranteed
                   to find the lowest prices for your generic and OTC drugs.
                 </p>
               </div>
@@ -107,7 +107,7 @@ const About = () => {
                   Security of Ordering
                 </h4>
                 <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-                  With Medi Store, you never have to worry about your
+                  With Foreever Cure, you never have to worry about your
                   personal information getting in the wrong hands. We utilize
                   full certifications from Alpha SSL and Sucuri Security.
                 </p>

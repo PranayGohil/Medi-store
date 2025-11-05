@@ -18,7 +18,7 @@ const TermsAndConditions = () => {
             </h4>
             <ul className="list-disc pl-[20px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
               <li>
-                Medi Store and its employees shall bear no liability in
+                Foreever Cure and its employees shall bear no liability in
                 connection with any goods purchased from this website.
               </li>
               <li>
@@ -37,9 +37,9 @@ const TermsAndConditions = () => {
                 subject to change at our discretion.
               </li>
               <li>
-                Medi Store reserves the right to refuse service and cancel
+                Foreever Cure reserves the right to refuse service and cancel
                 orders without prior notice or reason. If an order is canceled
-                by Medi Store, a full refund will be issued to the customer's
+                by Foreever Cure, a full refund will be issued to the customer's
                 card.
               </li>
               <li>
@@ -50,7 +50,7 @@ const TermsAndConditions = () => {
             </ul>
             <br />
             <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-              At Medi Store, we offer our customers the most optimum
+              At Foreever Cure, we offer our customers the most optimum
               confidentiality, as well as being committed to protecting
               everyone’s privacy. We only use the information that we gain from
               your access to our site to be able to provide our customers with
@@ -64,7 +64,7 @@ const TermsAndConditions = () => {
               Security
             </h4>
             <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-              When you go to place an order on Medi Store, you will be asked to
+              When you go to place an order on Foreever Cure, you will be asked to
               enter your personal information. However, we have SSL encryption
               technology that is used for your safety. The SSL technology will
               run through before your personal information even goes through the
@@ -112,13 +112,13 @@ const TermsAndConditions = () => {
             </h4>
             <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
               The default shipping address would be considered as the one that
-              you used on your last order you placed with Medi Store. During the
+              you used on your last order you placed with Foreever Cure. During the
               checkout process, you will be able to change your shipping
               address. You will be able to change your shipping address in your
               own personal account. Any changes you make on your personal
               account regarding your shipping address will not affect your
               current order that you’ve placed. The medication that you are
-              expecting will remain in generic form. With Medi Store, we don’t
+              expecting will remain in generic form. With Foreever Cure, we don’t
               carry name brand medications. It’s important to let your doctor
               know this so he or she can write you the proper prescription and
               dosing information.
@@ -127,10 +127,10 @@ const TermsAndConditions = () => {
               Customs Delays
             </h4>
             <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-              Medi Store is not responsible for any delays for goods in transit
+              Foreever Cure is not responsible for any delays for goods in transit
               to you as the customer. You accept that your order is imported
               into your country and any delays caused by your Government’s
-              Customs Department or by the delivery service is beyond Medi Store
+              Customs Department or by the delivery service is beyond Foreever Cure
               control. If your order fails to arrive within the given day
               expected delivery time frame, you agree to wait a further 7 days
               before requesting a reshipment.
@@ -142,7 +142,7 @@ const TermsAndConditions = () => {
               You accept that you may be requested to pay customs charges for
               the goods you import. These (if charged) will be payable by you
               direct to your Customs Department and you accept that these
-              charges are not Medi Store Pharmacy responsibility to pay. You
+              charges are not Foreever Cure Pharmacy responsibility to pay. You
               understand that delays can occur while they await you to pay these
               charges
             </p>
