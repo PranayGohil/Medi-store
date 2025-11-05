@@ -141,8 +141,7 @@ const Header = () => {
         // For logged-in users, update via API
         const token = localStorage.getItem("token");
         await axios.put(
-          `${
-            import.meta.env.VITE_APP_API_URL
+          `${import.meta.env.VITE_APP_API_URL
           }/api/cart/change-quantity/${productId}`,
           {
             quantity: newQuantity,
@@ -187,8 +186,7 @@ const Header = () => {
         // For logged-in users, remove via API
         const token = localStorage.getItem("token");
         await axios.delete(
-          `${
-            import.meta.env.VITE_APP_API_URL
+          `${import.meta.env.VITE_APP_API_URL
           }/api/cart/remove-from-cart/${id}/${net_quantity}`,
           {
             headers: {
@@ -622,14 +620,9 @@ const Header = () => {
                               Cart
                             </span>
                           </div>
-                          {totalCartItems > 0 && (
-                            <span className="absolute -top-[8px] -right-[8px] bg-[#ff0000] text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center max-lg:hidden">
-                              {totalCartItems}
-                            </span>
-                          )}
                         </button>
 
-                        {showCartPreview &&
+                        {/* {showCartPreview &&
                           (hoverCartItems.length > 0 ? (
                             <div
                               onMouseEnter={() => {
@@ -733,7 +726,7 @@ const Header = () => {
                                 Your cart is empty
                               </p>
                             </div>
-                          ))}
+                          ))} */}
                       </div>
 
                       <button
@@ -759,9 +752,8 @@ const Header = () => {
       </div>
 
       <div
-        className={`bb-mobile-menu-overlay ${
-          isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
-        } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
+        className={`bb-mobile-menu-overlay ${isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
+          } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
         onClick={() => {
           closeMobileMenu();
           closeMobileCart();
@@ -770,9 +762,8 @@ const Header = () => {
 
       <div
         id="bb-mobile-menu"
-        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
-          isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
-        }`}
+        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
+          }`}
       >
         {/* ... existing mobile menu code ... */}
       </div>
@@ -780,9 +771,8 @@ const Header = () => {
       {/* Enhanced Mobile Cart with Quantity Controls */}
       <div
         id="bb-mobile-cart"
-        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[380px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[340px] ${
-          isMobileCartOpen ? "translate-x-[0]" : "translate-x-[100%]"
-        }`}
+        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[380px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[340px] ${isMobileCartOpen ? "translate-x-[0]" : "translate-x-[100%]"
+          }`}
       >
         <div className="bb-cart-title w-full pb-[10px] flex flex-wrap justify-between border-b border-[#eee] mb-[15px]">
           <span className="cart_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">

@@ -16,8 +16,8 @@ const PrivacyAndPolicy = () => {
               Online Privacy and Security Policy.
             </h4>
             <p className="font-Poppins mb-[16px] text-[14px] text-[#080909] font-light leading-[28px] tracking-[0.03rem]">
-              Thank you for accessing the Medi Store.com Website (“Site”)
-              operated by Medi Store, India. We respect your privacy and want to
+              Thank you for accessing the Foreever Cure.com Website (“Site”)
+              operated by Foreever Cure, India. We respect your privacy and want to
               protect your personal information. To learn more, please read this
               Privacy Policy. This Privacy Policy explains how we collect, use
               and (under certain conditions) disclose your personal information.
@@ -30,7 +30,7 @@ const PrivacyAndPolicy = () => {
               policy does not necessarily apply to any offline collection of
               your personal information. Please see below for details. We are
               not responsible for the content or privacy practices on any web
-              site not operated by Medi Store Pharmacy to which the Site links
+              site not operated by Foreever Cure Pharmacy to which the Site links
               or that links to the Site. INFORMATION COLLECTION AND USE
             </p>
             <h4 className="font-quicksand tracking-[0.03rem] leading-[1.2] mb-[20px] text-[18px] text-[#3d4750] font-bold italic">
@@ -71,7 +71,7 @@ const PrivacyAndPolicy = () => {
                 for a contest or sweepstakes; to request us to notify you of new
                 brands, new product styles, or product sizes; to sign up for
                 email newsletters and special offers; or to sign up for the
-                Medi-Store.com Newsletter. Your participation in a contest or
+                Foreevercure.com Newsletter. Your participation in a contest or
                 sweepstakes is completely voluntary, so you have a choice
                 whether to participate and disclose information to us. We use
                 this information to notify contest and sweepstakes winners and
@@ -225,8 +225,7 @@ const PrivacyAndPolicy = () => {
                 information we collect, use and disclose. We encourage you to
                 review this Privacy Policy from time to time so you will know if
                 the Privacy Policy has been changed or updated. If you have any
-                questions about the Privacy Policy, please contact us
-                support@medistore.com.
+                questions about the Privacy Policy, please contact us pmapt.hajimaruti.indonesia@gmail.com.
               </span>
             </h4>
           </div>

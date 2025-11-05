@@ -64,7 +64,7 @@ const Footer = () => {
               <div className="min-[992px]:w-[35%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget bb-footer-company flex flex-col max-[991px]:mb-[24px]">
                   <img
-                    src="../assets/img/logo/logo.png"
+                    src="../assets/img/logo/logo-white.png"
                     className="bb-footer-logo max-w-[144px] mb-[30px] max-[767px]:max-w-[130px]"
                     alt="footer logo"
                   />
@@ -74,7 +74,7 @@ const Footer = () => {
                     alt="footer logo"
                   />
                   <p className="bb-footer-detail max-w-[400px] mb-[30px] p-[0] font-Poppins text-[14px] leading-[27px] font-normal text-[#fff] inline-block relative max-[1399px]:text-[15px] max-[1199px]:text-[14px]">
-                    Medi Store Pharmacy is a mass distributor of generic drugs
+                    Foreever Cure Pharmacy is a mass distributor of generic drugs
                     and OTC healthcare items since 2011. We have proudly been
                     providing quality service and products to consumers all over
                     the world for 5 years.{" "}
@@ -99,18 +99,16 @@ const Footer = () => {
                     Useful Links
                     <span className="min-[992px]:hidden">
                       <i
-                        className={`ri-arrow-${
-                          openSections.usefulLinks ? "up" : "down"
-                        }-s-line text-[20px]`}
+                        className={`ri-arrow-${openSections.usefulLinks ? "up" : "down"
+                          }-s-line text-[20px]`}
                       />
                     </span>
                   </h4>
                   <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                      openSections.usefulLinks
-                        ? "max-[991px]:block"
-                        : "max-[991px]:hidden"
-                    } min-[992px]:block`}
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.usefulLinks
+                      ? "max-[991px]:block"
+                      : "max-[991px]:hidden"
+                      } min-[992px]:block`}
                   >
                     <ul className="align-items-center">
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
@@ -137,14 +135,14 @@ const Footer = () => {
                           Terms &amp; Conditions
                         </Link>
                       </li>
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
+                      {/* <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to="/services"
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Services
                         </Link>
-                      </li>
+                      </li> */}
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to={"/privacy-policy"}
@@ -168,18 +166,16 @@ const Footer = () => {
                     Category
                     <span className="min-[992px]:hidden">
                       <i
-                        className={`ri-arrow-${
-                          openSections.category ? "up" : "down"
-                        }-s-line text-[20px]`}
+                        className={`ri-arrow-${openSections.category ? "up" : "down"
+                          }-s-line text-[20px]`}
                       />
                     </span>
                   </h4>
                   <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                      openSections.category
-                        ? "max-[991px]:block"
-                        : "max-[991px]:hidden"
-                    } min-[992px]:block`}
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.category
+                      ? "max-[991px]:block"
+                      : "max-[991px]:hidden"
+                      } min-[992px]:block`}
                   >
                     <ul className="align-items-center">
                       {categories.map(
@@ -216,27 +212,34 @@ const Footer = () => {
                       Get In Touch
                       <span className="min-[992px]:hidden">
                         <i
-                          className={`ri-arrow-${
-                            openSections.getInTouch ? "up" : "down"
-                          }-s-line text-[20px]`}
+                          className={`ri-arrow-${openSections.getInTouch ? "up" : "down"
+                            }-s-line text-[20px]`}
                         />
                       </span>
                     </h4>
                     <div
-                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                        openSections.getInTouch
-                          ? "max-[991px]:block"
-                          : "max-[991px]:hidden"
-                      } min-[992px]:block`}
+                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.getInTouch
+                        ? "max-[991px]:block"
+                        : "max-[991px]:hidden"
+                        } min-[992px]:block`}
                     >
                       <ul className="align-items-center">
+                        <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">
+                          <span className="w-[25px] basis-[auto] grow-[0] shrink-[0]">
+                            <i className="ri-building-line leading-[0] text-[18px] text-[#0097b2]" />
+                          </span>
+                          <div
+                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
+                          >
+                            PT Haji Maruti Indonesia
+                          </div>
+                        </li>
                         <li className="bb-footer-link bb-foo-location flex items-start max-[991px]:mb-[15px] mb-[16px]">
                           <span className="mt-[5px] w-[25px] basis-[auto] grow-[0] shrink-[0]">
                             <i className="ri-map-pin-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <p className="m-[0] font-Poppins text-[14px] text-[#a8a8a8] font-normal leading-[28px] tracking-[0.03rem]">
-                            971 Lajamni, Motavarachha, Surat, Gujarat, Bharat
-                            394101.
+                            Jalan Duren Sawit Raya, Rukan Duren Sawit Center No. 9G, Kelurahan Klender, Kecamatan Duren Sawit, Jakarta Timur, 13470 - Indonesia
                           </p>
                         </li>
                         <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">
@@ -247,7 +250,7 @@ const Footer = () => {
                             href="tel:+009876543210"
                             className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
                           >
-                            +00 9876543210
+                            +6287780387915
                           </a>
                         </li>
                         <li className="bb-footer-link bb-foo-mail flex">
@@ -255,10 +258,10 @@ const Footer = () => {
                             <i className="ri-mail-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <a
-                            href="mailto:example@email.com"
+                            href="mailto:pmapt.hajimaruti.indonesia@gmail.com"
                             className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
                           >
-                            example@email.com
+                            pmapt.hajimaruti.indonesia@gmail.com
                           </a>
                         </li>
                       </ul>
@@ -336,9 +339,9 @@ const Footer = () => {
                         to={"/"}
                         className="site-name transition-all duration-[0.3s] ease-in-out font-medium text-[#0097b2] hover:text-[#fff] font-Poppins text-[15px] leading-[28px] tracking-[0.03rem]"
                       >
-                        Forever Cure
+                        PT Haji Maruti Indonesia
                       </Link>{" "}
-                      All rights reserved. | Developed By : Forever Team
+                      All rights reserved. | Developed By : Foreever Team
                     </div>
                   </div>
                 </div>
