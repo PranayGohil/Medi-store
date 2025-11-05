@@ -8,6 +8,13 @@ const Footer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
+  // State for mobile accordion
+  const [openSections, setOpenSections] = useState({
+    usefulLinks: false,
+    category: false,
+    getInTouch: false,
+  });
+
   const gotoAboutPage = () => {
     console.log("button clicked");
     navigate("/about");
@@ -27,6 +34,7 @@ const Footer = () => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -35,18 +43,25 @@ const Footer = () => {
     window.location.href = `/search?category=${category}`;
   };
 
+  const toggleSection = (section) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
   return (
     <footer className="bb-footer mt-[50px] max-[1199px]:mt-[35px] bg-[#272723] text-[#fff]">
-      {/* <div className="bg-[#0097b2] w-100 h-[10px]"></div> */}
       <div className="footer-container border-t-[30px] border-solid border-[#0097b2]">
         <div className="footer-top py-[50px] max-[1199px]:py-[35px]">
           <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
             <div className="flex flex-wrap w-full max-[991px]:mb-[-30px]">
-              <div className="min-[992px]:w-[35%] max-[991px]:w-full w-full px-[12px] bb-footer-toggle bb-footer-cat">
+              {/* Company Info Section */}
+              <div className="min-[992px]:w-[35%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget bb-footer-company flex flex-col max-[991px]:mb-[24px]">
                   <img
                     src="../assets/img/logo/logo.png"
@@ -73,14 +88,32 @@ const Footer = () => {
                   </p>
                 </div>
               </div>
-              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px] bb-footer-toggle bb-footer-info">
+
+              {/* Useful Links Section */}
+              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget">
-                  <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[14px]">
+                  <h4
+                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                    onClick={() => toggleSection("usefulLinks")}
+                  >
                     Useful Links
+                    <span className="min-[992px]:hidden">
+                      <i
+                        className={`ri-arrow-${
+                          openSections.usefulLinks ? "up" : "down"
+                        }-s-line text-[20px]`}
+                      />
+                    </span>
                   </h4>
-                  <div className="bb-footer-links bb-footer-dropdown hidden max-[991px]:mb-[35px]">
+                  <div
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                      openSections.usefulLinks
+                        ? "max-[991px]:block"
+                        : "max-[991px]:hidden"
+                    } min-[992px]:block`}
+                  >
                     <ul className="align-items-center">
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
+                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to={"/about"}
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
@@ -88,7 +121,7 @@ const Footer = () => {
                           About Us
                         </Link>
                       </li>
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
+                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to={"/contact"}
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
@@ -96,7 +129,7 @@ const Footer = () => {
                           Contact Us
                         </Link>
                       </li>
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
+                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to={"/terms-and-conditions"}
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
@@ -104,15 +137,15 @@ const Footer = () => {
                           Terms &amp; Conditions
                         </Link>
                       </li>
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
+                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
-                          href="shop-list-left-sidebar.html"
+                          to="/services"
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
                         >
                           Services
                         </Link>
                       </li>
-                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]">
+                      <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
                           to={"/privacy-policy"}
                           className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
@@ -124,25 +157,43 @@ const Footer = () => {
                   </div>
                 </div>
               </div>
-              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px] bb-footer-toggle bb-footer-account">
+
+              {/* Category Section */}
+              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget">
-                  <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[14px]">
+                  <h4
+                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                    onClick={() => toggleSection("category")}
+                  >
                     Category
+                    <span className="min-[992px]:hidden">
+                      <i
+                        className={`ri-arrow-${
+                          openSections.category ? "up" : "down"
+                        }-s-line text-[20px]`}
+                      />
+                    </span>
                   </h4>
-                  <div className="bb-footer-links bb-footer-dropdown hidden max-[991px]:mb-[35px]">
+                  <div
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                      openSections.category
+                        ? "max-[991px]:block"
+                        : "max-[991px]:hidden"
+                    } min-[992px]:block`}
+                  >
                     <ul className="align-items-center">
                       {categories.map(
                         (category) =>
                           category.navbar_active && (
                             <li
                               key={category._id}
-                              className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[15px]"
+                              className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]"
                             >
                               <button
                                 onClick={() =>
                                   handleCategoryClick(category.category)
                                 }
-                                className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal"
+                                className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] mb-[0] inline-block break-all tracking-[0] font-normal text-left"
                               >
                                 {category.category}
                               </button>
@@ -154,13 +205,30 @@ const Footer = () => {
                 </div>
               </div>
 
-              <div className="min-[992px]:w-[25%] max-[991px]:w-full w-full px-[12px] bb-footer-toggle bb-footer-cont-social">
+              {/* Get In Touch Section */}
+              <div className="min-[992px]:w-[25%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-contact mb-[30px]">
                   <div className="bb-footer-widget">
-                    <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[14px]">
+                    <h4
+                      className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                      onClick={() => toggleSection("getInTouch")}
+                    >
                       Get In Touch
+                      <span className="min-[992px]:hidden">
+                        <i
+                          className={`ri-arrow-${
+                            openSections.getInTouch ? "up" : "down"
+                          }-s-line text-[20px]`}
+                        />
+                      </span>
                     </h4>
-                    <div className="bb-footer-links bb-footer-dropdown hidden max-[991px]:mb-[35px]">
+                    <div
+                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                        openSections.getInTouch
+                          ? "max-[991px]:block"
+                          : "max-[991px]:hidden"
+                      } min-[992px]:block`}
+                    >
                       <ul className="align-items-center">
                         <li className="bb-footer-link bb-foo-location flex items-start max-[991px]:mb-[15px] mb-[16px]">
                           <span className="mt-[5px] w-[25px] basis-[auto] grow-[0] shrink-[0]">
@@ -177,7 +245,7 @@ const Footer = () => {
                           </span>
                           <a
                             href="tel:+009876543210"
-                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
+                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
                           >
                             +00 9876543210
                           </a>
@@ -188,7 +256,7 @@ const Footer = () => {
                           </span>
                           <a
                             href="mailto:example@email.com"
-                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
+                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
                           >
                             example@email.com
                           </a>
@@ -197,40 +265,53 @@ const Footer = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bb-footer-social">
+
+                {/* Social Media Section */}
+                <div className="bb-footer-social mb-3">
                   <div className="bb-footer-widget">
-                    <div className="bb-footer-links bb-footer-dropdown hidden max-[991px]:mb-[35px]">
-                      <ul className="align-items-center flex flex-wrap items-center">
-                        <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
+                    <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px]">
+                      Follow Us
+                    </h4>
+                    <div className="bb-footer-links">
+                      <ul className="align-items-center flex flex-wrap items-center gap-[10px]">
+                        <li className="bb-footer-link leading-[1.5] flex items-center">
                           <Link
                             to={"https://www.facebook.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
                           >
-                            <i className="ri-facebook-fill text-[16px] text-[#fff]" />
+                            <i className="ri-facebook-fill text-[18px] text-[#fff]" />
                           </Link>
                         </li>
-                        <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
+                        <li className="bb-footer-link leading-[1.5] flex items-center">
                           <Link
                             to={"https://twitter.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
                           >
-                            <i className="ri-twitter-x-fill text-[16px] text-[#fff]" />
+                            <i className="ri-twitter-x-fill text-[18px] text-[#fff]" />
                           </Link>
                         </li>
-                        <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
+                        <li className="bb-footer-link leading-[1.5] flex items-center">
                           <Link
                             to={"https://whatsapp.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
                           >
-                            <i className="ri-whatsapp-line text-[16px] text-[#fff]" />
+                            <i className="ri-whatsapp-line text-[18px] text-[#fff]" />
                           </Link>
                         </li>
-                        <li className="bb-footer-link leading-[1.5] flex items-center pr-[5px]">
+                        <li className="bb-footer-link leading-[1.5] flex items-center">
                           <Link
                             to={"https://www.instagram.com/"}
-                            className="transition-all duration-[0.3s] ease-in-out w-[30px] h-[30px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-all duration-[0.3s] ease-in-out w-[40px] h-[40px] rounded-[5px] bg-[#3d4750] hover:bg-[#0097b2] capitalize flex items-center justify-center text-[15px] leading-[20px] text-[#a8a8a8] relative break-all font-normal"
                           >
-                            <i className="ri-instagram-line text-[16px] text-[#fff]" />
+                            <i className="ri-instagram-line text-[18px] text-[#fff]" />
                           </Link>
                         </li>
                       </ul>
@@ -241,6 +322,8 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* Footer Bottom */}
         <div className="footer-bottom py-[10px] border-t-[1px] border-solid border-[#eee] max-[991px]:py-[15px]">
           <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
             <div className="flex flex-wrap w-full">
@@ -248,11 +331,7 @@ const Footer = () => {
                 <div className="footer-copy max-[991px]:mb-[15px]">
                   <div className="footer-bottom-copy max-[991px]:text-center">
                     <div className="bb-copy text-[#a8a8a8] text-[13px] tracking-[1px] text-center font-normal leading-[2]">
-                      Copyright ©{" "}
-                      <span
-                        className="text-[#a8a8a8] text-[13px] tracking-[1px] text-center font-normal"
-                        id="copyright_year"
-                      />
+                      Copyright © {new Date().getFullYear()}{" "}
                       <Link
                         to={"/"}
                         className="site-name transition-all duration-[0.3s] ease-in-out font-medium text-[#0097b2] hover:text-[#fff] font-Poppins text-[15px] leading-[28px] tracking-[0.03rem]"

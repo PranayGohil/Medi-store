@@ -17,13 +17,14 @@ const ProductDetails = () => {
   const alias = id;
   const { currency } = useContext(ShopContext);
   const { user } = useContext(AuthContext);
-  const { addItemToCart } = useContext(CartContext);
+  const { addItemToCart, cartItems } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("detail");
   const [mainImage, setMainImage] = useState(null);
   const [rating, setrating] = useState(0);
   const [cart, setCart] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [visibleReviews, setVisibleReviews] = useState(5);
 
   // Create quantity state for each pricing option
   const [quantities, setQuantities] = useState({});
@@ -141,8 +142,10 @@ const ProductDetails = () => {
   };
 
   useEffect(() => {
-    fetchCart();
-  }, []);
+    if (user) {
+      fetchCart();
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchProduct();
@@ -177,43 +180,55 @@ const ProductDetails = () => {
   };
 
   const isInCart = (netQuantity) => {
-    if (!cart || !product) return false;
-    return cart.some(
+    if (!product) return false;
+
+    // Check in local cart context (for both logged-in and non-logged-in users)
+    const inLocalCart = cartItems.some(
+      (item) =>
+        item.product_id === product._id && item.net_quantity === netQuantity
+    );
+
+    // Check in server cart (only for logged-in users)
+    const inServerCart = cart.some(
       (item) => item.id === product._id && item.net_quantity === netQuantity
     );
+
+    return inLocalCart || inServerCart;
   };
 
   const handleAddToCart = async (price) => {
-    if (!user) {
-      setError("Please login to add items to your cart.");
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/cart/add-to-cart`,
-        {
-          userId: user._id,
-          product_id: product._id,
-          net_quantity: price.net_quantity,
-          price: price.total_price,
-          quantity: quantities[price.net_quantity],
-        }
-      );
 
-      if (response.data.success) {
-        fetchCart();
-        addItemToCart({
-          product_id: product._id,
-          net_quantity: price.net_quantity,
-          price: price.total_price,
-          quantity: quantities[price.net_quantity],
-        });
-      } else {
-        setError("Failed to add product to cart.");
-        setTimeout(() => setError(null), 3000);
+      const cartItem = {
+        product_id: product._id,
+        net_quantity: price.net_quantity,
+        price: price.total_price,
+        quantity: quantities[price.net_quantity],
+      };
+
+      // Always add to local storage via CartContext
+      addItemToCart(cartItem);
+
+      // If user is logged in, also sync with server
+      if (user) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_APP_API_URL}/api/cart/add-to-cart`,
+          {
+            userId: user._id,
+            product_id: product._id,
+            net_quantity: price.net_quantity,
+            price: price.total_price,
+            quantity: quantities[price.net_quantity],
+          }
+        );
+
+        if (response.data.success) {
+          fetchCart();
+        } else {
+          setError("Failed to sync cart with server.");
+          setTimeout(() => setError(null), 3000);
+        }
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -399,12 +414,10 @@ const ProductDetails = () => {
                                       <td className="py-3 px-4">
                                         <div>
                                           <span className="font-Poppins text-[16px] font-bold text-[#0097b2]">
-                                            {currency}{" "}
-                                            {price.total_price}
+                                            {currency} {price.total_price}
                                           </span>
                                           <p className="font-Poppins text-[12px] text-[#777]">
-                                            ({currency}{" "}
-                                            {price.unit_price} per{" "}
+                                            ({currency} {price.unit_price} per{" "}
                                             {product.dosage_form})
                                           </p>
                                         </div>
@@ -481,14 +494,12 @@ const ProductDetails = () => {
                                         {product.dosage_form}/s
                                       </h5>
                                       <p className="font-Poppins text-[12px] text-[#777]">
-                                        {currency}{" "}
-                                        {price.unit_price} per{" "}
+                                        {currency} {price.unit_price} per{" "}
                                         {product.dosage_form}
                                       </p>
                                     </div>
                                     <span className="font-Poppins text-[18px] font-bold text-[#0097b2]">
-                                      {currency}{" "}
-                                      {price.total_price}
+                                      {currency} {price.total_price}
                                     </span>
                                   </div>
 
@@ -581,18 +592,6 @@ const ProductDetails = () => {
                         Information
                       </button>
                     </li>
-                    <li className="nav-item relative leading-[28px]">
-                      <button
-                        className={`nav-link px-5 font-Poppins text-[16px] font-medium capitalize leading-[28px] tracking-[0.03rem] block ${
-                          activeTab === "reviews"
-                            ? "text-black font-bold"
-                            : "text-[#686e7d]"
-                        }`}
-                        onClick={() => setActiveTab("reviews")}
-                      >
-                        Reviews
-                      </button>
-                    </li>
                   </ul>
                 </div>
                 <div className="tab-content">
@@ -633,51 +632,66 @@ const ProductDetails = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 w-[100%]">
+              <div className="nav-item relative leading-[28px] mb-3">
+                <div className="nav-link px-5 font-Poppins text-[16px] font-medium capitalize leading-[28px] tracking-[0.03rem] block text-black">
+                  Reviews
+                </div>
+              </div>
+              <div className="tab-pro-pane w-[100%] p-3" id="reviews">
+                <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] pt-[15px] rounded-[20px]">
+                  <div className="bb-reviews mx-3">
+                    {reviews.length === 0 && (
+                      <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
+                        No Review Found
+                      </h4>
+                    )}
 
-                  {activeTab === "reviews" && (
-                    <div className="tab-pro-pane" id="reviews">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] pt-[15px] rounded-[20px]">
-                        <div className="bb-reviews mx-3">
-                          {reviews.length === 0 && (
-                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                              No Review Found
+                    {/* Show only visible reviews */}
+                    {reviews.slice(0, visibleReviews).map((review) => (
+                      <div
+                        className="reviews-bb-box flex mb-[24px]"
+                        key={review._id}
+                      >
+                        <div className="inner-image max-[575px]:mb-[12px] mr-2">
+                          <div className="w-[100px]">
+                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#0097b2]">
+                              {review.user_name}
                             </h4>
-                          )}
-                          {reviews.map((review) => (
-                            <div
-                              className="reviews-bb-box flex mb-[24px]"
-                              key={review._id}
-                            >
-                              <div className="inner-image max-[575px]:mb-[12px] mr-2">
-                               <div className="w-[100px]">
-                                  <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#0097b2]">
-                                    {review.user_name}
-                                  </h4>
-                                  <small>{formatDate(review.created_at)}</small>
-                                </div>
-                              </div>
-                              <div className="inner-contact">
-                                
-                                <div className="bb-pro-rating flex">
-                                  {[...Array(review.rating)].map(
-                                    (star, index) => (
-                                      <i
-                                        key={index}
-                                        className="ri-star-fill float-left text-[15px] mr-[3px] text-yellow-500"
-                                      ></i>
-                                    )
-                                  )}
-                                </div>
-                                <p className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[14px] text-[#777]">
-                                  {review.comment}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
+                            <small>{formatDate(review.created_at)}</small>
+                          </div>
+                        </div>
+                        <div className="inner-contact">
+                          <div className="bb-pro-rating flex">
+                            {[...Array(review.rating)].map((star, index) => (
+                              <i
+                                key={index}
+                                className="ri-star-fill float-left text-[15px] mr-[3px] text-yellow-500"
+                              ></i>
+                            ))}
+                          </div>
+                          <p className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[14px] text-[#777]">
+                            {review.comment}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    ))}
+
+                    {/* Load More Button */}
+                    {visibleReviews < reviews.length && (
+                      <div className="text-center mt-4 mb-3">
+                        <button
+                          onClick={() => setVisibleReviews((prev) => prev + 5)}
+                          className="bg-[#0097b2] hover:bg-[#007a8f] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium transition-all"
+                        >
+                          Load More
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

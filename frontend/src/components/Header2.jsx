@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { ShopContext } from "../context/ShopContext";
@@ -10,10 +10,8 @@ import LoadingSpinner from "./LoadingSpinner";
 const Header = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
-  const { cartItems, removeItemFromCart, updateItemQuantity } =
-    useContext(CartContext);
-  const { products, currency, delivery_fee } = useContext(ShopContext);
-  const navigate = useNavigate();
+  const { cartItems } = useContext(CartContext);
+  const { products, currency } = useContext(ShopContext);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
@@ -27,12 +25,6 @@ const Header = () => {
 
   const [hoverCartItems, setHoverCartItems] = useState([]);
   const [showCartPreview, setShowCartPreview] = useState(false);
-  const [showRemoveModal, setShowRemoveModal] = useState(false);
-  const [itemToRemove, setItemToRemove] = useState({
-    id: null,
-    net_quantity: null,
-  });
-  const [error, setError] = useState("");
 
   const dropdownRef = useRef(null);
 
@@ -95,7 +87,6 @@ const Header = () => {
 
         return {
           id: product._id,
-          product_id: product._id,
           name: product.name,
           generic_name: product.generic_name,
           image: product.product_images[0],
@@ -105,10 +96,6 @@ const Header = () => {
           quantity: cartItem.quantity,
           price: pricing ? pricing.total_price : cartItem.price,
           unit_price: pricing ? pricing.unit_price : 0,
-          total:
-            (pricing ? pricing.total_price : cartItem.price) *
-            cartItem.quantity,
-          available: true, // Assuming all products are available for local cart
         };
       })
       .filter((item) => item !== null);
@@ -116,115 +103,54 @@ const Header = () => {
     return itemsWithDetails;
   };
 
+  // const fetchHoverCartItems = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     if (response.data.success) {
+  //       setHoverCartItems(response.data.cartItems.slice(0, 3));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch cart preview:", error);
+  //   }
+  // };
+
   const fetchHoverCartItems = () => {
+    // For non-logged-in users or as primary source
     const localCartItems = getCartItemsWithDetails();
     setHoverCartItems(localCartItems.slice(0, 3));
   };
 
+  // const fetchMobileCartItems = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     if (response.data.success) {
+  //       setHoverCartItems(response.data.cartItems);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch cart items:", error);
+  //   }
+  // };
+
   const fetchMobileCartItems = () => {
+    // For mobile cart, show all items
     const localCartItems = getCartItemsWithDetails();
     setHoverCartItems(localCartItems);
-  };
-
-  // Calculate cart totals
-  const calculateCartTotals = () => {
-    const items = getCartItemsWithDetails();
-    const subtotal = items.reduce((total, item) => total + item.total, 0);
-    const total = subtotal + delivery_fee;
-    return { subtotal, total };
-  };
-
-  // Handle quantity change for both logged-in and guest users
-  const handleQuantityChange = async (productId, netQuantity, newQuantity) => {
-    try {
-      if (user) {
-        // For logged-in users, update via API
-        const token = localStorage.getItem("token");
-        await axios.put(
-          `${
-            import.meta.env.VITE_APP_API_URL
-          }/api/cart/change-quantity/${productId}`,
-          {
-            quantity: newQuantity,
-            net_quantity: netQuantity,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      // For both logged-in and guest users, update local context
-      updateItemQuantity(productId, netQuantity, newQuantity);
-
-      // Refresh cart items display
-      if (isMobileCartOpen) {
-        fetchMobileCartItems();
-      }
-      if (showCartPreview) {
-        fetchHoverCartItems();
-      }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      setError("Failed to update quantity");
-    }
-  };
-
-  // Handle remove item
-  const handleRemove = (id, net_quantity) => {
-    setItemToRemove({ id, net_quantity });
-    setShowRemoveModal(true);
-  };
-
-  const confirmRemove = async () => {
-    const { id, net_quantity } = itemToRemove;
-    if (!id || !net_quantity) return;
-
-    try {
-      if (user) {
-        // For logged-in users, remove via API
-        const token = localStorage.getItem("token");
-        await axios.delete(
-          `${
-            import.meta.env.VITE_APP_API_URL
-          }/api/cart/remove-from-cart/${id}/${net_quantity}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      // For both logged-in and guest users, remove from local context
-      removeItemFromCart(id, net_quantity);
-
-      // Refresh cart items display
-      if (isMobileCartOpen) {
-        fetchMobileCartItems();
-      }
-      if (showCartPreview) {
-        fetchHoverCartItems();
-      }
-    } catch (error) {
-      console.error("Error removing item from cart:", error);
-      setError("Failed to remove item.");
-    } finally {
-      setShowRemoveModal(false);
-      setItemToRemove({ id: null, net_quantity: null });
-    }
-  };
-
-  // Handle checkout - redirect to login if not authenticated, else to checkout
-  const handleCheckout = () => {
-    if (!user) {
-      navigate("/login", { state: { from: "/checkout" } });
-    } else {
-      navigate("/checkout");
-    }
-    closeMobileCart();
   };
 
   useEffect(() => {
@@ -250,6 +176,7 @@ const Header = () => {
     }
   }, [isMobileCartOpen, cartItems, products]);
 
+  // Update hover cart items when cartItems or products change
   useEffect(() => {
     if (showCartPreview) {
       fetchHoverCartItems();
@@ -260,8 +187,6 @@ const Header = () => {
   if (cartItems && cartItems.length > 0) {
     totalCartItems = cartItems.length;
   }
-
-  const { subtotal, total } = calculateCartTotals();
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -586,48 +511,39 @@ const Header = () => {
                         </Link>
                       </div>
 
-                      <div
+                      <Link
+                        to="/cart"
                         onMouseEnter={() => {
                           setShowCartPreview(true);
                           fetchHoverCartItems();
                         }}
                         onMouseLeave={() => setShowCartPreview(false)}
-                        className="relative"
+                        className="relative bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-lg:ml-[20px]"
+                        title="Cart"
                       >
-                        <button
-                          onClick={toggleMobileCart}
-                          className="bb-header-btn bb-cart-toggle transition-all duration-[0.3s] ease-in-out flex w-[auto] items-center ml-[30px] max-lg:ml-[20px]"
-                          title="Cart"
-                        >
-                          <div className="header-icon relative flex">
-                            <svg
-                              className="svg-icon w-[30px] h-[30px] max-lg:w-[25px] max-lg:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
-                              viewBox="0 0 1024 1024"
-                              version="1.1"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                className="fill-[#0097b2]"
-                                d="M351.552 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C415.52 860.064 386.88 831.424 351.552 831.424L351.552 831.424 351.552 831.424zM799.296 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C863.264 860.064 834.624 831.424 799.296 831.424L799.296 831.424 799.296 831.424zM862.752 799.456 343.264 799.456c-46.08 0-86.592-36.448-92.224-83.008L196.8 334.592 165.92 156.128c-1.92-15.584-16.128-28.288-29.984-28.288L95.2 127.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-32 32-32l40.736 0c46.656 0 87.616 36.448 93.28 83.008l30.784 177.792 54.464 383.488c1.792 14.848 15.232 27.36 28.768 27.36l519.488 0c17.696 0 32 14.304 32 31.968S880.416 799.456 862.752 799.456L862.752 799.456zM383.232 671.52c-16.608 0-30.624-12.8-31.872-29.632-1.312-17.632 11.936-32.928 29.504-34.208l433.856-31.968c15.936-0.096 29.344-12.608 31.104-26.816l50.368-288.224c1.28-10.752-1.696-22.528-8.128-29.792-4.128-4.672-9.312-7.04-15.36-7.04L319.04 223.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-31.968 32-31.968l553.728 0c24.448 0 46.88 10.144 63.232 28.608 18.688 21.088 27.264 50.784 23.52 81.568l-50.4 288.256c-5.44 44.832-45.92 81.28-92 81.28L385.6 671.424C384.8 671.488 384 671.52 383.232 671.52L383.232 671.52zM383.232 671.52"
-                              />
-                            </svg>
-                            <span className="main-label-note-new" />
-                          </div>
-                          <div className="bb-btn-desc flex flex-col ml-[10px] max-lg:hidden">
-                            <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
-                              <b className="bb-cart-count">{totalCartItems}</b>{" "}
-                              items
-                            </span>
-                            <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
-                              Cart
-                            </span>
-                          </div>
-                          {totalCartItems > 0 && (
-                            <span className="absolute -top-[8px] -right-[8px] bg-[#ff0000] text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center max-lg:hidden">
-                              {totalCartItems}
-                            </span>
-                          )}
-                        </button>
+                        <div className="header-icon relative flex">
+                          <svg
+                            className="svg-icon w-[30px] h-[30px] max-lg:w-[25px] max-lg:h-[25px] max-[991px]:w-[22px] max-[991px]:h-[22px]"
+                            viewBox="0 0 1024 1024"
+                            version="1.1"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              className="fill-[#0097b2]"
+                              d="M351.552 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C415.52 860.064 386.88 831.424 351.552 831.424L351.552 831.424 351.552 831.424zM799.296 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C863.264 860.064 834.624 831.424 799.296 831.424L799.296 831.424 799.296 831.424zM862.752 799.456 343.264 799.456c-46.08 0-86.592-36.448-92.224-83.008L196.8 334.592 165.92 156.128c-1.92-15.584-16.128-28.288-29.984-28.288L95.2 127.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-32 32-32l40.736 0c46.656 0 87.616 36.448 93.28 83.008l30.784 177.792 54.464 383.488c1.792 14.848 15.232 27.36 28.768 27.36l519.488 0c17.696 0 32 14.304 32 31.968S880.416 799.456 862.752 799.456L862.752 799.456zM383.232 671.52c-16.608 0-30.624-12.8-31.872-29.632-1.312-17.632 11.936-32.928 29.504-34.208l433.856-31.968c15.936-0.096 29.344-12.608 31.104-26.816l50.368-288.224c1.28-10.752-1.696-22.528-8.128-29.792-4.128-4.672-9.312-7.04-15.36-7.04L319.04 223.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-31.968 32-31.968l553.728 0c24.448 0 46.88 10.144 63.232 28.608 18.688 21.088 27.264 50.784 23.52 81.568l-50.4 288.256c-5.44 44.832-45.92 81.28-92 81.28L385.6 671.424C384.8 671.488 384 671.52 383.232 671.52L383.232 671.52zM383.232 671.52"
+                            />
+                          </svg>
+                          <span className="main-label-note-new" />
+                        </div>
+                        <div className="bb-btn-desc flex flex-col ml-[10px] max-lg:hidden">
+                          <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
+                            <b className="bb-cart-count">{totalCartItems}</b>{" "}
+                            items
+                          </span>
+                          <span className="bb-btn-stitle font-Poppins transition-all duration-[0.3s] ease-in-out text-[14px] leading-[16px] font-semibold text-[#3d4750]  tracking-[0.03rem] whitespace-nowrap">
+                            Cart
+                          </span>
+                        </div>
 
                         {showCartPreview &&
                           (hoverCartItems.length > 0 ? (
@@ -637,94 +553,42 @@ const Header = () => {
                                 fetchHoverCartItems();
                               }}
                               onMouseLeave={() => setShowCartPreview(false)}
-                              className="absolute top-[110%] right-0 w-[380px] bg-white shadow-lg border border-gray-200 rounded-md z-50 p-4"
+                              className="absolute top-[110%] right-0 w-[320px] bg-white shadow-lg border border-gray-200 rounded-md z-50 p-4"
                             >
-                              <h4 className="text-lg font-semibold mb-3 text-[#0097b2] border-b pb-2">
+                              <h4 className="text-lg font-semibold mb-2 text-[#0097b2]">
                                 Cart Preview
                               </h4>
-                              <div className="max-h-60 overflow-y-auto">
-                                {hoverCartItems.map((item) => (
-                                  <div
-                                    key={item.id + item.net_quantity}
-                                    className="flex items-center mb-3 pb-3 border-b border-gray-100 last:border-0 last:mb-0"
-                                  >
-                                    <img
-                                      src={item.image}
-                                      alt={item.name}
-                                      className="w-12 h-12 object-cover rounded mr-3"
-                                    />
-                                    <div className="flex-grow">
-                                      <p className="text-sm font-medium text-gray-800 line-clamp-1">
-                                        {item.name}
-                                      </p>
-                                      <p className="text-xs text-gray-500">
-                                        {item.net_quantity}
-                                      </p>
-                                      <div className="flex items-center justify-between mt-1">
-                                        <div className="qty-plus-minus w-[85px] h-[32px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
-                                          <button
-                                            type="button"
-                                            className="bb-qtybtn w-6 h-full flex items-center justify-center text-xs"
-                                            onClick={() => {
-                                              if (item.quantity === 1) {
-                                                handleRemove(
-                                                  item.product_id,
-                                                  item.net_quantity
-                                                );
-                                              } else {
-                                                handleQuantityChange(
-                                                  item.product_id,
-                                                  item.net_quantity,
-                                                  item.quantity - 1
-                                                );
-                                              }
-                                            }}
-                                          >
-                                            -
-                                          </button>
-                                          <p className="text-xs mx-1">
-                                            {item.quantity}
-                                          </p>
-                                          <button
-                                            type="button"
-                                            className="bb-qtybtn w-6 h-full flex items-center justify-center text-xs"
-                                            onClick={() =>
-                                              handleQuantityChange(
-                                                item.product_id,
-                                                item.net_quantity,
-                                                item.quantity + 1
-                                              )
-                                            }
-                                          >
-                                            +
-                                          </button>
-                                        </div>
-                                        <span className="text-sm font-semibold text-gray-700">
-                                          {currency}{" "}
-                                          {(item.price * item.quantity).toFixed(
-                                            2
-                                          )}
-                                        </span>
-                                      </div>
-                                    </div>
+                              {hoverCartItems.map((item) => (
+                                <div
+                                  key={item.id + item.net_quantity}
+                                  className="flex items-center mb-3"
+                                >
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-12 h-12 object-cover rounded mr-3"
+                                  />
+                                  <div className="flex-grow">
+                                    <p className="text-sm font-medium text-gray-800">
+                                      {item.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {item.quantity} × {currency} {item.price}
+                                    </p>
                                   </div>
-                                ))}
-                              </div>
-                              <div className="mt-3 pt-3 border-t">
-                                <div className="flex justify-between text-sm mb-2">
-                                  <span>Subtotal:</span>
-                                  <span className="font-semibold">
-                                    {currency} {subtotal.toFixed(2)}
+                                  <span className="text-sm font-semibold text-gray-700">
+                                    {currency}{" "}
+                                    {(item.price * item.quantity).toFixed(2)}
                                   </span>
                                 </div>
-                                <button
-                                  onClick={handleCheckout}
-                                  className="w-full bg-[#0097b2] text-white py-2 rounded-lg font-semibold text-sm hover:bg-[#008a9e] transition-all duration-300"
+                              ))}
+                              <div className="mt-2 text-center">
+                                <Link
+                                  to="/cart"
+                                  className="text-sm text-[#0097b2] hover:underline font-medium"
                                 >
-                                  {user
-                                    ? "Proceed to Checkout"
-                                    : "Login to Checkout"}
-                                </button>
+                                  View Full Cart
+                                </Link>
                               </div>
                             </div>
                           ) : (
@@ -734,7 +598,7 @@ const Header = () => {
                               </p>
                             </div>
                           ))}
-                      </div>
+                      </Link>
 
                       <button
                         onClick={toggleMobileMenu}
@@ -753,9 +617,138 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Rest of the component remains the same for menu sections */}
       <div className="bb-main-menu-desk bg-[#fff] py-[5px] border-t-[1px] border-solid border-[#eee] max-[991px]:hidden">
-        {/* ... existing menu code ... */}
+        <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
+          <div className="flex flex-wrap w-full">
+            <div className="w-full px-[24px]">
+              <div className="bb-inner-menu-desk flex max-[1199px]:relative max-[991px]:justify-between">
+                <div
+                  className="bb-main-menu relative flex flex-[auto] justify-start max-[991px]:hidden"
+                  id="navbarSupportedContent"
+                >
+                  <ul className="navbar-nav flex flex-wrap flex-row ">
+                    <li className="nav-item ">
+                      <Link
+                        to="/all-categories"
+                        className="flex items-center mr-[25px] text-[#fff] hover:text-[#0097b2] bg-[#0097b2] hover:bg-[#fff] hover:border-[1px] border-solid border-[#0097b2] rounded-[10px]  py-3 px-4"
+                      >
+                        <p className=" font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium  block tracking-[0.03rem]">
+                          All Categories
+                        </p>
+                      </Link>
+                    </li>
+                    <li className="nav-item flex items-center font-Poppins text-[15px] text-[#686e7d] font-light leading-[28px] tracking-[0.03rem] mr-[35px]">
+                      <Link
+                        to="/"
+                        className="nav-link p-[0] font-Poppins leading-[28px] text-[15px] font-medium text-[#3d4750] tracking-[0.03rem] block"
+                      >
+                        Home
+                      </Link>
+                    </li>
+                    {categories.map(
+                      (category) =>
+                        category.navbar_active && (
+                          <li
+                            key={category._id}
+                            className="nav-item bb-main-dropdown flex items-center mr-[45px]"
+                          >
+                            <button
+                              onClick={() =>
+                                handleCategoryClick(category.category)
+                              }
+                              className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#3d4750] block tracking-[0.03rem]"
+                            >
+                              {category.category}
+                            </button>
+                            <ul className="mega-menu min-w-3/4 transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[auto] right-[auto] bg-[#fff] border-[1px] border-solid border-[#eee] flex flex-col rounded-[10px]">
+                              <li className="m-[0] flex items-center w-full">
+                                <ul className="mega-block mr-[30px] py-[15px] w-full">
+                                  {category.subcategory.map((subCategory) => (
+                                    <li
+                                      className="flex items-center leading-[28px]"
+                                      key={subCategory}
+                                    >
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#0097b2] capitalize"
+                                      >
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  ))}
+                                  {category.special_subcategory.map(
+                                    (subCategory) => (
+                                      <li
+                                        className="flex items-center leading-[28px]"
+                                        key={subCategory}
+                                      >
+                                        <button
+                                          onClick={() =>
+                                            handleSubCategoryClick(
+                                              category.category,
+                                              subCategory
+                                            )
+                                          }
+                                          className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#686e7d] hover:text-[#0097b2] capitalize flex items-center"
+                                        >
+                                          <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]" />
+                                          {subCategory}
+                                        </button>
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        )
+                    )}
+                    <li className="nav-item flex items-center">
+                      <Link
+                        to="/offers"
+                        className="nav-link font-Poppins  p-[0] leading-[28px] text-[15px] font-medium tracking-[0.03rem] text-[#3d4750] flex"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          version="1.1"
+                          x={0}
+                          y={0}
+                          viewBox="0 0 64 64"
+                          style={{ enableBackground: "new 0 0 512 512" }}
+                          xmlSpace="preserve"
+                          className="w-[20px] h-[25px] mr-[5px] leading-[18px] align-middle"
+                        >
+                          <g>
+                            <path
+                              d="M10 16v22c0 .3.1.6.2.8.3.6 6.5 13.8 21 20h.2c.2 0 .3.1.5.1s.3 0 .5-.1h.2c14.5-6.2 20.8-19.4 21-20 .1-.3.2-.5.2-.8V16c0-.9-.6-1.7-1.5-1.9-7.6-1.9-19.3-9.6-19.4-9.7-.1-.1-.2-.1-.4-.2-.1 0-.1 0-.2-.1h-.9c-.1 0-.2.1-.3.1-.1.1-.2.1-.4.2s-11.8 7.8-19.4 9.7c-.7.2-1.3 1-1.3 1.9zm4 1.5c6.7-2.1 15-7.2 18-9.1 3 1.9 11.3 7 18 9.1v20c-1.1 2.1-6.7 12.1-18 17.3-11.3-5.2-16.9-15.2-18-17.3z"
+                              fill="#000000"
+                              opacity={1}
+                              data-original="#000000"
+                              className="fill-[#0097b2]"
+                            />
+                            <path
+                              d="M28.6 38.4c.4.4.9.6 1.4.6s1-.2 1.4-.6l9.9-9.9c.8-.8.8-2 0-2.8s-2-.8-2.8 0L30 34.2l-4.5-4.5c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8z"
+                              fill="#000000"
+                              opacity={1}
+                              data-original="#000000"
+                              className="fill-[#0097b2]"
+                            />
+                          </g>
+                        </svg>
+                        Offers
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
@@ -774,13 +767,166 @@ const Header = () => {
           isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
         }`}
       >
-        {/* ... existing mobile menu code ... */}
+        <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-between">
+          <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
+            My Menu
+          </span>
+          <button
+            type="button"
+            onClick={closeMobileMenu}
+            className="bb-close-menu relative border-[0] text-[30px] leading-[1] text-[#ff0000] bg-transparent"
+          >
+            ×
+          </button>
+        </div>
+        <div className="bb-menu-inner">
+          <div className="bb-menu-content">
+            <ul>
+              <li className="relative">
+                <Link
+                  to="/"
+                  onClick={closeMobileMenu}
+                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  Home
+                </Link>
+              </li>
+              <li className="relative">
+                <Link
+                  to="/all-categories"
+                  onClick={closeMobileMenu}
+                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  All Categories
+                </Link>
+              </li>
+              {categories.map(
+                (category) =>
+                  category.navbar_active && (
+                    <li
+                      key={category._id}
+                      className="relative border-[1px] border-solid border-[#eee] rounded-[10px] transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] font-Poppins capitalize text-[#686e7d] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                    >
+                      <div className="flex justify-between items-center ">
+                        <button
+                          onClick={() => {
+                            closeMobileMenu();
+                            handleCategoryClick(category.category);
+                          }}
+                          className=" w-[80%] text-start"
+                        >
+                          {category.category}
+                        </button>
+                        {openMobileSubMenu === category.category ? (
+                          <i
+                            className="ri-arrow-down-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() => toggleMobileSubMenu("")}
+                          ></i>
+                        ) : (
+                          <i
+                            className="ri-arrow-right-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() =>
+                              toggleMobileSubMenu(category.category)
+                            }
+                          ></i>
+                        )}
+                      </div>
+                      {openMobileSubMenu === category.category && (
+                        <>
+                          <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
+                            <li className="relative">
+                              <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
+                                {category.subcategory.map((subCategory) => (
+                                  <li
+                                    key={subCategory}
+                                    className="relative border-b border-[#eee]"
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        handleSubCategoryClick(
+                                          category.category,
+                                          subCategory
+                                        )
+                                      }
+                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
+                                    >
+                                      {subCategory}
+                                    </button>
+                                  </li>
+                                ))}
+                                {category.special_subcategory.map(
+                                  (subCategory) => (
+                                    <li
+                                      key={subCategory}
+                                      className="relative border-b border-[#eee]"
+                                    >
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
+                                      >
+                                        <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </li>
+                          </ul>
+                        </>
+                      )}
+                    </li>
+                  )
+              )}
+              <li className="relative">
+                <Link
+                  to="/offers"
+                  onClick={closeMobileMenu}
+                  className="ntransition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] flex font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#eee] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    x={0}
+                    y={0}
+                    viewBox="0 0 64 64"
+                    style={{ enableBackground: "new 0 0 512 512" }}
+                    xmlSpace="preserve"
+                    className="w-[20px] h-[25px] mr-[5px] leading-[18px] align-middle"
+                  >
+                    <g>
+                      <path
+                        d="M10 16v22c0 .3.1.6.2.8.3.6 6.5 13.8 21 20h.2c.2 0 .3.1.5.1s.3 0 .5-.1h.2c14.5-6.2 20.8-19.4 21-20 .1-.3.2-.5.2-.8V16c0-.9-.6-1.7-1.5-1.9-7.6-1.9-19.3-9.6-19.4-9.7-.1-.1-.2-.1-.4-.2-.1 0-.1 0-.2-.1h-.9c-.1 0-.2.1-.3.1-.1.1-.2.1-.4.2s-11.8 7.8-19.4 9.7c-.7.2-1.3 1-1.3 1.9zm4 1.5c6.7-2.1 15-7.2 18-9.1 3 1.9 11.3 7 18 9.1v20c-1.1 2.1-6.7 12.1-18 17.3-11.3-5.2-16.9-15.2-18-17.3z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#0097b2]"
+                      />
+                      <path
+                        d="M28.6 38.4c.4.4.9.6 1.4.6s1-.2 1.4-.6l9.9-9.9c.8-.8.8-2 0-2.8s-2-.8-2.8 0L30 34.2l-4.5-4.5c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#0097b2]"
+                      />
+                    </g>
+                  </svg>
+                  Offers
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {/* Enhanced Mobile Cart with Quantity Controls */}
       <div
         id="bb-mobile-cart"
-        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[380px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[340px] ${
+        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
           isMobileCartOpen ? "translate-x-[0]" : "translate-x-[100%]"
         }`}
       >
@@ -799,7 +945,7 @@ const Header = () => {
         <div className="bb-cart-inner">
           {hoverCartItems.length > 0 ? (
             <>
-              <div className="bb-cart-content max-h-[calc(100vh-280px)] overflow-y-auto">
+              <div className="bb-cart-content max-h-[calc(100vh-200px)] overflow-y-auto">
                 {hoverCartItems.map((item) => (
                   <div
                     key={item.id + item.net_quantity}
@@ -811,94 +957,32 @@ const Header = () => {
                       className="w-16 h-16 object-cover rounded-md flex-shrink-0"
                     />
                     <div className="flex-grow">
-                      <p className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
+                      <p className="text-sm font-semibold text-gray-800 mb-1">
                         {item.name}
                       </p>
-                      <p className="text-xs text-gray-500 mb-2">
-                        {item.net_quantity} • {currency} {item.price} each
+                      <p className="text-xs text-gray-500 mb-1">
+                        {item.net_quantity}
                       </p>
                       <div className="flex justify-between items-center">
-                        <div className="qty-plus-minus w-[85px] h-[35px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
-                          <button
-                            type="button"
-                            className="bb-qtybtn w-6 h-full flex items-center justify-center text-sm"
-                            onClick={() => {
-                              if (item.quantity === 1) {
-                                handleRemove(
-                                  item.product_id,
-                                  item.net_quantity
-                                );
-                              } else {
-                                handleQuantityChange(
-                                  item.product_id,
-                                  item.net_quantity,
-                                  item.quantity - 1
-                                );
-                              }
-                            }}
-                          >
-                            -
-                          </button>
-                          <p className="text-sm mx-1">{item.quantity}</p>
-                          <button
-                            type="button"
-                            className="bb-qtybtn w-6 h-full flex items-center justify-center text-sm"
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.product_id,
-                                item.net_quantity,
-                                item.quantity + 1
-                              )
-                            }
-                          >
-                            +
-                          </button>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-[#0097b2]">
-                            {currency} {(item.price * item.quantity).toFixed(2)}
-                          </p>
-                          <button
-                            onClick={() =>
-                              handleRemove(item.product_id, item.net_quantity)
-                            }
-                            className="text-xs text-red-500 hover:text-red-700 mt-1"
-                          >
-                            Remove
-                          </button>
-                        </div>
+                        <p className="text-xs text-gray-600">
+                          Qty: {item.quantity}
+                        </p>
+                        <p className="text-sm font-bold text-[#0097b2]">
+                          {currency} {(item.price * item.quantity).toFixed(2)}
+                        </p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
               <div className="bb-cart-footer mt-4 pt-4 border-t border-[#eee]">
-                <div className="cart-summary mb-4">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-semibold">
-                      {currency} {subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Delivery:</span>
-                    <span className="font-semibold">
-                      {currency} {delivery_fee.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold mt-2 pt-2 border-t">
-                    <span>Total:</span>
-                    <span className="text-[#0097b2]">
-                      {currency} {total.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={handleCheckout}
+                <Link
+                  to="/cart"
+                  onClick={closeMobileCart}
                   className="w-full block text-center bg-[#0097b2] text-white py-3 rounded-lg font-semibold text-[15px] hover:bg-[#008a9e] transition-all duration-300"
                 >
-                  {user ? "Proceed to Checkout" : "Login to Checkout"}
-                </button>
+                  View Full Cart
+                </Link>
               </div>
             </>
           ) : (
@@ -912,45 +996,17 @@ const Header = () => {
                 <path d="M351.552 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C415.52 860.064 386.88 831.424 351.552 831.424L351.552 831.424 351.552 831.424zM799.296 831.424c-35.328 0-63.968 28.64-63.968 63.968 0 35.328 28.64 63.968 63.968 63.968 35.328 0 63.968-28.64 63.968-63.968C863.264 860.064 834.624 831.424 799.296 831.424L799.296 831.424 799.296 831.424zM862.752 799.456 343.264 799.456c-46.08 0-86.592-36.448-92.224-83.008L196.8 334.592 165.92 156.128c-1.92-15.584-16.128-28.288-29.984-28.288L95.2 127.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-32 32-32l40.736 0c46.656 0 87.616 36.448 93.28 83.008l30.784 177.792 54.464 383.488c1.792 14.848 15.232 27.36 28.768 27.36l519.488 0c17.696 0 32 14.304 32 31.968S880.416 799.456 862.752 799.456L862.752 799.456zM383.232 671.52c-16.608 0-30.624-12.8-31.872-29.632-1.312-17.632 11.936-32.928 29.504-34.208l433.856-31.968c15.936-0.096 29.344-12.608 31.104-26.816l50.368-288.224c1.28-10.752-1.696-22.528-8.128-29.792-4.128-4.672-9.312-7.04-15.36-7.04L319.04 223.84c-17.664 0-32-14.336-32-31.968 0-17.664 14.336-31.968 32-31.968l553.728 0c24.448 0 46.88 10.144 63.232 28.608 18.688 21.088 27.264 50.784 23.52 81.568l-50.4 288.256c-5.44 44.832-45.92 81.28-92 81.28L385.6 671.424C384.8 671.488 384 671.52 383.232 671.52L383.232 671.52zM383.232 671.52" />
               </svg>
               <p className="text-sm text-gray-500 mb-4">Your cart is empty</p>
-              <button
-                onClick={() => {
-                  closeMobileCart();
-                  navigate("/all-categories");
-                }}
+              <Link
+                to="/all-categories"
+                onClick={closeMobileCart}
                 className="inline-block bg-[#0097b2] text-white py-2 px-6 rounded-lg font-semibold text-[14px] hover:bg-[#008a9e] transition-all duration-300"
               >
                 Start Shopping
-              </button>
+              </Link>
             </div>
           )}
         </div>
       </div>
-
-      {/* Remove Confirmation Modal */}
-      {showRemoveModal && (
-        <div className="fixed inset-0 z-[200] bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-md w-full max-w-sm mx-4">
-            <h2 className="text-lg font-semibold mb-4">Confirm Removal</h2>
-            <p className="mb-6 text-gray-700">
-              Are you sure you want to remove this item from your cart?
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition"
-                onClick={() => setShowRemoveModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-                onClick={confirmRemove}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };

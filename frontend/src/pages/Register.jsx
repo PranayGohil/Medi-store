@@ -3,17 +3,18 @@ import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
 import LoadingSpinner from "../components/LoadingSpinner";
-
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-
 import ReCAPTCHA from "react-google-recaptcha";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -23,18 +24,97 @@ const Register = () => {
     password: "",
     confirmpassword: "",
   });
-  const [error, setError] = useState("");
-  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+
   const { login } = useContext(AuthContext);
+  const { cartItems } = useContext(CartContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 🛒 Sync local cart with server (copied from Login.jsx)
+  const syncCartWithServer = async (userId, localCart, serverCart) => {
+    try {
+      // Create a map of server cart items for easy lookup
+      const serverCartMap = new Map();
+      serverCart.forEach((item) => {
+        const key = `${item.product_id}-${item.net_quantity}`;
+        serverCartMap.set(key, item);
+      });
+
+      // Create a map of local cart items
+      const localCartMap = new Map();
+      localCart.forEach((item) => {
+        const key = `${item.product_id}-${item.net_quantity}`;
+        localCartMap.set(key, item);
+      });
+
+      // Items to add to server (items in local cart but not in server cart)
+      const itemsToAddToServer = [];
+
+      localCart.forEach((localItem) => {
+        const key = `${localItem.product_id}-${localItem.net_quantity}`;
+        const serverItem = serverCartMap.get(key);
+
+        if (!serverItem) {
+          itemsToAddToServer.push(localItem);
+        }
+      });
+
+      // Add local cart items to server
+      if (itemsToAddToServer.length > 0) {
+        const token = localStorage.getItem("token");
+
+        for (const item of itemsToAddToServer) {
+          try {
+            await axios.post(
+              `${import.meta.env.VITE_APP_API_URL}/api/cart/add-to-cart`,
+              {
+                userId: userId,
+                product_id: item.product_id,
+                net_quantity: item.net_quantity,
+                price: item.price,
+                quantity: item.quantity,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+          } catch (err) {
+            console.error("Error syncing cart item:", err);
+          }
+        }
+      }
+
+      // Merge local and server carts - prioritize local items
+      const mergedCart = [...localCart];
+      serverCart.forEach((serverItem) => {
+        const key = `${serverItem.product_id}-${serverItem.net_quantity}`;
+        if (!localCartMap.has(key)) {
+          mergedCart.push(serverItem);
+        }
+      });
+
+      localStorage.setItem("cartItems", JSON.stringify(mergedCart));
+      return mergedCart;
+    } catch (error) {
+      console.error("Error syncing cart:", error);
+      localStorage.setItem(
+        "cartItems",
+        JSON.stringify([...localCart, ...serverCart])
+      );
+      return [...localCart, ...serverCart];
+    }
+  };
+
+  // 🧾 Handle Register Submit
   const handleSubmit = async () => {
     setError("");
 
+    // Validation checks
     if (
       formData.firstname === "" ||
       formData.lastname === "" ||
@@ -52,7 +132,7 @@ const Register = () => {
       return;
     }
 
-    const sanitizedPhone = formData.phonenumber.replace(/\s+/g, ""); // remove spaces
+    const sanitizedPhone = formData.phonenumber.replace(/\s+/g, "");
     if (!/^\+\d{7,15}$/.test(sanitizedPhone)) {
       setError("Invalid phone number format.");
       return;
@@ -63,7 +143,7 @@ const Register = () => {
         formData.password
       )
     ) {
-      setError("Please enter a strong password");
+      setError("Please enter a strong password.");
       return;
     }
 
@@ -79,6 +159,8 @@ const Register = () => {
 
     try {
       setIsLoading(true);
+
+      // Register API
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/api/user/register`,
         {
@@ -91,15 +173,33 @@ const Register = () => {
       );
 
       if (response.data.success) {
+        // Save token and login user
         localStorage.setItem("token", response.data.token);
         login(response.data.user);
-        navigate("/");
+
+        // 🛒 Merge local + server cart just like Login.jsx
+        const localCartItems = [...cartItems];
+        const serverCartItems = response.data.cartData || [];
+
+        const mergedCartItems = await syncCartWithServer(
+          response.data.user._id,
+          localCartItems,
+          serverCartItems
+        );
+
+        console.log(
+          "Cart merged successfully after registration:",
+          mergedCartItems.length
+        );
+
+        // Reload to refresh cart context
+        window.location.href = "/";
       } else {
         setError(response.data.message);
       }
     } catch (err) {
-      setError("An error occurred during registration.");
       console.error("Registration error:", err);
+      setError("An error occurred during registration.");
     } finally {
       setIsLoading(false);
     }
@@ -111,10 +211,6 @@ const Register = () => {
 
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  const capchaVerified = (value) => {
-    console.log(`Captcha value: ${value}`);
   };
 
   if (isLoading) {

@@ -19,7 +19,8 @@ const Checkout = () => {
   const { user } = useContext(AuthContext);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { locationData, updateLocationData } = useContext(LocationContext);
-  const { clearCart } = useContext(CartContext);
+  const { clearCart, updateCartItemQuantity, removeItemFromCart } =
+    useContext(CartContext);
 
   const [selectedCountry, setSelectedCountry] = useState(
     locationData.country || ""
@@ -48,6 +49,11 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [isApplying, setIsApplying] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState({
+    id: null,
+    net_quantity: null,
+  });
 
   const countries = Country.getAllCountries();
   const states = selectedCountry
@@ -143,6 +149,107 @@ const Checkout = () => {
   };
 
   const totalAmount = (subtotal + delivery_fee - discount).toFixed(2);
+
+  // Handle quantity change
+  const handleQuantityChange = async (productId, netQuantity, newQuantity) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+
+      // Update via API for logged-in users
+      await axios.put(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/cart/change-quantity/${productId}`,
+        {
+          quantity: newQuantity,
+          net_quantity: netQuantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local context
+      updateCartItemQuantity(productId, netQuantity, newQuantity);
+
+      // Refresh cart data
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setCartItems(response.data.cartItems);
+      setTotalCartPrice(response.data.totalCartPrice);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      setError("Failed to update quantity");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle remove item
+  const handleRemove = (id, net_quantity) => {
+    setItemToRemove({ id, net_quantity });
+    setShowRemoveModal(true);
+  };
+
+  const confirmRemove = async () => {
+    const { id, net_quantity } = itemToRemove;
+    if (!id || !net_quantity) return;
+
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+
+      // Remove via API
+      await axios.delete(
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/cart/remove-from-cart/${id}/${net_quantity}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Remove from local context
+      removeItemFromCart(id, net_quantity);
+
+      // Refresh cart data
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setCartItems(response.data.cartItems);
+      setTotalCartPrice(response.data.totalCartPrice);
+
+      // If cart becomes empty, redirect to products page
+      if (response.data.cartItems.length === 0) {
+        navigate("/all-categories");
+      }
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+      setError("Failed to remove item.");
+    } finally {
+      setShowRemoveModal(false);
+      setItemToRemove({ id: null, net_quantity: null });
+      setIsLoading(false);
+    }
+  };
 
   // PayPal Handlers
   const handlePayPalApprove = async (orderID) => {
@@ -447,7 +554,7 @@ const Checkout = () => {
                 <div className="checkout-items border-[1px] border-solid border-[#eee] p-[20px] rounded-[20px] mb-[24px]">
                   <div className="sub-title mb-[12px]">
                     <h4 className="font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
-                      summary
+                      Order Summary
                     </h4>
                   </div>
                   <div className="checkout-summary mb-[20px] border-b-[1px] border-solid border-[#eee]">
@@ -537,15 +644,26 @@ const Checkout = () => {
                             className="max-w-max w-[100px] h-[100px] border-[1px] border-solid border-[#eee] rounded-[20px] max-[1399px]:h-[80px] max-[1399px]:w-[80px]"
                           />
                         </div>
-                        <div className="items-contact">
-                          <h4 className="text-[16px]">
-                            <a
-                              href="javascript:void(0)"
-                              className="font-Poppins tracking-[0.03rem] text-[15px] font-medium leading-[18px] text-[#3d4750]"
+                        <div className="items-contact flex-1">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="text-[16px] flex-1">
+                              <a
+                                href="javascript:void(0)"
+                                className="font-Poppins tracking-[0.03rem] text-[15px] font-medium leading-[18px] text-[#3d4750]"
+                              >
+                                {item.name}
+                              </a>
+                            </h4>
+                            <button
+                              onClick={() =>
+                                handleRemove(item.id, item.net_quantity)
+                              }
+                              className="text-red-500 hover:text-red-700 ml-2"
+                              title="Remove item"
                             >
-                              {item.name}
-                            </a>
-                          </h4>
+                              <i className="ri-delete-bin-line text-[16px]"></i>
+                            </button>
+                          </div>
                           <div className="bb-pro-variation my-2">
                             <ul className="flex flex-wrap m-[-2px]">
                               <li className="h-[22px] m-[2px] py-[2px] px-[8px] border-[1px] border-solid border-[#eee] text-[#777] flex items-center justify-center text-[12px] leading-[22px] rounded-[20px] active">
@@ -553,17 +671,65 @@ const Checkout = () => {
                               </li>
                             </ul>
                           </div>
-                          <div className="inner-price flex items-center justify-left mb-[2px]">
-                            <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[12px]">
-                              {currency} {item.price.toFixed(2)} x{" "}
-                              {item.quantity}
-                            </span>
-                          </div>
-                          <div className="inner-price flex items-center justify-left mb-[2px]">
-                            <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[15px]">
-                              Total : {currency}{" "}
-                              {(item.price * item.quantity).toFixed(2)}
-                            </span>
+
+                          {/* Quantity Controls */}
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center">
+                              <span className="font-Poppins text-[14px] font-medium text-[#3d4750] mr-3">
+                                Quantity:
+                              </span>
+                              <div className="qty-plus-minus w-[100px] h-[35px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                                <button
+                                  type="button"
+                                  className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                                  onClick={() => {
+                                    if (item.quantity === 1) {
+                                      handleRemove(item.id, item.net_quantity);
+                                    } else {
+                                      handleQuantityChange(
+                                        item.id,
+                                        item.net_quantity,
+                                        item.quantity - 1
+                                      );
+                                    }
+                                  }}
+                                  disabled={isLoading}
+                                >
+                                  -
+                                </button>
+                                <span className="text-sm font-medium mx-2 min-w-[20px] text-center">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                                  onClick={() =>
+                                    handleQuantityChange(
+                                      item.id,
+                                      item.net_quantity,
+                                      item.quantity + 1
+                                    )
+                                  }
+                                  disabled={isLoading}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="inner-price flex items-center justify-left mb-[2px]">
+                                <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[12px]">
+                                  {currency} {item.price.toFixed(2)} each
+                                </span>
+                              </div>
+                              <div className="inner-price flex items-center justify-left">
+                                <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[15px]">
+                                  Total: {currency}{" "}
+                                  {(item.price * item.quantity).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -914,10 +1080,12 @@ const Checkout = () => {
                     <button
                       className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold text-lg shadow-lg"
                       onClick={handlePaylabsPayment}
-                      disabled={isLoading}
+                      disabled={isLoading || cartItems.length === 0}
                     >
                       {isLoading
                         ? "Processing..."
+                        : cartItems.length === 0
+                        ? "Cart is Empty"
                         : "Pay with Paylabs Credit Card"}
                     </button>
                     <p className="text-sm text-gray-600 mt-2 text-center">
@@ -930,6 +1098,33 @@ const Checkout = () => {
           </div>
         </div>
       </section>
+
+      {/* Remove Confirmation Modal */}
+      {showRemoveModal && (
+        <div className="fixed inset-0 z-[200] bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-md w-full max-w-sm mx-4">
+            <h2 className="text-lg font-semibold mb-4">Confirm Removal</h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to remove this item from your cart?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition"
+                onClick={() => setShowRemoveModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                onClick={confirmRemove}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
           <h2>Confirm Order</h2>
