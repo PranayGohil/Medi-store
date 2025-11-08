@@ -32,13 +32,13 @@ const RelatedProducts = () => {
             1024: { slidesPerView: 4 },
           }}
           autoplay={{ delay: 3000 }}
-          className="best-seller-swiper"
+          className=""
         >
-          <SwiperSlide className="p-[12px]">
-            {products?.map((product) => (
+          {products?.map((product) => (
+            <SwiperSlide className="p-[12px]">
               <ProductCard {...product} />
-            ))}
-          </SwiperSlide>
+            </SwiperSlide>
+          ))}
         </Swiper>
       </div>
     </section>

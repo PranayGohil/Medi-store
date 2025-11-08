@@ -78,13 +78,11 @@ const BestSeller = () => {
           autoplay={{ delay: 3000 }}
           className="best-seller-swiper" 
         > */}
-        {bestSellingProducts?.map((product) => (
-          <div
-            className={`grid grid-cols-2 lg:grid-cols-4 gap-6 p-3`}
-          >
+        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-6 p-3`}>
+          {bestSellingProducts?.map((product) => (
             <ProductCard {...product} />
-          </div>
-        ))}
+          ))}
+        </div>
         {/* </Swiper> */}
       </div>
       <div className="flex justify-center text-blue-600 w-full mt-[30px]">
