@@ -8,13 +8,6 @@ const Footer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  // State for mobile accordion
-  const [openSections, setOpenSections] = useState({
-    usefulLinks: false,
-    category: false,
-    getInTouch: false,
-  });
-
   const gotoAboutPage = () => {
     console.log("button clicked");
     navigate("/about");
@@ -41,13 +34,6 @@ const Footer = () => {
 
   const handleCategoryClick = (category) => {
     window.location.href = `/search?category=${category}`;
-  };
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
   };
 
   if (isLoading) {
@@ -98,28 +84,15 @@ const Footer = () => {
               </div>
 
               {/* Useful Links Section */}
-              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
+              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px] mt-3">
                 <div className="bb-footer-widget">
                   <h4
                     className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
-                    onClick={() => toggleSection("usefulLinks")}
                   >
                     Useful Links
-                    <span className="min-[992px]:hidden">
-                      <i
-                        className={`ri-arrow-${
-                          openSections.usefulLinks ? "up" : "down"
-                        }-s-line text-[20px]`}
-                      />
-                    </span>
+                    
                   </h4>
-                  <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                      openSections.usefulLinks
-                        ? "max-[991px]:block"
-                        : "max-[991px]:hidden"
-                    } min-[992px]:block`}
-                  >
+                  <div className="bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] min-[992px]:block px-3">
                     <ul className="align-items-center">
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
                         <Link
@@ -167,27 +140,15 @@ const Footer = () => {
               </div>
 
               {/* Category Section */}
-              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
+              <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px] mt-3">
                 <div className="bb-footer-widget">
                   <h4
                     className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
-                    onClick={() => toggleSection("category")}
                   >
                     Category
-                    <span className="min-[992px]:hidden">
-                      <i
-                        className={`ri-arrow-${
-                          openSections.category ? "up" : "down"
-                        }-s-line text-[20px]`}
-                      />
-                    </span>
                   </h4>
                   <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                      openSections.category
-                        ? "max-[991px]:block"
-                        : "max-[991px]:hidden"
-                    } min-[992px]:block`}
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] min-[992px]:block px-3`}
                   >
                     <ul className="align-items-center">
                       {categories.map(
@@ -214,28 +175,16 @@ const Footer = () => {
               </div>
 
               {/* Get In Touch Section */}
-              <div className="min-[992px]:w-[25%] max-[991px]:w-full w-full px-[12px]">
+              <div className="min-[992px]:w-[25%] max-[991px]:w-full w-full px-[12px] mt-3">
                 <div className="bb-footer-contact mb-[30px]">
                   <div className="bb-footer-widget">
                     <h4
                       className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
-                      onClick={() => toggleSection("getInTouch")}
                     >
                       Get In Touch
-                      <span className="min-[992px]:hidden">
-                        <i
-                          className={`ri-arrow-${
-                            openSections.getInTouch ? "up" : "down"
-                          }-s-line text-[20px]`}
-                        />
-                      </span>
                     </h4>
                     <div
-                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
-                        openSections.getInTouch
-                          ? "max-[991px]:block"
-                          : "max-[991px]:hidden"
-                      } min-[992px]:block`}
+                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] min-[992px]:block px-3`}
                     >
                       <ul className="align-items-center">
                         <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">

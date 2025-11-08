@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { ShopContext } from "../context/ShopContext";
 import { GoDotFill } from "react-icons/go";
+import { BiSolidCategory } from "react-icons/bi";
 import LoadingSpinner from "./LoadingSpinner";
 
 const Header = () => {
@@ -16,6 +17,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,6 +51,10 @@ const Header = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
     setOpenMobileSubMenu("");
+  };
+
+  const cloaseMobileCategory = () => {
+    setIsMobileCategoryOpen(false);
   };
 
   const closeMobileCart = () => {
@@ -241,6 +247,7 @@ const Header = () => {
 
   useEffect(() => {
     closeMobileMenu();
+    cloaseMobileCategory();
     closeMobileCart();
   }, [location]);
 
@@ -390,7 +397,121 @@ const Header = () => {
   }
 
   return (
-    <header className="bb-header z-[5] border-b-[1px] border-solid border-[#858585] sticky top-0 left-0 w-full bg-white">
+    <header className="bb-header z-[5] border-b-[1px] border-solid border-[#858585] bg-white">
+      <div className="hidden max-[991px]:flex h-[50px]">
+        <div className="items-center gap-2 bg-[#272723] text-[#fff] p-3 fixed w-[100vw] top-0 h-[50px] z-10">
+          <button
+            type="button"
+            onClick={() => setIsMobileCategoryOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <BiSolidCategory className="text-2xl" />
+            Explore All Categories
+          </button>
+        </div>
+      </div>
+      <div
+        id="bb-mobile-menu"
+        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
+          isMobileCategoryOpen ? "translate-x-[0]" : "translate-x-[-100%]"
+        }`}
+      >
+        <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-between">
+          <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
+            All Categories
+          </span>
+          <button
+            type="button"
+            onClick={cloaseMobileCategory}
+            className="bb-close-menu relative border-[0] text-[30px] leading-[1] text-[#ff0000] bg-transparent"
+          >
+            ×
+          </button>
+        </div>
+        <div className="bb-menu-inner mt-3">
+          <div className="bb-menu-content">
+            <ul>
+              {categories.map((category) => (
+                <li
+                  key={category._id}
+                  className="relative border-[1px] border-solid border-[#858585] rounded-[10px] transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] font-Poppins capitalize text-[#686e7d] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  <div className="flex justify-between items-center ">
+                    <button
+                      onClick={() => {
+                        cloaseMobileCategory();
+                        handleCategoryClick(category.category);
+                      }}
+                      className=" w-[80%] text-start"
+                    >
+                      {category.category}
+                    </button>
+                    {openMobileSubMenu === category.category ? (
+                      <i
+                        className="ri-arrow-down-s-line float-right leading-[28px]w-[15%]"
+                        onClick={() => toggleMobileSubMenu("")}
+                      ></i>
+                    ) : (
+                      <i
+                        className="ri-arrow-right-s-line float-right leading-[28px]w-[15%]"
+                        onClick={() => toggleMobileSubMenu(category.category)}
+                      ></i>
+                    )}
+                  </div>
+                  {openMobileSubMenu === category.category && (
+                    <>
+                      <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
+                        <li className="relative">
+                          <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
+                            {category.subcategory.map((subCategory) => (
+                              <li
+                                key={subCategory}
+                                className="relative border-b border-[#858585]"
+                              >
+                                <button
+                                  onClick={() =>
+                                    handleSubCategoryClick(
+                                      category.category,
+                                      subCategory
+                                    )
+                                  }
+                                  className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
+                                >
+                                  {subCategory}
+                                </button>
+                              </li>
+                            ))}
+                            {category.special_subcategory.map((subCategory) => (
+                              <li
+                                key={subCategory}
+                                className="relative border-b border-[#858585]"
+                              >
+                                <button
+                                  onClick={() =>
+                                    handleSubCategoryClick(
+                                      category.category,
+                                      subCategory
+                                    )
+                                  }
+                                  className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
+                                >
+                                  <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
+                                  {subCategory}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      </ul>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="bottom-header py-[20px] max-[991px]:py-[15px]">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
@@ -807,7 +928,7 @@ const Header = () => {
                                             subCategory
                                           )
                                         }
-                                        className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#fff] hover:text-[#0097b2] capitalize"
+                                        className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#272723] hover:text-[#0097b2] capitalize"
                                       >
                                         {subCategory}
                                       </button>
@@ -826,7 +947,7 @@ const Header = () => {
                                               subCategory
                                             )
                                           }
-                                          className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#fff] hover:text-[#0097b2] capitalize flex items-center"
+                                          className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#272723] hover:text-[#0097b2] capitalize flex items-center"
                                         >
                                           <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]" />
                                           {subCategory}
@@ -885,10 +1006,13 @@ const Header = () => {
 
       <div
         className={`bb-mobile-menu-overlay ${
-          isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
+          isMobileMenuOpen || isMobileCartOpen || isMobileCategoryOpen
+            ? "block"
+            : "hidden"
         } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
         onClick={() => {
           closeMobileMenu();
+          cloaseMobileCategory();
           closeMobileCart();
         }}
       />
@@ -899,10 +1023,10 @@ const Header = () => {
           isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
         }`}
       >
-        <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-between">
-          <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
+        <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-end">
+          {/* <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
             My Menu
-          </span>
+          </span> */}
           <button
             type="button"
             onClick={closeMobileMenu}
@@ -911,7 +1035,7 @@ const Header = () => {
             ×
           </button>
         </div>
-        <div className="bb-menu-inner">
+        <div className="bb-menu-inner mt-3">
           <div className="bb-menu-content">
             <ul>
               <li className="relative">

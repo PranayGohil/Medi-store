@@ -35,7 +35,11 @@ const RelatedProducts = () => {
           className=""
         >
           {products?.map((product) => (
-            <SwiperSlide className="p-[12px]">
+            <SwiperSlide
+              className={`grid
+                grid-cols-2 lg:grid-cols-3 gap-6
+              `}
+            >
               <ProductCard {...product} />
             </SwiperSlide>
           ))}

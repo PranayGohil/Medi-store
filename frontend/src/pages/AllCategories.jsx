@@ -53,6 +53,7 @@ const AllCategories = () => {
               <div
                 key={category._id}
                 className="w-full px-[12px] mb-[24px] object-contain"
+                style={{breakInside: "avoid"}}
               >
                 <div className="bb-product-item h-full flex flex-col">
                   <div className="section-title pb-[12px] px-[12px] flex justify-start max-[991px]:flex-col max-[991px]:justify-center max-[991px]:text-center">
