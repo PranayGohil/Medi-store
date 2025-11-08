@@ -173,7 +173,7 @@ const OrderDetails = () => {
           />
 
           <div className="w-full px-[12px]">
-            <div className="track p-[30px] border-[1px] border-solid border-[#eee] rounded-[30px] max-[480px]:p-[15px]">
+            <div className="track p-[30px] border-[1px] border-solid border-[#858585] rounded-[30px] max-[480px]:p-[15px]">
               <div className="flex flex-wrap mx-[-12px] mb-[-24px]">
                 <div className="w-full px-[12px] mb-[24px]">
                   <ul className="bb-progress m-[-12px] flex flex-wrap justify-center">
@@ -182,7 +182,7 @@ const OrderDetails = () => {
                       order.status_history.map((history, index) => (
                         <li
                           key={index}
-                          className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-wrap gap-4 items-center justify-center border-[1px] border-solid border-[#eee] rounded-[30px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
+                          className={`w-[calc(20%-24px)] m-[12px] p-[30px] flex flex-wrap gap-4 items-center justify-center border-[1px] border-solid border-[#858585] rounded-[30px] relative max-[991px]:w-[calc(50%-24px)] max-[480px]:w-full ${"active"}`}
                         >
                           <span className="number w-[30px] h-[30px] bg-[#686e7d66] text-[#fff] absolute top-[10px] right-[10px] flex items-center justify-center rounded-[30px] font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                             {index + 1}
@@ -228,10 +228,10 @@ const OrderDetails = () => {
               description="Check your Order Details."
             />
             <div className="w-full px-[12px]">
-              <div className="track p-[30px] border-[1px] border-solid border-[#eee] rounded-[30px] max-[480px]:p-[15px]">
+              <div className="track p-[30px] border-[1px] border-solid border-[#858585] rounded-[30px] max-[480px]:p-[15px]">
                 <div className="flex flex-wrap mx-[-12px] mb-[-24px]">
                   <div className="min-[768px]:w-[33.33%] w-full px-[12px] mb-[24px]">
-                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] flex flex-col items-center justify-center rounded-[20px]">
+                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#858585] flex flex-col items-center justify-center rounded-[20px]">
                       <h6 className="mb-[5px] font-quicksand tracking-[0.03rem] text-[16px] font-bold leading-[1.2] text-[#3d4750]">
                         Order ID
                       </h6>
@@ -241,7 +241,7 @@ const OrderDetails = () => {
                     </div>
                   </div>
                   <div className="min-[768px]:w-[33.33%] w-full px-[12px] mb-[24px]">
-                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] flex flex-col items-center justify-center rounded-[20px]">
+                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#858585] flex flex-col items-center justify-center rounded-[20px]">
                       <h6 className="mb-[5px] font-quicksand tracking-[0.03rem] text-[16px] font-bold leading-[1.2] text-[#3d4750]">
                         Order Date
                       </h6>
@@ -255,7 +255,7 @@ const OrderDetails = () => {
                     </div>
                   </div>
                   <div className="min-[768px]:w-[33.33%] w-full px-[12px] mb-[24px]">
-                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] flex flex-col items-center justify-center rounded-[20px]">
+                    <div className="block-title p-[30px] bg-[#f8f8fb] border-[1px] border-solid border-[#858585] flex flex-col items-center justify-center rounded-[20px]">
                       <h6 className="mb-[5px] font-quicksand tracking-[0.03rem] text-[16px] font-bold leading-[1.2] text-[#3d4750]">
                         Total Price
                       </h6>

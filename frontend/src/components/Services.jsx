@@ -10,7 +10,7 @@ const Services = () => {
           <div
             className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#eee] rounded-[20px] text-center">
+            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/1.png"
@@ -31,7 +31,7 @@ const Services = () => {
           <div
             className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#eee] rounded-[20px] text-center">
+            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/2.png"
@@ -52,7 +52,7 @@ const Services = () => {
           <div
             className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#eee] rounded-[20px] text-center">
+            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/3.png"
@@ -73,7 +73,7 @@ const Services = () => {
           <div
             className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#eee] rounded-[20px] text-center">
+            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/4.png"

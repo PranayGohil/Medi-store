@@ -10,6 +10,8 @@ import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 
+import { Share2 } from "lucide-react";
+
 const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -247,6 +249,40 @@ const ProductDetails = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name}${
+        product.generic_name ? ` (${product.generic_name})` : ""
+      } - ${product.manufacturer || "Available now"}`,
+      url: window.location.href,
+    };
+
+    try {
+      // Check if native share API is available (works on mobile and modern browsers)
+      if (navigator.share) {
+        await navigator.share(shareData);
+        console.log("Product shared successfully");
+      } else {
+        // Fallback: Copy link to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      }
+    } catch (err) {
+      // User cancelled share or error occurred
+      if (err.name !== "AbortError") {
+        console.error("Error sharing:", err);
+        // Fallback: Try to copy to clipboard
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          alert("Link copied to clipboard!");
+        } catch (clipboardErr) {
+          console.error("Failed to copy link:", clipboardErr);
+        }
+      }
+    }
+  };
+
   if (!product || isLoading) {
     return <LoadingSpinner />;
   }
@@ -267,7 +303,7 @@ const ProductDetails = () => {
                 <div className="flex flex-wrap mx-[-12px]">
                   {/* Product Image Section */}
                   <div className="min-[992px]:w-[41.66%] w-full px-[12px] mb-[24px]">
-                    <div className="single-pro-slider sticky top-[0] p-[15px] border-[1px] border-solid border-[#eee] rounded-[24px] max-[991px]:max-w-[500px] max-[991px]:m-auto">
+                    <div className="single-pro-slider sticky top-[0] p-[15px] border-[1px] border-solid border-[#858585] rounded-[24px] max-[991px]:max-w-[500px] max-[991px]:m-auto">
                       <div className="single-product-cover">
                         <div className="single-slide zoom-image-hover rounded-tl-[15px] rounded-tr-[15px]">
                           <img
@@ -287,6 +323,26 @@ const ProductDetails = () => {
                             onClick={() => handleThumbnailClick(image)}
                           />
                         ))}
+                      </div>
+                      <div className="bb-share-product absolute top-4 right-4">
+                        <button
+                          onClick={handleShare}
+                          className="flex items-center gap-2 px-2 py-2 border-[1px] border-solid border-[#0097b2] text-[#0097b2] rounded-full font-Poppins text-[14px] font-medium hover:bg-[#0097b2] hover:text-white transition-all"
+                        >
+                          <svg
+                            className="w-[18px] h-[18px]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                            />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -321,8 +377,8 @@ const ProductDetails = () => {
                       <div className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
                         <ul className="my-[-8px] pl-[18px]">
                           {product.product_code && (
-                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                              <span className="font-Poppins text-[#777] text-[14px]">
+                            <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#333] list-disc">
+                              <span className="font-Poppins text-[#333] text-[14px] font-semibold">
                                 Product Code :
                               </span>{" "}
                               {product.product_code}
@@ -381,7 +437,7 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Desktop Table View */}
-                            <div className="hidden md:block overflow-x-auto">
+                            <div className="hidden md:block overflow-x-auto border border-[#0097b2]">
                               <table className="w-full border-collapse">
                                 <thead>
                                   <tr className="bg-[#0097b2] text-white">
@@ -403,7 +459,7 @@ const ProductDetails = () => {
                                   {product.pricing.map((price, index) => (
                                     <tr
                                       key={index}
-                                      className="border-b border-[#eee] hover:bg-gray-50"
+                                      className="border-b border-[#858585] hover:bg-gray-50"
                                     >
                                       <td className="py-3 px-4">
                                         <span className="font-Poppins text-[14px] text-[#3d4750] font-medium">
@@ -424,7 +480,7 @@ const ProductDetails = () => {
                                       </td>
                                       <td className="py-3 px-4">
                                         <div className="flex justify-center">
-                                          <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                                          <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
                                             <button
                                               className="bb-qtybtn px-3"
                                               type="button"
@@ -485,7 +541,7 @@ const ProductDetails = () => {
                               {product.pricing.map((price, index) => (
                                 <div
                                   key={index}
-                                  className="border-[1px] border-solid border-[#eee] rounded-[15px] p-4 bg-white shadow-sm"
+                                  className="border-[1px] border-solid border-[#858585] rounded-[15px] p-4 bg-white shadow-sm"
                                 >
                                   <div className="flex justify-between items-start mb-3">
                                     <div>
@@ -503,8 +559,8 @@ const ProductDetails = () => {
                                     </span>
                                   </div>
 
-                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#eee]">
-                                    <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#858585]">
+                                    <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
                                       <button
                                         className="bb-qtybtn px-3"
                                         type="button"
@@ -597,7 +653,7 @@ const ProductDetails = () => {
                 <div className="tab-content">
                   {activeTab === "detail" && (
                     <div className="tab-pro-pane" id="detail">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] rounded-[20px]">
+                      <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] rounded-[20px]">
                         {product.description ? (
                           <div className="bb-details mx-3">
                             <ExpandableContent
@@ -616,7 +672,7 @@ const ProductDetails = () => {
 
                   {activeTab === "information" && (
                     <div className="tab-pro-pane" id="information">
-                      <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] rounded-[20px]">
+                      <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] rounded-[20px]">
                         {product.information ? (
                           <div className="bb-details mx-3">
                             <ExpandableContent
@@ -642,7 +698,7 @@ const ProductDetails = () => {
                 </div>
               </div>
               <div className="tab-pro-pane w-[100%] p-3" id="reviews">
-                <div className="bb-inner-tabs border-[1px] border-solid border-[#eee] pt-[15px] rounded-[20px]">
+                <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] pt-[15px] rounded-[20px]">
                   <div className="bb-reviews mx-3">
                     {reviews.length === 0 && (
                       <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
@@ -662,6 +718,10 @@ const ProductDetails = () => {
                               {review.user_name}
                             </h4>
                             <small>{formatDate(review.created_at)}</small>
+                            <img
+                              src="/assets/img/reviews/verified_purchase.png"
+                              className="w-100 mt-1 pr-3"
+                            />
                           </div>
                         </div>
                         <div className="inner-contact">

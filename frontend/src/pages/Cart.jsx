@@ -127,7 +127,7 @@ const Cart = () => {
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full mb-[-24px]">
             <div className="min-[992px]:w-[33.33%] w-full px-[12px] mb-[24px]">
-              <div className="bb-cart-sidebar-block p-[20px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px]">
+              <div className="bb-cart-sidebar-block p-[20px] bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px]">
                 <div className="bb-sb-title mb-[20px]">
                   <h3 className="font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
                     Summary
@@ -157,7 +157,7 @@ const Cart = () => {
                         </li>
                       </ul>
                     </div>
-                    <div className="summary-total border-t-[1px] border-solid border-[#eee] pt-[15px]">
+                    <div className="summary-total border-t-[1px] border-solid border-[#858585] pt-[15px]">
                       <ul className="mb-[0]">
                         <li className="mb-[6px] flex justify-between">
                           <span className="text-left font-Poppins text-[16px] leading-[28px] tracking-[0.03rem] font-semibold text-[#686e7d]">
@@ -175,10 +175,10 @@ const Cart = () => {
               </div>
             </div>
             <div className="min-[992px]:w-[66.66%] w-full px-[12px] mb-[24px]">
-              <div className="bb-cart-table border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:block hidden">
+              <div className="bb-cart-table border-[1px] border-solid border-[#858585] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:block hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-[1px] border-solid border-[#eee]">
+                    <tr className="border-b-[1px] border-solid border-[#858585]">
                       <th className="font-Poppins p-[12px] text-left text-[16px] font-medium text-[#3d4750] leading-[26px] tracking-[0.02rem] capitalize">
                         Product
                       </th>
@@ -198,14 +198,14 @@ const Cart = () => {
                     {cartItems.map((item) => (
                       <tr
                         key={item.id + item.net_quantity}
-                        className="border-b-[1px] border-solid border-[#eee]"
+                        className="border-b-[1px] border-solid border-[#858585]"
                       >
                         <td className="p-[12px]">
                           <div className="Product-cart flex items-center">
                             <img
                               src={item.image}
                               alt={item.name}
-                              className="w-[70px] border-[1px] border-solid border-[#eee] rounded-[10px]"
+                              className="w-[70px] border-[1px] border-solid border-[#858585] rounded-[10px]"
                             />
                             <span className="ml-[10px] font-Poppins text-[14px] font-normal leading-[28px] tracking-[0.03rem] text-[#686e7d]">
                               {item.name}({item.generic_name})
@@ -223,7 +223,7 @@ const Cart = () => {
                               </span>
                             </td>
                             <td className="p-[12px]">
-                              <div className="qty-plus-minus w-[85px] h-[45px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
+                              <div className="qty-plus-minus w-[85px] h-[45px] py-[7px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
                                 <button
                                   type="button"
                                   className="bb-qtybtn"
@@ -294,7 +294,7 @@ const Cart = () => {
                 </table>
               </div>
 
-              <div className="bb-cart-table border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:hidden block">
+              <div className="bb-cart-table border-[1px] border-solid border-[#858585] rounded-[20px] overflow-hidden max-[1399px]:overflow-y-auto xl:hidden block">
                 <div className="w-full">
                   <div>
                     {cartItems.map((item) => (
@@ -305,7 +305,7 @@ const Cart = () => {
                               <img
                                 src={item.image}
                                 alt={item.name}
-                                className="w-[70px] border-[1px] border-solid border-[#eee] rounded-[10px]"
+                                className="w-[70px] border-[1px] border-solid border-[#858585] rounded-[10px]"
                               />
                               <span className="ml-[10px] font-Poppins text-[14px] font-normal leading-[28px] tracking-[0.03rem] text-[#686e7d]">
                                 {item.name}({item.generic_name})
@@ -326,7 +326,7 @@ const Cart = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex justify-between border-b-[1px] border-solid border-[#eee] pb-2">
+                        <div className="flex justify-between border-b-[1px] border-solid border-[#858585] pb-2">
                           {item.available ? (
                             <>
                               <div className="p-[12px]  flex flex-col gap-1">
@@ -338,7 +338,7 @@ const Cart = () => {
                               </div>
                               <div className="p-[12px]  flex flex-col gap-1">
                                 Quantity:
-                                <div className="qty-plus-minus w-[85px] h-[35px] py-[7px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                                <div className="qty-plus-minus w-[85px] h-[35px] py-[7px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
                                   <button
                                     type="button"
                                     className="bb-qtybtn"

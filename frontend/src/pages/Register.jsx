@@ -252,7 +252,7 @@ const Register = () => {
                           type="text"
                           name="firstname"
                           placeholder="Enter your first name"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
                           value={formData.firstname}
                           onChange={handleChange}
@@ -266,7 +266,7 @@ const Register = () => {
                           type="text"
                           name="lastname"
                           placeholder="Enter your Last name"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
                           value={formData.lastname}
                           onChange={handleChange}
@@ -280,7 +280,7 @@ const Register = () => {
                           type="email"
                           name="email"
                           placeholder="Enter your Email"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                           required=""
                           value={formData.email}
                           onChange={handleChange}
@@ -299,7 +299,7 @@ const Register = () => {
                               phonenumber: "+" + phone,
                             })
                           }
-                          inputClass="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                          inputClass="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                         />
                       </div>
 
@@ -312,7 +312,7 @@ const Register = () => {
                             type={`${showPassword ? "text" : "password"}`}
                             name="password"
                             placeholder="Enter Password"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                             required=""
                             value={formData.password}
                             onChange={handleChange}
@@ -340,7 +340,7 @@ const Register = () => {
                             }`}
                             name="confirmpassword"
                             placeholder="Confirm Password"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                             required=""
                             value={formData.confirmpassword}
                             onChange={handleChange}

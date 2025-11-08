@@ -141,7 +141,8 @@ const Header = () => {
         // For logged-in users, update via API
         const token = localStorage.getItem("token");
         await axios.put(
-          `${import.meta.env.VITE_APP_API_URL
+          `${
+            import.meta.env.VITE_APP_API_URL
           }/api/cart/change-quantity/${productId}`,
           {
             quantity: newQuantity,
@@ -186,7 +187,8 @@ const Header = () => {
         // For logged-in users, remove via API
         const token = localStorage.getItem("token");
         await axios.delete(
-          `${import.meta.env.VITE_APP_API_URL
+          `${
+            import.meta.env.VITE_APP_API_URL
           }/api/cart/remove-from-cart/${id}/${net_quantity}`,
           {
             headers: {
@@ -388,7 +390,7 @@ const Header = () => {
   }
 
   return (
-    <header className="bb-header relative z-[5] border-b-[1px] border-solid border-[#eee]">
+    <header className="bb-header z-[5] border-b-[1px] border-solid border-[#858585] sticky top-0 left-0 w-full bg-white">
       <div className="bottom-header py-[20px] max-[991px]:py-[15px]">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
@@ -479,7 +481,7 @@ const Header = () => {
                       >
                         <input
                           type="text"
-                          className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#eee]"
+                          className="form-control bb-search-bar bg-[#fff] block w-full min-h-[45px] h-[48px] py-[10px] px-[15px] text-[14px] font-normal text-[#777] rounded-[10px] border-[1px] border-solid border-[#858585]"
                           placeholder="Search products..."
                           value={searchQuery}
                           onChange={handleSearchChange}
@@ -654,7 +656,7 @@ const Header = () => {
                                         {item.net_quantity}
                                       </p>
                                       <div className="flex items-center justify-between mt-1">
-                                        <div className="qty-plus-minus w-[85px] h-[32px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                                        <div className="qty-plus-minus w-[85px] h-[32px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
                                           <button
                                             type="button"
                                             className="bb-qtybtn w-6 h-full flex items-center justify-center text-xs"
@@ -747,13 +749,144 @@ const Header = () => {
       </div>
 
       {/* Rest of the component remains the same for menu sections */}
-      <div className="bb-main-menu-desk bg-[#fff] py-[5px] border-t-[1px] border-solid border-[#eee] max-[991px]:hidden">
-        {/* ... existing menu code ... */}
+      <div className="bb-main-menu-desk bg-[#272723] py-[5px] border-t-[1px] border-solid border-[#858585] max-[991px]:hidden">
+        <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
+          <div className="flex flex-wrap w-full">
+            <div className="w-full px-[24px]">
+              <div className="bb-inner-menu-desk flex max-[1199px]:relative max-[991px]:justify-between">
+                <div
+                  className="bb-main-menu relative flex flex-[auto] justify-start max-[991px]:hidden"
+                  id="navbarSupportedContent"
+                >
+                  <ul className="navbar-nav flex flex-wrap flex-row ">
+                    <li className="nav-item ">
+                      <Link
+                        to="/all-categories"
+                        className="flex items-center mr-[25px] text-[#fff] hover:text-[#0097b2] bg-[#0097b2] hover:bg-[#fff] hover:border-[1px] border-solid border-[#0097b2] rounded-[10px]  py-3 px-4"
+                      >
+                        <p className=" font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium  block tracking-[0.03rem]">
+                          All Categories
+                        </p>
+                      </Link>
+                    </li>
+                    <li className="nav-item flex items-center font-Poppins text-[15px] text-[#fff] font-light leading-[28px] tracking-[0.03rem] mr-[35px]">
+                      <Link
+                        to="/"
+                        className="nav-link p-[0] font-Poppins leading-[28px] text-[15px] font-medium text-[#fff] tracking-[0.03rem] block"
+                      >
+                        Home
+                      </Link>
+                    </li>
+                    {categories.map(
+                      (category) =>
+                        category.navbar_active && (
+                          <li
+                            key={category._id}
+                            className="nav-item bb-main-dropdown flex items-center mr-[45px]"
+                          >
+                            <button
+                              onClick={() =>
+                                handleCategoryClick(category.category)
+                              }
+                              className="nav-link bb-dropdown-item font-Poppins relative p-[0] leading-[28px] text-[15px] font-medium text-[#fff] block tracking-[0.03rem]"
+                            >
+                              {category.category}
+                            </button>
+                            <ul className="mega-menu min-w-3/4 transition-all duration-[0.3s] ease-in-out mt-[25px] pl-[30px] absolute top-[40px] z-[16] text-left opacity-[0] invisible left-[auto] right-[auto] bg-[#fff] border-[1px] border-solid border-[#858585] flex flex-col rounded-[10px]">
+                              <li className="m-[0] flex items-center w-full">
+                                <ul className="mega-block mr-[30px] py-[15px] w-full">
+                                  {category.subcategory.map((subCategory) => (
+                                    <li
+                                      className="flex items-center leading-[28px]"
+                                      key={subCategory}
+                                    >
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#fff] hover:text-[#0097b2] capitalize"
+                                      >
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  ))}
+                                  {category.special_subcategory.map(
+                                    (subCategory) => (
+                                      <li
+                                        className="flex items-center leading-[28px]"
+                                        key={subCategory}
+                                      >
+                                        <button
+                                          onClick={() =>
+                                            handleSubCategoryClick(
+                                              category.category,
+                                              subCategory
+                                            )
+                                          }
+                                          className="transition-all duration-[0.3s] ease-in-out font-Poppins py-[10px] leading-[22px] text-[14px] font-normal tracking-[0.03rem] text-[#fff] hover:text-[#0097b2] capitalize flex items-center"
+                                        >
+                                          <GoDotFill className="float-left text-[15px] mr-[3px] leading-[18px] text-[#0097b2]" />
+                                          {subCategory}
+                                        </button>
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        )
+                    )}
+                    <li className="nav-item flex items-center">
+                      <Link
+                        to="/offers"
+                        className="nav-link font-Poppins  p-[0] leading-[28px] text-[15px] font-medium tracking-[0.03rem] text-[#fff] flex"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          version="1.1"
+                          x={0}
+                          y={0}
+                          viewBox="0 0 64 64"
+                          style={{ enableBackground: "new 0 0 512 512" }}
+                          xmlSpace="preserve"
+                          className="w-[20px] h-[25px] mr-[5px] leading-[18px] align-middle"
+                        >
+                          <g>
+                            <path
+                              d="M10 16v22c0 .3.1.6.2.8.3.6 6.5 13.8 21 20h.2c.2 0 .3.1.5.1s.3 0 .5-.1h.2c14.5-6.2 20.8-19.4 21-20 .1-.3.2-.5.2-.8V16c0-.9-.6-1.7-1.5-1.9-7.6-1.9-19.3-9.6-19.4-9.7-.1-.1-.2-.1-.4-.2-.1 0-.1 0-.2-.1h-.9c-.1 0-.2.1-.3.1-.1.1-.2.1-.4.2s-11.8 7.8-19.4 9.7c-.7.2-1.3 1-1.3 1.9zm4 1.5c6.7-2.1 15-7.2 18-9.1 3 1.9 11.3 7 18 9.1v20c-1.1 2.1-6.7 12.1-18 17.3-11.3-5.2-16.9-15.2-18-17.3z"
+                              fill="#000000"
+                              opacity={1}
+                              data-original="#000000"
+                              className="fill-[#0097b2]"
+                            />
+                            <path
+                              d="M28.6 38.4c.4.4.9.6 1.4.6s1-.2 1.4-.6l9.9-9.9c.8-.8.8-2 0-2.8s-2-.8-2.8 0L30 34.2l-4.5-4.5c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8z"
+                              fill="#000000"
+                              opacity={1}
+                              data-original="#000000"
+                              className="fill-[#0097b2]"
+                            />
+                          </g>
+                        </svg>
+                        Offers
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
-        className={`bb-mobile-menu-overlay ${isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
-          } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
+        className={`bb-mobile-menu-overlay ${
+          isMobileMenuOpen || isMobileCartOpen ? "block" : "hidden"
+        } w-full h-screen fixed top-[0] left-[0] bg-[#000000cc] z-[16]`}
         onClick={() => {
           closeMobileMenu();
           closeMobileCart();
@@ -762,19 +895,175 @@ const Header = () => {
 
       <div
         id="bb-mobile-menu"
-        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
-          }`}
+        className={`bb-mobile-menu transition-all duration-[0.3s] ease-in-out w-[340px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] right-[auto] left-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[300px] ${
+          isMobileMenuOpen ? "translate-x-[0]" : "translate-x-[-100%]"
+        }`}
       >
-        {/* ... existing mobile menu code ... */}
+        <div className="bb-menu-title w-full pb-[10px] flex flex-wrap justify-between">
+          <span className="menu_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
+            My Menu
+          </span>
+          <button
+            type="button"
+            onClick={closeMobileMenu}
+            className="bb-close-menu relative border-[0] text-[30px] leading-[1] text-[#ff0000] bg-transparent"
+          >
+            ×
+          </button>
+        </div>
+        <div className="bb-menu-inner">
+          <div className="bb-menu-content">
+            <ul>
+              <li className="relative">
+                <Link
+                  to="/"
+                  onClick={closeMobileMenu}
+                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#858585] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  Home
+                </Link>
+              </li>
+              <li className="relative">
+                <Link
+                  to="/all-categories"
+                  onClick={closeMobileMenu}
+                  className="transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] block font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#858585] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  All Categories
+                </Link>
+              </li>
+              {categories.map(
+                (category) =>
+                  category.navbar_active && (
+                    <li
+                      key={category._id}
+                      className="relative border-[1px] border-solid border-[#858585] rounded-[10px] transition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] font-Poppins capitalize text-[#686e7d] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                    >
+                      <div className="flex justify-between items-center ">
+                        <button
+                          onClick={() => {
+                            closeMobileMenu();
+                            handleCategoryClick(category.category);
+                          }}
+                          className=" w-[80%] text-start"
+                        >
+                          {category.category}
+                        </button>
+                        {openMobileSubMenu === category.category ? (
+                          <i
+                            className="ri-arrow-down-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() => toggleMobileSubMenu("")}
+                          ></i>
+                        ) : (
+                          <i
+                            className="ri-arrow-right-s-line float-right leading-[28px]w-[15%]"
+                            onClick={() =>
+                              toggleMobileSubMenu(category.category)
+                            }
+                          ></i>
+                        )}
+                      </div>
+                      {openMobileSubMenu === category.category && (
+                        <>
+                          <ul className="sub-menu w-full min-w-[auto] p-[0] mb-[10px] static visible opacity-[1]">
+                            <li className="relative">
+                              <ul className="sub-menu w-full min-w-[auto] p-[0]  static visible opacity-[1]">
+                                {category.subcategory.map((subCategory) => (
+                                  <li
+                                    key={subCategory}
+                                    className="relative border-b border-[#858585]"
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        handleSubCategoryClick(
+                                          category.category,
+                                          subCategory
+                                        )
+                                      }
+                                      className="w-full text-start font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize block py-[6px]"
+                                    >
+                                      {subCategory}
+                                    </button>
+                                  </li>
+                                ))}
+                                {category.special_subcategory.map(
+                                  (subCategory) => (
+                                    <li
+                                      key={subCategory}
+                                      className="relative border-b border-[#858585]"
+                                    >
+                                      <button
+                                        onClick={() =>
+                                          handleSubCategoryClick(
+                                            category.category,
+                                            subCategory
+                                          )
+                                        }
+                                        className="w-full flex items-center justify-start text-start gap-[5px] font-Poppins leading-[28px] tracking-[0.03rem] transition-all duration-[0.3s] ease-in-out font-normal pl-[30px] text-[14px] text-[#777] mb-[0] capitalize py-[6px]"
+                                      >
+                                        <GoDotFill className="float-left text-[15px] mr-[5px] leading-[18px] text-[#0097b2]" />
+                                        {subCategory}
+                                      </button>
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </li>
+                          </ul>
+                        </>
+                      )}
+                    </li>
+                  )
+              )}
+              <li className="relative">
+                <Link
+                  to="/offers"
+                  onClick={closeMobileMenu}
+                  className="ntransition-all duration-[0.3s] ease-in-out mb-[12px] p-[12px] flex font-Poppins capitalize text-[#686e7d] border-[1px] border-solid border-[#858585] rounded-[10px] text-[15px] font-medium leading-[28px] tracking-[0.03rem]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    x={0}
+                    y={0}
+                    viewBox="0 0 64 64"
+                    style={{ enableBackground: "new 0 0 512 512" }}
+                    xmlSpace="preserve"
+                    className="w-[20px] h-[25px] mr-[5px] leading-[18px] align-middle"
+                  >
+                    <g>
+                      <path
+                        d="M10 16v22c0 .3.1.6.2.8.3.6 6.5 13.8 21 20h.2c.2 0 .3.1.5.1s.3 0 .5-.1h.2c14.5-6.2 20.8-19.4 21-20 .1-.3.2-.5.2-.8V16c0-.9-.6-1.7-1.5-1.9-7.6-1.9-19.3-9.6-19.4-9.7-.1-.1-.2-.1-.4-.2-.1 0-.1 0-.2-.1h-.9c-.1 0-.2.1-.3.1-.1.1-.2.1-.4.2s-11.8 7.8-19.4 9.7c-.7.2-1.3 1-1.3 1.9zm4 1.5c6.7-2.1 15-7.2 18-9.1 3 1.9 11.3 7 18 9.1v20c-1.1 2.1-6.7 12.1-18 17.3-11.3-5.2-16.9-15.2-18-17.3z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#0097b2]"
+                      />
+                      <path
+                        d="M28.6 38.4c.4.4.9.6 1.4.6s1-.2 1.4-.6l9.9-9.9c.8-.8.8-2 0-2.8s-2-.8-2.8 0L30 34.2l-4.5-4.5c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8z"
+                        fill="#000000"
+                        opacity={1}
+                        data-original="#000000"
+                        className="fill-[#0097b2]"
+                      />
+                    </g>
+                  </svg>
+                  Offers
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       {/* Enhanced Mobile Cart with Quantity Controls */}
       <div
         id="bb-mobile-cart"
-        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[380px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[340px] ${isMobileCartOpen ? "translate-x-[0]" : "translate-x-[100%]"
-          }`}
+        className={`bb-mobile-cart transition-all duration-[0.3s] ease-in-out w-[380px] h-full pt-[15px] px-[20px] pb-[20px] fixed top-[0] left-[auto] right-[0] bg-[#fff] z-[170] overflow-auto max-[480px]:w-[340px] ${
+          isMobileCartOpen ? "translate-x-[0]" : "translate-x-[100%]"
+        }`}
       >
-        <div className="bb-cart-title w-full pb-[10px] flex flex-wrap justify-between border-b border-[#eee] mb-[15px]">
+        <div className="bb-cart-title w-full pb-[10px] flex flex-wrap justify-between border-b border-[#858585] mb-[15px]">
           <span className="cart_title font-Poppins flex items-center text-[16px] text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem]">
             My Cart ({totalCartItems})
           </span>
@@ -793,7 +1082,7 @@ const Header = () => {
                 {hoverCartItems.map((item) => (
                   <div
                     key={item.id + item.net_quantity}
-                    className="bb-cart-item flex items-start gap-3 mb-4 pb-4 border-b border-[#eee]"
+                    className="bb-cart-item flex items-start gap-3 mb-4 pb-4 border-b border-[#858585]"
                   >
                     <img
                       src={item.image}
@@ -808,7 +1097,7 @@ const Header = () => {
                         {item.net_quantity} • {currency} {item.price} each
                       </p>
                       <div className="flex justify-between items-center">
-                        <div className="qty-plus-minus w-[85px] h-[35px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                        <div className="qty-plus-minus w-[85px] h-[35px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
                           <button
                             type="button"
                             className="bb-qtybtn w-6 h-full flex items-center justify-center text-sm"
@@ -862,7 +1151,7 @@ const Header = () => {
                   </div>
                 ))}
               </div>
-              <div className="bb-cart-footer mt-4 pt-4 border-t border-[#eee]">
+              <div className="bb-cart-footer mt-4 pt-4 border-t border-[#858585]">
                 <div className="cart-summary mb-4">
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-600">Subtotal:</span>

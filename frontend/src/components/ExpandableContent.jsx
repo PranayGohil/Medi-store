@@ -6,11 +6,11 @@ const ExpandableContent = ({ html, limit = 300 }) => {
   // Strip HTML tags for measuring length
   const plainText = html?.replace(/<[^>]+>/g, "") || "";
 
-  // If content is short, show full
+  // If content is short, show full without scroll
   if (plainText.length <= limit) {
     return (
       <div
-        className="prose max-w-full ql-editor"
+        className="prose max-w-full ql-editor p-4"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
@@ -22,19 +22,50 @@ const ExpandableContent = ({ html, limit = 300 }) => {
   return (
     <div className="prose max-w-full ql-editor">
       <div
-        className="text-justify"
+        className={`text-justify p-4 ${
+          expanded ? "max-h-[500px] overflow-y-auto scrollbar-custom" : ""
+        }`}
         dangerouslySetInnerHTML={{
           __html: expanded ? html : partialText,
         }}
       />
-      <button
-        className="mt-2 text-[#0097b2] font-medium underline hover:text-[#007a8f]"
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? "Read Less" : "Read More"}
-      </button>
+      <div className="px-4 pb-4">
+        <button
+          className="text-[#0097b2] font-Poppins text-[14px] font-medium underline hover:text-[#007a8f] transition-all"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? "Read Less" : "Read More"}
+        </button>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-custom::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+          background: #0097b2;
+          border-radius: 10px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+          background: #007a8f;
+        }
+
+        /* For Firefox */
+        .scrollbar-custom {
+          scrollbar-width: thin;
+          scrollbar-color: #0097b2 #f1f1f1;
+        }
+      `}</style>
     </div>
   );
 };
 
 export default ExpandableContent;
+  

@@ -218,7 +218,7 @@ const Profile = () => {
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full">
             <div className="w-full px-[12px] mb-[24px]">
-              <div className="profile-details bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] p-[20px]">
+              <div className="profile-details bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px] p-[20px]">
                 <h3 className="font-quicksand tracking-[0.03rem] leading-text-[20px] font-bold text-[#3d4750] mb-[20px]">
                   Profile Details
                 </h3>
@@ -238,7 +238,7 @@ const Profile = () => {
                           name="first_name"
                           value={profileData.first_name}
                           onChange={handleInputChange}
-                          className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
+                          className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#858585] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
                         />
                       </div>
                       <div>
@@ -254,7 +254,7 @@ const Profile = () => {
                           name="last_name"
                           value={profileData.last_name}
                           onChange={handleInputChange}
-                          className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
+                          className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#858585] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
                         />
                       </div>
                     </div>
@@ -271,7 +271,7 @@ const Profile = () => {
                         name="email"
                         value={profileData.email}
                         onChange={handleInputChange}
-                        className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
+                        className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#858585] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
                       />
                     </div>
                     <div className="mb-[20px]">
@@ -287,7 +287,7 @@ const Profile = () => {
                         name="phone"
                         value={profileData.phone}
                         onChange={handleInputChange}
-                        className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
+                        className="w-full py-[10px] px-[15px] leading-[26px] border-[1px] border-solid border-[#858585] outline-[0] rounded-[10px] text-[14px] font-normal text-[#686e7d] bg-[#fff]"
                       />
                     </div>
                   </form>
@@ -327,7 +327,7 @@ const Profile = () => {
               </div>
             </div>
             <div className="w-full px-[12px] mb-[24px]">
-              <div className="addresses bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] p-[20px]">
+              <div className="addresses bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px] p-[20px]">
                 <h3 className="font-quicksand tracking-[0.03rem] leading-text-[20px] font-bold text-[#3d4750] mb-[20px]">
                   Addresses
                 </h3>
@@ -367,7 +367,7 @@ const Profile = () => {
                             type="text"
                             name="first_name"
                             placeholder="Enter your First Name"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.first_name}
                             onChange={handleNewAddressChange}
@@ -383,7 +383,7 @@ const Profile = () => {
                             type="text"
                             name="last_name"
                             placeholder="Enter your Last Name"
-                            className="w-full p-[10px] text-4px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-4px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.last_name}
                             onChange={handleNewAddressChange}
@@ -399,7 +399,7 @@ const Profile = () => {
                             type="email"
                             name="email"
                             placeholder="Enter your Email Address"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.email}
                             onChange={handleNewAddressChange}
@@ -415,7 +415,7 @@ const Profile = () => {
                             type="text"
                             name="phone"
                             placeholder="Enter your Phone Number"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.phone}
                             onChange={handleNewAddressChange}
@@ -431,7 +431,7 @@ const Profile = () => {
                             type="text"
                             name="address"
                             placeholder="Address Line 1"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.address}
                             onChange={handleNewAddressChange}
@@ -444,7 +444,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             Country *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px] bg-white">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px] bg-white">
                             <select
                               className="block w-full"
                               name="country"
@@ -465,7 +465,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             Region State *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]  bg-white">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px]  bg-white">
                             <select
                               className="block w-full"
                               name="state"
@@ -486,7 +486,7 @@ const Profile = () => {
                           <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                             City *
                           </label>
-                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]  bg-white">
+                          <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px]  bg-white">
                             <select
                               className="block w-full"
                               name="city"
@@ -511,7 +511,7 @@ const Profile = () => {
                             type="text"
                             name="pincode"
                             placeholder="Post Code"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                             required=""
                             value={newAddress.pincode}
                             onChange={handleNewAddressChange}

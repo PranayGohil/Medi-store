@@ -135,9 +135,9 @@ const Products = () => {
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
           <div className="flex flex-wrap w-full mb-[-24px]">
             <div className="min-[992px]:w-[25%] w-full px-[12px] mb-[24px] hidden lg:block">
-              <div className="bb-shop-wrap bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] sticky top-[0]">
+              <div className="bb-shop-wrap bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px] sticky top-[0]">
                 {/* Sidebar */}
-                <div className="bb-sidebar-block border-b-[1px] border-solid border-[#eee]">
+                <div className="bb-sidebar-block border-b-[1px] border-solid border-[#858585]">
                   <div className="bb-sidebar-title mb-[20px]">
                     <h3 className="font-quicksand text-[18px] px-[20px] pt-[20px] tracking-[0.03rem] leading-font-bold text-[#3d4750]">
                       Category
@@ -259,9 +259,9 @@ const Products = () => {
               </div>
               {showCategories && (
                 <div className="w-full px-[12px] mb-[24px] block lg:hidden">
-                  <div className="bb-shop-wrap bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] sticky top-[0]">
+                  <div className="bb-shop-wrap bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px] sticky top-[0]">
                     {/* Sidebar */}
-                    <div className="bb-sidebar-block border-b-[1px] border-solid border-[#eee]">
+                    <div className="bb-sidebar-block border-b-[1px] border-solid border-[#858585]">
                       <div className="bb-sidebar-title mb-[20px]">
                         <h3 className="font-quicksand text-[18px] px-[20px] pt-[20px] tracking-[0.03rem] leading-font-bold text-[#3d4750]">
                           Category

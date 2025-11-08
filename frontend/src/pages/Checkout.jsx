@@ -444,13 +444,13 @@ const Checkout = () => {
           <div className="flex flex-wrap w-full mb-[-24px]">
             <div className="min-[992px]:w-[33.33%] w-full px-[12px] mb-[24px]">
               <div className="bb-checkout-sidebar mb-[-24px]">
-                <div className="checkout-items border-[1px] border-solid border-[#eee] p-[20px] rounded-[20px] mb-[24px]">
+                <div className="checkout-items border-[1px] border-solid border-[#858585] p-[20px] rounded-[20px] mb-[24px]">
                   <div className="sub-title mb-[12px]">
                     <h4 className="font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
                       summary
                     </h4>
                   </div>
-                  <div className="checkout-summary mb-[20px] border-b-[1px] border-solid border-[#eee]">
+                  <div className="checkout-summary mb-[20px] border-b-[1px] border-solid border-[#858585]">
                     <ul className="mb-[20px]">
                       <li className="flex justify-between leading-[28px] mb-[8px]">
                         <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
@@ -470,12 +470,12 @@ const Checkout = () => {
                       </li>
                       {discount > 0 && (
                         <>
-                          <li className="flex justify-between leading-[28px] mb-[8px] border-b-[1px] border-solid border-[#eee]">
+                          <li className="flex justify-between leading-[28px] mb-[8px] border-b-[1px] border-solid border-[#858585]">
                             <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
                               Coupon Code Applied
                             </span>
                           </li>
-                          <li className="flex justify-between leading-[28px] mb-[8px] pb-1 border-b-[1px] border-solid border-[#eee]">
+                          <li className="flex justify-between leading-[28px] mb-[8px] pb-1 border-b-[1px] border-solid border-[#858585]">
                             <span className="left-item font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] font-medium text-[#686e7d]">
                               {couponCode}
                             </span>
@@ -495,7 +495,7 @@ const Checkout = () => {
                         <div className="coupon-down-box w-full">
                           <div className="relative">
                             <input
-                              className="bb-coupon w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] rounded-[10px]"
+                              className="bb-coupon w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] rounded-[10px]"
                               type="text"
                               placeholder="Enter Your coupon Code"
                               value={couponCode}
@@ -528,13 +528,13 @@ const Checkout = () => {
                     {cartItems.map((item) => (
                       <div
                         key={item.id + item.net_quantity}
-                        className="pro-items p-[15px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] flex mb-[24px] max-[420px]:flex-col"
+                        className="pro-items p-[15px] bg-[#f8f8fb] border-[1px] border-solid border-[#858585] rounded-[20px] flex mb-[24px] max-[420px]:flex-col"
                       >
                         <div className="image mr-[15px] max-[420px]:mr-[0] max-[420px]:mb-[15px]">
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="max-w-max w-[100px] h-[100px] border-[1px] border-solid border-[#eee] rounded-[20px] max-[1399px]:h-[80px] max-[1399px]:w-[80px]"
+                            className="max-w-max w-[100px] h-[100px] border-[1px] border-solid border-[#858585] rounded-[20px] max-[1399px]:h-[80px] max-[1399px]:w-[80px]"
                           />
                         </div>
                         <div className="items-contact">
@@ -548,7 +548,7 @@ const Checkout = () => {
                           </h4>
                           <div className="bb-pro-variation my-2">
                             <ul className="flex flex-wrap m-[-2px]">
-                              <li className="h-[22px] m-[2px] py-[2px] px-[8px] border-[1px] border-solid border-[#eee] text-[#777] flex items-center justify-center text-[12px] leading-[22px] rounded-[20px] active">
+                              <li className="h-[22px] m-[2px] py-[2px] px-[8px] border-[1px] border-solid border-[#858585] text-[#777] flex items-center justify-center text-[12px] leading-[22px] rounded-[20px] active">
                                 {item.net_quantity} {item.dosage_form}/s
                               </li>
                             </ul>
@@ -573,7 +573,7 @@ const Checkout = () => {
               </div>
             </div>
             <div className="min-[992px]:w-[66.66%] w-full px-[12px] mb-[24px]">
-              <div className="bb-checkout-contact border-[1px] border-solid border-[#eee] p-[20px] rounded-[20px]">
+              <div className="bb-checkout-contact border-[1px] border-solid border-[#858585] p-[20px] rounded-[20px]">
                 <div className="main-title mb-[20px]">
                   <h4 className="font-quicksand tracking-[0.03rem] leading-[1.2] text-[20px] font-bold text-[#3d4750]">
                     Billing Details
@@ -586,7 +586,7 @@ const Checkout = () => {
                     className={`flex-1 flex items-center p-[15px] border-[2px] border-solid rounded-[10px] cursor-pointer transition-all ${
                       !isNewAddress
                         ? "border-[#0097b2] bg-[#f0f9fb]"
-                        : "border-[#eee] bg-white hover:border-[#d4d4d4]"
+                        : "border-[#858585] bg-white hover:border-[#d4d4d4]"
                     }`}
                   >
                     <input
@@ -604,7 +604,7 @@ const Checkout = () => {
                     className={`flex-1 flex items-center p-[15px] border-[2px] border-solid rounded-[10px] cursor-pointer transition-all ${
                       isNewAddress
                         ? "border-[#0097b2] bg-[#f0f9fb]"
-                        : "border-[#eee] bg-white hover:border-[#d4d4d4]"
+                        : "border-[#858585] bg-white hover:border-[#d4d4d4]"
                     }`}
                   >
                     <input
@@ -621,7 +621,7 @@ const Checkout = () => {
                 </div>
 
                 {isNewAddress ? (
-                  <div className="input-box-form py-[20px] border-b-[1px] border-solid border-[#eee]">
+                  <div className="input-box-form py-[20px] border-b-[1px] border-solid border-[#858585]">
                     <form>
                       <div className="flex flex-wrap mx-[-12px]">
                         <div className="min-[992px]:w-[50%] w-full px-[12px]">
@@ -633,7 +633,7 @@ const Checkout = () => {
                               type="text"
                               name="first_name"
                               placeholder="Enter your First Name"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.first_name}
                               onChange={handleInputChange}
@@ -649,7 +649,7 @@ const Checkout = () => {
                               type="text"
                               name="last_name"
                               placeholder="Enter your Last Name"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.last_name}
                               onChange={handleInputChange}
@@ -665,7 +665,7 @@ const Checkout = () => {
                               type="email"
                               name="email"
                               placeholder="Enter your Email Address"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.email}
                               onChange={handleInputChange}
@@ -681,7 +681,7 @@ const Checkout = () => {
                               type="text"
                               name="phone"
                               placeholder="Enter your Phone Number"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.phone}
                               onChange={handleInputChange}
@@ -697,7 +697,7 @@ const Checkout = () => {
                               type="text"
                               name="address"
                               placeholder="Address Line 1"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.address}
                               onChange={handleInputChange}
@@ -710,7 +710,7 @@ const Checkout = () => {
                             <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                               Country *
                             </label>
-                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px]">
                               <select
                                 className="block w-full"
                                 name="country"
@@ -738,7 +738,7 @@ const Checkout = () => {
                             <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                               Region State *
                             </label>
-                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px]">
                               <select
                                 className="block w-full"
                                 name="state"
@@ -768,7 +768,7 @@ const Checkout = () => {
                             <label className="inline-block font-Poppins leading-[26px] tracking-[0.02rem] mb-[8px] text-[14px] font-medium text-[#3d4750]">
                               City *
                             </label>
-                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#eee] leading-[26px] rounded-[10px]">
+                            <div className="custom-select p-[10px] border-[1px] border-solid border-[#858585] leading-[26px] rounded-[10px]">
                               <select
                                 className="block w-full"
                                 name="city"
@@ -797,7 +797,7 @@ const Checkout = () => {
                               type="text"
                               name="pincode"
                               placeholder="Post Code"
-                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] leading-[26px] outline-[0] rounded-[10px]"
+                              className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] leading-[26px] outline-[0] rounded-[10px]"
                               required=""
                               value={newAddress.pincode}
                               onChange={handleInputChange}
@@ -808,7 +808,7 @@ const Checkout = () => {
                     </form>
                   </div>
                 ) : (
-                  <div className="input-box-form py-[20px] border-b-[1px] border-solid border-[#eee]">
+                  <div className="input-box-form py-[20px] border-b-[1px] border-solid border-[#858585]">
                     {addresses.length > 0 ? (
                       <div className="space-y-[15px]">
                         {addresses.map((address, index) => (
@@ -817,7 +817,7 @@ const Checkout = () => {
                             className={`block p-[20px] border-[2px] border-solid rounded-[15px] cursor-pointer transition-all ${
                               selectedAddress === address
                                 ? "border-[#0097b2] bg-[#f0f9fb] shadow-md"
-                                : "border-[#eee] bg-white hover:border-[#d4d4d4] hover:shadow-sm"
+                                : "border-[#858585] bg-white hover:border-[#d4d4d4] hover:shadow-sm"
                             }`}
                           >
                             <div className="flex items-start">

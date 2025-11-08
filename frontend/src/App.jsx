@@ -28,6 +28,8 @@ import PaymentCompleted from "./pages/PaymentCompleted";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import PaylabsCallback from "./pages/PaylabsCallback";
 
+import FloatingShareButton from "./components/FloatingShareButton";
+
 function App() {
   return (
     <div>
@@ -218,6 +220,7 @@ function App() {
         />
       </Routes>
       <Footer />
+      <FloatingShareButton />
     </div>
   );
 }

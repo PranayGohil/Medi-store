@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Breadcrumb = ({title, destination1, destination2}) => {
   return (
-    <section className="section-breadcrumb mb-[50px] max-[1199px]:mb-[35px] border-b-[1px] border-solid border-[#eee] bg-[#f8f8fb]">
+    <section className="section-breadcrumb mb-[50px] max-[1199px]:mb-[35px] border-b-[1px] border-solid border-[#858585] bg-[#f8f8fb]">
       <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
         <div className="flex flex-wrap w-full">
           <div className="w-full px-[12px]">

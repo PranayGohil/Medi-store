@@ -68,10 +68,10 @@ const OrderHistory = () => {
               {orders.map((order) => (
                 <div
                   key={order.order_id}
-                  className="bb-cart-table my-2 border-[1px] border-solid border-[#eee] rounded-[20px] overflow-hidden"
+                  className="bb-cart-table my-2 border-[1px] border-solid border-[#858585] rounded-[20px] overflow-hidden"
                 >
                   {/* Order Info */}
-                  <div className="flex justify-between p-[12px] border-b-[1px] border-solid border-[#eee]">
+                  <div className="flex justify-between p-[12px] border-b-[1px] border-solid border-[#858585]">
                     <div>
                       <span className="font-Poppins text-[14px] font-semibold leading-[28px] tracking-[0.03rem] text-[#686e7d]">
                         Order ID
@@ -102,7 +102,7 @@ const OrderHistory = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex justify-between p-[12px] border-b-[1px] border-solid border-[#eee] items-center">
+                  <div className="flex justify-between p-[12px] border-b-[1px] border-solid border-[#858585] items-center">
                     {/* Product List */}
                     <div className="p-[12px]">
                       {order.products.map((product) => (

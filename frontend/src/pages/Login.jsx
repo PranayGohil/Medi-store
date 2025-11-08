@@ -201,7 +201,7 @@ const Login = () => {
               </div>
             </div>
             <div className="w-full px-[12px]">
-              <div className="bb-login-contact max-w-[500px] m-[auto] border-[1px] border-solid border-[#eee] p-[30px] rounded-[20px]">
+              <div className="bb-login-contact max-w-[500px] m-[auto] border-[1px] border-solid border-[#858585] p-[30px] rounded-[20px]">
                 <form onSubmit={handleSubmit}>
                   <div className="bb-login-wrap mb-[24px]">
                     <label
@@ -215,7 +215,7 @@ const Login = () => {
                       id="email"
                       name="email"
                       placeholder="Enter Your Email"
-                      className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                      className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                       value={formData.email}
                       onChange={handleChange}
                       required
@@ -234,7 +234,7 @@ const Login = () => {
                         id="password"
                         name="password"
                         placeholder="Enter Your Password"
-                        className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#eee] outline-[0] leading-[26px] rounded-[10px]"
+                        className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
                         value={formData.password}
                         onChange={handleChange}
                         required

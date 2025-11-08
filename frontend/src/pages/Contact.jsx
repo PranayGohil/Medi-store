@@ -109,7 +109,7 @@ const Contact = () => {
           </div>
 
           {/* Feedback Form */}
-          <div className="w-full md:w-1/2 border border-[#eee] rounded-[20px] p-[30px]">
+          <div className="w-full md:w-1/2 border border-[#858585] rounded-[20px] p-[30px]">
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -117,7 +117,7 @@ const Contact = () => {
                 placeholder="Enter Your First Name"
                 value={formData.first_name}
                 onChange={handleChange}
-                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                className="w-full h-[50px] p-[10px] border border-[#858585] rounded-[10px] mb-4"
               />
               <input
                 type="text"
@@ -125,7 +125,7 @@ const Contact = () => {
                 placeholder="Enter Your Last Name"
                 value={formData.last_name}
                 onChange={handleChange}
-                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                className="w-full h-[50px] p-[10px] border border-[#858585] rounded-[10px] mb-4"
               />
               <input
                 type="email"
@@ -133,7 +133,7 @@ const Contact = () => {
                 placeholder="Enter Your Email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                className="w-full h-[50px] p-[10px] border border-[#858585] rounded-[10px] mb-4"
               />
               <input
                 type="text"
@@ -141,14 +141,14 @@ const Contact = () => {
                 placeholder="Enter Your Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full h-[50px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                className="w-full h-[50px] p-[10px] border border-[#858585] rounded-[10px] mb-4"
               />
               <textarea
                 name="feedback"
                 placeholder="Please leave your comments here.."
                 value={formData.feedback}
                 onChange={handleChange}
-                className="w-full h-[150px] p-[10px] border border-[#eee] rounded-[10px] mb-4"
+                className="w-full h-[150px] p-[10px] border border-[#858585] rounded-[10px] mb-4"
                 style={{ resize: "none" }}
               ></textarea>
 

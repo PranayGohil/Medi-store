@@ -74,10 +74,10 @@ const Footer = () => {
                     alt="footer logo"
                   />
                   <p className="bb-footer-detail max-w-[400px] mb-[30px] p-[0] font-Poppins text-[14px] leading-[27px] font-normal text-[#fff] inline-block relative max-[1399px]:text-[15px] max-[1199px]:text-[14px]">
-                    Foreever Cure Pharmacy is a mass distributor of generic drugs
-                    and OTC healthcare items since 2011. We have proudly been
-                    providing quality service and products to consumers all over
-                    the world for 5 years.{" "}
+                    Foreever Cure Pharmacy is a mass distributor of generic
+                    drugs and OTC healthcare items since 2011. We have proudly
+                    been providing quality service and products to consumers all
+                    over the world for 5 years.{" "}
                     <button
                       type="button"
                       className="cursor-pointer text-[#0097b2] font-Poppins text-[14px] leading-[20px] font-normal hover:text-[#fff] transition-all duration-[0.3s] ease-in-out"
@@ -86,6 +86,14 @@ const Footer = () => {
                       Read More..
                     </button>
                   </p>
+                  <div className="w-100 flex flex-col align-middle">
+                    <div className="mb-4">Checkout Our Reviews On</div>
+                    <img
+                      src="/assets/img/logo/trust_pilot.svg"
+                      alt="Trust Pilot"
+                      className="max-w-[150px]"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -93,22 +101,24 @@ const Footer = () => {
               <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget">
                   <h4
-                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
                     onClick={() => toggleSection("usefulLinks")}
                   >
                     Useful Links
                     <span className="min-[992px]:hidden">
                       <i
-                        className={`ri-arrow-${openSections.usefulLinks ? "up" : "down"
-                          }-s-line text-[20px]`}
+                        className={`ri-arrow-${
+                          openSections.usefulLinks ? "up" : "down"
+                        }-s-line text-[20px]`}
                       />
                     </span>
                   </h4>
                   <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.usefulLinks
-                      ? "max-[991px]:block"
-                      : "max-[991px]:hidden"
-                      } min-[992px]:block`}
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                      openSections.usefulLinks
+                        ? "max-[991px]:block"
+                        : "max-[991px]:hidden"
+                    } min-[992px]:block`}
                   >
                     <ul className="align-items-center">
                       <li className="bb-footer-link leading-[1.5] flex items-center mb-[16px] max-[991px]:mb-[12px]">
@@ -160,22 +170,24 @@ const Footer = () => {
               <div className="min-[992px]:w-[20%] max-[991px]:w-full w-full px-[12px]">
                 <div className="bb-footer-widget">
                   <h4
-                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                    className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
                     onClick={() => toggleSection("category")}
                   >
                     Category
                     <span className="min-[992px]:hidden">
                       <i
-                        className={`ri-arrow-${openSections.category ? "up" : "down"
-                          }-s-line text-[20px]`}
+                        className={`ri-arrow-${
+                          openSections.category ? "up" : "down"
+                        }-s-line text-[20px]`}
                       />
                     </span>
                   </h4>
                   <div
-                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.category
-                      ? "max-[991px]:block"
-                      : "max-[991px]:hidden"
-                      } min-[992px]:block`}
+                    className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                      openSections.category
+                        ? "max-[991px]:block"
+                        : "max-[991px]:hidden"
+                    } min-[992px]:block`}
                   >
                     <ul className="align-items-center">
                       {categories.map(
@@ -206,31 +218,31 @@ const Footer = () => {
                 <div className="bb-footer-contact mb-[30px]">
                   <div className="bb-footer-widget">
                     <h4
-                      className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
+                      className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px] max-[991px]:cursor-pointer max-[991px]:flex max-[991px]:justify-between max-[991px]:items-center"
                       onClick={() => toggleSection("getInTouch")}
                     >
                       Get In Touch
                       <span className="min-[992px]:hidden">
                         <i
-                          className={`ri-arrow-${openSections.getInTouch ? "up" : "down"
-                            }-s-line text-[20px]`}
+                          className={`ri-arrow-${
+                            openSections.getInTouch ? "up" : "down"
+                          }-s-line text-[20px]`}
                         />
                       </span>
                     </h4>
                     <div
-                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${openSections.getInTouch
-                        ? "max-[991px]:block"
-                        : "max-[991px]:hidden"
-                        } min-[992px]:block`}
+                      className={`bb-footer-links transition-all duration-300 ease-in-out max-[991px]:mb-[20px] ${
+                        openSections.getInTouch
+                          ? "max-[991px]:block"
+                          : "max-[991px]:hidden"
+                      } min-[992px]:block`}
                     >
                       <ul className="align-items-center">
                         <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">
                           <span className="w-[25px] basis-[auto] grow-[0] shrink-[0]">
                             <i className="ri-building-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
-                          <div
-                            className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]"
-                          >
+                          <div className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[14px] leading-[20px] text-[#a8a8a8] hover:text-[#0097b2] inline-block relative break-all tracking-[0] font-normal max-[1399px]:text-[15px] max-[1199px]:text-[14px]">
                             PT Haji Maruti Indonesia
                           </div>
                         </li>
@@ -239,7 +251,9 @@ const Footer = () => {
                             <i className="ri-map-pin-line leading-[0] text-[18px] text-[#0097b2]" />
                           </span>
                           <p className="m-[0] font-Poppins text-[14px] text-[#a8a8a8] font-normal leading-[28px] tracking-[0.03rem]">
-                            Jalan Duren Sawit Raya, Rukan Duren Sawit Center No. 9G, Kelurahan Klender, Kecamatan Duren Sawit, Jakarta Timur, 13470 - Indonesia
+                            Jalan Duren Sawit Raya, Rukan Duren Sawit Center No.
+                            9G, Kelurahan Klender, Kecamatan Duren Sawit,
+                            Jakarta Timur, 13470 - Indonesia
                           </p>
                         </li>
                         <li className="bb-footer-link bb-foo-call flex items-start max-[991px]:mb-[15px] mb-[16px]">
@@ -272,7 +286,7 @@ const Footer = () => {
                 {/* Social Media Section */}
                 <div className="bb-footer-social mb-3">
                   <div className="bb-footer-widget">
-                    <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#eee] max-[991px]:text-[16px]">
+                    <h4 className="bb-footer-heading font-quicksand leading-[1.2] text-[18px] font-bold mb-[20px] text-[#fff] tracking-[0] relative block w-full pb-[15px] capitalize border-b-[1px] border-solid border-[#858585] max-[991px]:text-[16px]">
                       Follow Us
                     </h4>
                     <div className="bb-footer-links">
@@ -327,7 +341,7 @@ const Footer = () => {
         </div>
 
         {/* Footer Bottom */}
-        <div className="footer-bottom py-[10px] border-t-[1px] border-solid border-[#eee] max-[991px]:py-[15px]">
+        <div className="footer-bottom py-[10px] border-t-[1px] border-solid border-[#858585] max-[991px]:py-[15px]">
           <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
             <div className="flex flex-wrap w-full">
               <div className="bb-bottom-info w-full flex flex-row items-center justify-center max-[991px]:flex-col px-[12px]">

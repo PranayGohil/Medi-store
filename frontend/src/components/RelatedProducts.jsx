@@ -25,7 +25,7 @@ const RelatedProducts = () => {
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={20}
-          slidesPerView={1}
+          slidesPerView={2}
           breakpoints={{
             640: { slidesPerView: 2 },
             768: { slidesPerView: 3 },
@@ -34,11 +34,11 @@ const RelatedProducts = () => {
           autoplay={{ delay: 3000 }}
           className="best-seller-swiper"
         >
-          {products?.map((product) => (
-            <SwiperSlide key={product._id} className="p-[12px]">
+          <SwiperSlide className="p-[12px]">
+            {products?.map((product) => (
               <ProductCard {...product} />
-            </SwiperSlide>
-          ))}
+            ))}
+          </SwiperSlide>
         </Swiper>
       </div>
     </section>
