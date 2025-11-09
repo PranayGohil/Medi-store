@@ -52,11 +52,16 @@ export const getCartItems = async (req, res) => {
       const product = await Product.findById(cartItem.product_id);
 
       if (product) {
-
         const convertedPricing = await Promise.all(
           product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(priceItem.total_price, false); // false → use static rate for speed
-            const convertedUnit = await convertUSDtoIDR(priceItem.unit_price, false);
+            const convertedTotal = await convertUSDtoIDR(
+              priceItem.total_price,
+              false
+            ); // false → use static rate for speed
+            const convertedUnit = await convertUSDtoIDR(
+              priceItem.unit_price,
+              false
+            );
             return {
               ...priceItem.toObject(),
               total_price: convertedTotal,
@@ -122,12 +127,17 @@ export const getCartItemsById = async (req, res) => {
       const product = await Product.findById(cartItem.product_id);
 
       if (product) {
-
         // Convert product pricing from USD to IDR
         const convertedPricing = await Promise.all(
           product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(priceItem.total_price, false); // false → use static rate for speed
-            const convertedUnit = await convertUSDtoIDR(priceItem.unit_price, false);
+            const convertedTotal = await convertUSDtoIDR(
+              priceItem.total_price,
+              false
+            ); // false → use static rate for speed
+            const convertedUnit = await convertUSDtoIDR(
+              priceItem.unit_price,
+              false
+            );
             return {
               ...priceItem.toObject(),
               total_price: convertedTotal,
@@ -189,7 +199,9 @@ export const changeCartQuantity = async (req, res) => {
     } else {
       const productId = req.params.productId;
       const cartItemIndex = user.cartData.findIndex(
-        (item) => item.product_id.toString() === productId
+        (item) =>
+          item.product_id.toString() === productId &&
+          item.net_quantity === req.body.net_quantity
       );
       if (cartItemIndex === -1) {
         return res.json({
@@ -226,7 +238,9 @@ export const removeCartItem = async (req, res) => {
     console.log("Product : ", productId, netQuantity);
     console.log(user.cartData);
     const cartItemIndex = user.cartData.findIndex(
-      (item) => (item.product_id.toString() === productId && item.net_quantity.toString() === netQuantity)
+      (item) =>
+        item.product_id.toString() === productId &&
+        item.net_quantity.toString() === netQuantity
     );
 
     console.log(cartItemIndex);

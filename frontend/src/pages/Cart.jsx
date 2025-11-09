@@ -12,7 +12,7 @@ const Cart = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { currency, delivery_fee } = useContext(ShopContext);
   const { user } = useContext(AuthContext);
-  const { removeItemFromCart } = useContext(CartContext);
+  const { updateItemQuantity, removeItemFromCart } = useContext(CartContext);
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -50,14 +50,22 @@ const Cart = () => {
     }
   }, [user]);
 
-  const handleQuantityChange = async (id, value) => {
+  const handleQuantityChange = async (productId, netQuantity, newQuantity) => {
     try {
       setIsLoading(true);
+      console.log(
+        `Updating quantity for product ${productId} (Net Quantity: ${netQuantity}) to ${newQuantity}`
+      );
       const token = localStorage.getItem("token");
+
+      // Update via API for logged-in users
       const response = await axios.put(
-        `${import.meta.env.VITE_APP_API_URL}/api/cart/change-quantity/${id}`,
+        `${
+          import.meta.env.VITE_APP_API_URL
+        }/api/cart/change-quantity/${productId}`,
         {
-          quantity: value,
+          quantity: newQuantity,
+          net_quantity: netQuantity,
         },
         {
           headers: {
@@ -65,12 +73,15 @@ const Cart = () => {
           },
         }
       );
-      console.log(response.data);
-      if (response.data.success) {
-        fetchCartData();
-      }
+      console.log("Quantity updated successfully", response.data);
+      // Update local context
+      updateItemQuantity(productId, netQuantity, newQuantity);
+
+      // Refresh cart data
+      fetchCartData();
     } catch (error) {
       console.error("Error updating quantity:", error);
+      setError("Failed to update quantity");
     } finally {
       setIsLoading(false);
     }
@@ -142,8 +153,7 @@ const Cart = () => {
                             Sub-Total
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            {currency}{" "}
-                            {cartTotal}
+                            {currency} {cartTotal}
                           </span>
                         </li>
                         <li className="mb-[12px] flex justify-between leading-[28px]">
@@ -151,8 +161,7 @@ const Cart = () => {
                             Delivery Charges
                           </span>
                           <span className="text-right font-Poppins leading-[28px] tracking-[0.03rem] text-[14px] text-[#686e7d] font-semibold">
-                            {currency}{" "}
-                            {delivery_fee}
+                            {currency} {delivery_fee}
                           </span>
                         </li>
                       </ul>
@@ -164,8 +173,7 @@ const Cart = () => {
                             Total Amount
                           </span>
                           <span className="text-right font-Poppins text-[16px] leading-[28px] tracking-[0.03rem] font-semibold text-[#686e7d]">
-                            {currency}{" "}
-                            {(cartTotal + delivery_fee).toFixed(2)}
+                            {currency} {(cartTotal + delivery_fee).toFixed(2)}
                           </span>
                         </li>
                       </ul>
@@ -218,8 +226,7 @@ const Cart = () => {
                           <>
                             <td className="p-[12px]">
                               <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                {currency}{" "}
-                                {item.price}
+                                {currency} {item.price}
                               </span>
                             </td>
                             <td className="p-[12px]">
@@ -233,6 +240,7 @@ const Cart = () => {
                                     } else {
                                       handleQuantityChange(
                                         item.id,
+                                        item.net_quantity,
                                         item.quantity - 1
                                       );
                                     }
@@ -247,6 +255,7 @@ const Cart = () => {
                                   onClick={() =>
                                     handleQuantityChange(
                                       item.id,
+                                      item.net_quantity,
                                       item.quantity + 1
                                     )
                                   }
@@ -257,8 +266,7 @@ const Cart = () => {
                             </td>
                             <td className="p-[12px]">
                               <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                {currency}{" "}
-                                {item.total.toFixed(2)}
+                                {currency} {item.total.toFixed(2)}
                               </span>
                             </td>
                           </>
@@ -332,8 +340,7 @@ const Cart = () => {
                               <div className="p-[12px]  flex flex-col gap-1">
                                 Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                  {currency}{" "}
-                                  {item.price}
+                                  {currency} {item.price}
                                 </span>
                               </div>
                               <div className="p-[12px]  flex flex-col gap-1">
@@ -351,6 +358,7 @@ const Cart = () => {
                                       } else {
                                         handleQuantityChange(
                                           item.id,
+                                          item.net_quantity,
                                           item.quantity - 1
                                         );
                                       }
@@ -365,6 +373,7 @@ const Cart = () => {
                                     onClick={() =>
                                       handleQuantityChange(
                                         item.id,
+                                        item.net_quantity,
                                         item.quantity + 1
                                       )
                                     }
@@ -376,8 +385,7 @@ const Cart = () => {
                               <div className="p-[12px] flex flex-col gap-1">
                                 Total Price:
                                 <span className="price font-Poppins text-[15px] font-medium leading-[26px] tracking-[0.02rem] text-[#686e7d]">
-                                  {currency}{" "}
-                                  {item.total.toFixed(2)}
+                                  {currency} {item.total.toFixed(2)}
                                 </span>
                               </div>
                             </>
