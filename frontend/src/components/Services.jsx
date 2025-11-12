@@ -8,9 +8,9 @@ const Services = () => {
         <Title title1="Services" title2="We Provide" description="" />
         <div className="flex flex-wrap w-full mb-[-24px]">
           <div
-            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
+            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-[50%] px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
+            <div className="bb-services-box h-full flex flex-col p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/1.png"
@@ -18,7 +18,7 @@ const Services = () => {
                   className="w-[50px]"
                 />
               </div>
-              <div className="services-contact">
+              <div className="services-contact flex-grow flex flex-col justify-center">
                 <h4 className="font-quicksand mb-[8px] text-[18px] font-bold text-[#3d4750] leading-[1.2] tracking-[0.03rem]">
                   Free Shipping
                 </h4>
@@ -29,9 +29,9 @@ const Services = () => {
             </div>
           </div>
           <div
-            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
+            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-[50%] px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
+            <div className="bb-services-box h-full flex flex-col p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/2.png"
@@ -39,7 +39,7 @@ const Services = () => {
                   className="w-[50px]"
                 />
               </div>
-              <div className="services-contact">
+              <div className="services-contact flex-grow flex flex-col justify-center">
                 <h4 className="font-quicksand mb-[8px] text-[18px] font-bold text-[#3d4750] leading-[1.2] tracking-[0.03rem]">
                   24x7 Support
                 </h4>
@@ -50,9 +50,9 @@ const Services = () => {
             </div>
           </div>
           <div
-            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
+            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-[50%] px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
+            <div className="bb-services-box h-full flex flex-col p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/3.png"
@@ -60,7 +60,7 @@ const Services = () => {
                   className="w-[50px]"
                 />
               </div>
-              <div className="services-contact">
+              <div className="services-contact flex-grow flex flex-col justify-center">
                 <h4 className="font-quicksand mb-[8px] text-[18px] font-bold text-[#3d4750] leading-[1.2] tracking-[0.03rem]">
                   30 Days Return
                 </h4>
@@ -71,9 +71,9 @@ const Services = () => {
             </div>
           </div>
           <div
-            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-full px-[12px] mb-[24px]"
+            className="min-[992px]:w-[25%] min-[768px]:w-[50%] w-[50%] px-[12px] mb-[24px]"
           >
-            <div className="bb-services-box p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
+            <div className="bb-services-box h-full flex flex-col p-[30px] border-[1px] border-solid border-[#858585] rounded-[20px] text-center">
               <div className="services-img mb-[20px] flex justify-center">
                 <img
                   src="../assets/img/services/4.png"
@@ -81,7 +81,7 @@ const Services = () => {
                   className="w-[50px]"
                 />
               </div>
-              <div className="services-contact">
+              <div className="services-contact flex-grow flex flex-col justify-center">
                 <h4 className="font-quicksand mb-[8px] text-[18px] font-bold text-[#3d4750] leading-[1.2] tracking-[0.03rem]">
                   Payment Secure
                 </h4>

@@ -10,7 +10,7 @@ const ExpandableContent = ({ html, limit = 300 }) => {
   if (plainText.length <= limit) {
     return (
       <div
-        className="prose max-w-full ql-editor p-4"
+        className="prose max-w-full ql-editor"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
@@ -22,14 +22,14 @@ const ExpandableContent = ({ html, limit = 300 }) => {
   return (
     <div className="prose max-w-full ql-editor">
       <div
-        className={`text-justify p-4 ${
+        className={`pe-2 text-left ${
           expanded ? "max-h-[500px] overflow-y-auto scrollbar-custom" : ""
         }`}
         dangerouslySetInnerHTML={{
           __html: expanded ? html : partialText,
         }}
       />
-      <div className="px-4 pb-4">
+      <div>
         <button
           className="text-[#0097b2] font-Poppins text-[14px] font-medium underline hover:text-[#007a8f] transition-all"
           onClick={() => setExpanded(!expanded)}

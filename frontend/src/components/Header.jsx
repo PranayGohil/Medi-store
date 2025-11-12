@@ -400,15 +400,18 @@ const Header = () => {
     <header className="bb-header z-[5] border-b-[1px] border-solid border-[#858585] bg-white">
       <div className="hidden max-[991px]:flex h-[50px]">
         <div className="items-center gap-2 bg-[#272723] text-[#fff] p-3 fixed w-[100vw] top-0 h-[50px] z-10">
-          <button
-            type="button"
-            onClick={() => setIsMobileCategoryOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <BiSolidCategory className="text-2xl" />
-            Explore All Categories
-          </button>
-        </div>
+  <button
+    type="button"
+    onClick={() => setIsMobileCategoryOpen(true)}
+    className="flex items-center gap-2 w-full justify-between"
+  >
+    <div className="flex items-center gap-2">
+      <BiSolidCategory className="text-2xl" />
+      Explore All Categories
+    </div>
+    <i className={`ri-arrow-${isMobileCategoryOpen ? 'up' : 'down'}-s-line text-xl`} />
+  </button>
+</div>
       </div>
       <div
         id="bb-mobile-menu"
