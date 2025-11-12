@@ -758,7 +758,11 @@ const ProductDetails = () => {
           </div>
         </div>
       </section>
-      <RelatedProducts />
+      <RelatedProducts
+        subCategory={product?.categories?.[0]?.subcategory}
+        category={product?.categories?.[0]?.category}
+        currentProductId={product?._id}
+      />
     </>
   );
 };
