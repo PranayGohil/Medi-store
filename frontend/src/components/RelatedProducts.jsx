@@ -1,14 +1,41 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductCard from "./ProductCard";
 
-const RelatedProducts = () => {
+const RelatedProducts = ({ subCategory, category, currentProductId }) => {
   const { products } = useContext(ShopContext);
-  const [visibleCount, setVisibleCount] = useState(12); // Show 12 initially
+  const [visibleCount, setVisibleCount] = useState(4); // Show 12 initially
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+
+    // Filter out the current product
+    const otherProducts = products.filter((p) => p._id !== currentProductId);
+
+    // 1️⃣ Products with the same subcategory
+    const sameSubcategory = otherProducts.filter((p) =>
+      p.categories?.some(
+        (cat) => cat.subcategory?.toLowerCase() === subCategory?.toLowerCase()
+      )
+    );
+
+    // 2️⃣ Products with the same category but different subcategory
+    const sameCategory = otherProducts.filter(
+      (p) =>
+        !sameSubcategory.includes(p) &&
+        p.categories?.some(
+          (cat) => cat.category?.toLowerCase() === category?.toLowerCase()
+        )
+    );
+
+    const combined = [...sameSubcategory, ...sameCategory];
+
+    return combined.slice(0, 12);
+  }, [products, subCategory, category, currentProductId]);
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 12); // Load 12 more
+    setVisibleCount((prev) => prev + 4); 
   };
 
   return (
@@ -23,13 +50,13 @@ const RelatedProducts = () => {
 
         {/* Grid Layout */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 p-3">
-          {products?.slice(0, visibleCount).map((product) => (
+          {filteredProducts?.slice(0, visibleCount).map((product) => (
             <ProductCard key={product._id} {...product} />
           ))}
         </div>
 
         {/* Load More Button */}
-        {visibleCount < products.length && (
+        {visibleCount < filteredProducts.length && (
           <div className="flex justify-center text-blue-600 w-full mt-[30px]">
             <button
               onClick={handleLoadMore}

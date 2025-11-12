@@ -712,119 +712,124 @@ const ProductDetails = () => {
               </div>
             </div>
             <div className="mt-4 w-full px-[12px]">
-  <a id="bb-spt-nav-review"></a> {/* Anchor link for easy navigation from the product details section */}
+              <a id="bb-spt-nav-review"></a>{" "}
+              {/* Anchor link for easy navigation from the product details section */}
+              {/* Review Summary and Heading */}
+              <div className="bb-review-heading mb-6 border-b-2 border-[#0097b2] pb-2">
+                <h3 className="font-quicksand text-[24px] font-bold tracking-[0.03rem] text-[#3d4750] mb-2">
+                  Customer Reviews
+                </h3>
 
-  {/* Review Summary and Heading */}
-  <div className="bb-review-heading mb-6 border-b-2 border-[#0097b2] pb-2">
-    <h3 className="font-quicksand text-[24px] font-bold tracking-[0.03rem] text-[#3d4750] mb-2">
-      Customer Reviews
-    </h3>
-
-    {reviews.length > 0 && (
-      <div className="flex items-center space-x-4">
-        {/* Average Rating Display - Ensure you have the 'rating' state updated correctly */}
-        <div className="flex items-center">
-          <span className="font-quicksand text-[28px] font-bold text-[#0097b2]">
-            {(rating).toFixed(1)}
-          </span>
-          <span className="text-[16px] text-[#777] ml-1">/ 5.0</span>
-        </div>
-        {/* Star Rating Visualization */}
-        <div className="flex">
-          {displayRating()} {/* Reusing the existing displayRating function */}
-        </div>
-        <span className="font-Poppins text-[16px] text-[#3d4750]">
-          based on {reviews.length} reviews
-        </span>
-      </div>
-    )}
-  </div>
-
-  {/* Review List Container */}
-  <div className="tab-pro-pane w-full" id="reviews-list">
-    <div className="bb-inner-tabs p-0 rounded-[10px]">
-      <div className="bb-reviews">
-        {reviews.length === 0 ? (
-          <div className="p-4 border border-[#e0e0e0] rounded-[10px] shadow-sm bg-white">
-            <h4 className="font-quicksand leading-[1.2] text-[16px] font-bold text-[#3d4750]">
-              No reviews yet. Be the first to share your experience!
-            </h4>
-          </div>
-        ) : (
-          <>
-            {/* Grid Container for Reviews */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Show only visible reviews */}
-              {reviews.slice(0, visibleReviews).map((review) => (
-                <div
-                  className="reviews-bb-box flex flex-col p-5 border border-[#f0f0f0] rounded-[15px] shadow-lg bg-white transition-shadow duration-300 hover:shadow-xl"
-                  key={review._id}
-                >
-                  {/* Review Header (User, Date, Verification) */}
-                  <div className="review-header flex justify-between items-start mb-3 border-b border-[#f0f0f0] pb-3">
+                {reviews.length > 0 && (
+                  <div className="flex items-center space-x-4">
+                    {/* Average Rating Display - Ensure you have the 'rating' state updated correctly */}
                     <div className="flex items-center">
-                      <i className="ri-user-fill text-[24px] text-[#0097b2] mr-2"></i>
-                      <h4 className="font-quicksand leading-[1.2] text-[18px] font-bold text-[#0097b2]">
-                        {review.user_name}
-                      </h4>
+                      <span className="font-quicksand text-[28px] font-bold text-[#0097b2]">
+                        {rating.toFixed(1)}
+                      </span>
+                      <span className="text-[16px] text-[#777] ml-1">
+                        / 5.0
+                      </span>
                     </div>
+                    {/* Star Rating Visualization */}
+                    <div className="flex">
+                      {displayRating()}{" "}
+                      {/* Reusing the existing displayRating function */}
+                    </div>
+                    <span className="font-Poppins text-[16px] text-[#3d4750]">
+                      based on {reviews.length} reviews
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* Review List Container */}
+              <div className="tab-pro-pane w-full" id="reviews-list">
+                <div className="bb-inner-tabs p-0 rounded-[10px]">
+                  <div className="bb-reviews">
+                    {reviews.length === 0 ? (
+                      <div className="p-4 border border-[#e0e0e0] rounded-[10px] shadow-sm bg-white">
+                        <h4 className="font-quicksand leading-[1.2] text-[16px] font-bold text-[#3d4750]">
+                          No reviews yet. Be the first to share your experience!
+                        </h4>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Grid Container for Reviews */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Show only visible reviews */}
+                          {reviews.slice(0, visibleReviews).map((review) => (
+                            <div
+                              className="reviews-bb-box flex flex-col p-5 border border-[#f0f0f0] rounded-[15px] shadow-lg bg-white transition-shadow duration-300 hover:shadow-xl"
+                              key={review._id}
+                            >
+                              {/* Review Header (User, Date, Verification) */}
+                              <div className="review-header flex justify-between items-start mb-3 border-b border-[#f0f0f0] pb-3">
+                                <div className="flex items-center">
+                                  <i className="ri-user-fill text-[24px] text-[#0097b2] mr-2"></i>
+                                  <h4 className="font-quicksand leading-[1.2] text-[18px] font-bold text-[#0097b2]">
+                                    {review.user_name}
+                                  </h4>
+                                </div>
 
-                    <div className="text-right">
-                      <small className="font-Poppins text-[12px] text-[#777] block">
-                        {formatDate(review.created_at)}
-                      </small>
-                      <div className="mt-1 flex items-center justify-end">
-                        <img
-                          src="/assets/img/reviews/verified_purchase.png"
-                          alt="Verified Purchase"
-                          className="w-16 mr-1"
-                        />
-                        {/* <span className="font-Poppins text-[12px] text-green-600 font-medium">
+                                <div className="text-right">
+                                  <small className="font-Poppins text-[12px] text-[#777] block">
+                                    {formatDate(review.created_at)}
+                                  </small>
+                                  <div className="mt-1 flex items-center justify-end">
+                                    <img
+                                      src="/assets/img/reviews/verified_purchase.png"
+                                      alt="Verified Purchase"
+                                      className="w-16 mr-1"
+                                    />
+                                    {/* <span className="font-Poppins text-[12px] text-green-600 font-medium">
                           Verified
                         </span> */}
-                      </div>
-                    </div>
-                  </div>
+                                  </div>
+                                </div>
+                              </div>
 
-                  {/* Review Content (Rating and Comment) */}
-                  <div className="review-content">
-                    <div className="bb-pro-rating flex mb-3">
-                      {[...Array(5)].map((_, index) => (
-                        <i
-                          key={index}
-                          className={`float-left text-[18px] mr-[3px] ${
-                            index < review.rating
-                              ? "ri-star-fill text-yellow-500"
-                              : "ri-star-line text-gray-300"
-                          }`}
-                        ></i>
-                      ))}
-                    </div>
-                    <p className="font-Poppins text-[15px] leading-[1.6] tracking-[0.03rem] text-[#3d4750]">
-                      {review.comment}
-                    </p>
+                              {/* Review Content (Rating and Comment) */}
+                              <div className="review-content">
+                                <div className="bb-pro-rating flex mb-3">
+                                  {[...Array(5)].map((_, index) => (
+                                    <i
+                                      key={index}
+                                      className={`float-left text-[18px] mr-[3px] ${
+                                        index < review.rating
+                                          ? "ri-star-fill text-yellow-500"
+                                          : "ri-star-line text-gray-300"
+                                      }`}
+                                    ></i>
+                                  ))}
+                                </div>
+                                <p className="font-Poppins text-[15px] leading-[1.6] tracking-[0.03rem] text-[#3d4750]">
+                                  {review.comment}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Load More Button */}
+                        {visibleReviews < reviews.length && (
+                          <div className="text-center mt-6 mb-3">
+                            <button
+                              onClick={() =>
+                                setVisibleReviews((prev) => prev + 5)
+                              }
+                              className="bg-[#0097b2] hover:bg-[#007a8f] text-white py-2 px-6 rounded-[5px] font-Poppins text-[14px] font-medium transition-all shadow-md"
+                            >
+                              Load More Reviews (
+                              {reviews.length - visibleReviews} remaining)
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Load More Button */}
-            {visibleReviews < reviews.length && (
-              <div className="text-center mt-6 mb-3">
-                <button
-                  onClick={() => setVisibleReviews((prev) => prev + 5)}
-                  className="bg-[#0097b2] hover:bg-[#007a8f] text-white py-2 px-6 rounded-[5px] font-Poppins text-[14px] font-medium transition-all shadow-md"
-                >
-                  Load More Reviews ({reviews.length - visibleReviews} remaining)
-                </button>
               </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
+            </div>
           </div>
         </div>
       </section>
