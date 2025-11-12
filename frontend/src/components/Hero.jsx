@@ -23,7 +23,7 @@ const Hero = () => {
   const slides = isMobile ? mobileBanners : banners;
 
   return (
-    <section className="section-hero py-[10px] relative overflow-hidden">
+    <section className="section-hero relative overflow-hidden">
       <div className="flex flex-wrap justify-between relative items-center">
         <div className="flex flex-wrap w-full">
           <div className="w-full">

@@ -386,7 +386,7 @@ const ProductDetails = () => {
                           )}
                           {product.country_of_origin && (
                             <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                              <span className="font-Poppins text-[#777] text-[14px]">
+                              <span className="font-Poppins text-[#333] text-[14px] font-semibold">
                                 Country of Origin :
                               </span>{" "}
                               {product.country_of_origin}
@@ -394,7 +394,7 @@ const ProductDetails = () => {
                           )}
                           {product.dosage_form && (
                             <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                              <span className="font-Poppins text-[#777] text-[14px]">
+                              <span className="font-Poppins text-[#333] text-[14px] font-semibold">
                                 Dosage Form :
                               </span>{" "}
                               {product.dosage_form}
@@ -402,7 +402,7 @@ const ProductDetails = () => {
                           )}
                           {product.manufacturer && (
                             <li className="my-[8px] font-Poppins text-[14px] font-light leading-[28px] tracking-[0.03rem] text-[#777] list-disc">
-                              <span className="font-Poppins text-[#777] text-[14px]">
+                              <span className="font-Poppins text-[#333] text-[14px] font-semibold">
                                 Manufacturer :
                               </span>{" "}
                               {product.manufacturer}
@@ -537,77 +537,97 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Mobile Card View */}
-                            <div className="md:hidden space-y-4">
-                              {product.pricing.map((price, index) => (
-                                <div
-                                  key={index}
-                                  className="border-[1px] border-solid border-[#858585] rounded-[15px] p-4 bg-white shadow-sm"
-                                >
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                      <h5 className="font-Poppins text-[15px] font-bold text-[#3d4750] mb-1">
-                                        {price.net_quantity}{" "}
-                                        {product.dosage_form}/s
-                                      </h5>
-                                      <p className="font-Poppins text-[12px] text-[#777]">
-                                        {currency} {price.unit_price} per{" "}
-                                        {product.dosage_form}
-                                      </p>
-                                    </div>
-                                    <span className="font-Poppins text-[18px] font-bold text-[#0097b2]">
-                                      {currency} {price.total_price}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#858585]">
-                                    <div className="qty-plus-minus w-[100px] h-[40px] py-[7px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[10px]">
-                                      <button
-                                        className="bb-qtybtn px-3"
-                                        type="button"
-                                        onClick={() =>
-                                          handleQuantityChange(
-                                            price.net_quantity,
-                                            -1
-                                          )
-                                        }
-                                      >
-                                        -
-                                      </button>
-                                      <span className="qty-input text-[#777] text-[14px] font-normal">
-                                        {quantities[price.net_quantity]}
-                                      </span>
-                                      <button
-                                        className="bb-qtybtn px-3"
-                                        type="button"
-                                        onClick={() =>
-                                          handleQuantityChange(
-                                            price.net_quantity,
-                                            1
-                                          )
-                                        }
-                                      >
-                                        +
-                                      </button>
-                                    </div>
-
-                                    {isInCart(price.net_quantity) ? (
-                                      <Link
-                                        to="/cart"
-                                        className="bg-[#6c757d] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#5a6268] transition-all"
-                                      >
-                                        View Cart
-                                      </Link>
-                                    ) : (
-                                      <button
-                                        onClick={() => handleAddToCart(price)}
-                                        className="bg-[#0097b2] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium hover:bg-[#007a8f] transition-all"
-                                      >
-                                        ADD
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
+                            <div className="md:hidden overflow-x-hidden">
+                              <table className="w-full border-collapse border border-[#0097b2]">
+                                <thead>
+                                  <tr className="bg-[#0097b2] text-white">
+                                    <th className="py-2 px-1 text-center font-Poppins text-[10px] font-semibold w-1/5 border border-[#858585]">
+                                      PACK SIZE
+                                    </th>
+                                    <th className="py-2 px-1 text-center font-Poppins text-[10px] font-semibold w-1/5 border border-[#858585]">
+                                      PRICE
+                                    </th>
+                                    <th className="py-2 px-1 text-center font-Poppins text-[10px] font-semibold w-1/5 border border-[#858585]">
+                                      QTY
+                                    </th>
+                                    <th className="py-2 px-1 text-center font-Poppins text-[10px] font-semibold w-1/5 border border-[#858585]">
+                                      ACTION
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {product.pricing.map((price, index) => (
+                                    <tr
+                                      key={index}
+                                      className="hover:bg-gray-50"
+                                    >
+                                      <td className="py-2 px-1 border border-[#858585]">
+                                        <span className="font-Poppins text-[11px] text-[#3d4750] font-medium leading-tight">
+                                          {price.net_quantity}{" "}
+                                          {product.dosage_form}/s
+                                        </span>
+                                      </td>
+                                      <td className="py-2 px-1 border border-[#858585]">
+                                        <span className="font-Poppins text-[13px] font-bold text-[#0097b2]">
+                                          {currency} {price.total_price}
+                                        </span>
+                                      </td>
+                                      <td className="py-2 px-1 border border-[#858585]">
+                                        <div className="flex justify-center">
+                                          <div className="qty-plus-minus w-[65px] h-[26px] py-[2px] border-[1px] border-solid border-[#858585] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                                            <button
+                                              className="bb-qtybtn px-1 text-[12px]"
+                                              type="button"
+                                              onClick={() =>
+                                                handleQuantityChange(
+                                                  price.net_quantity,
+                                                  -1
+                                                )
+                                              }
+                                            >
+                                              -
+                                            </button>
+                                            <span className="qty-input text-[#777] text-[10px] font-normal">
+                                              {quantities[price.net_quantity]}
+                                            </span>
+                                            <button
+                                              className="bb-qtybtn px-1 text-[12px]"
+                                              type="button"
+                                              onClick={() =>
+                                                handleQuantityChange(
+                                                  price.net_quantity,
+                                                  1
+                                                )
+                                              }
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td className="py-2 px-1 text-center border border-[#858585]">
+                                        {isInCart(price.net_quantity) ? (
+                                          <Link
+                                            to="/cart"
+                                            className="inline-block bg-[#6c757d] text-white py-1 px-2 rounded-[5px] font-Poppins text-[10px] font-medium hover:bg-[#5a6268] transition-all whitespace-nowrap"
+                                          >
+                                            View Cart
+                                          </Link>
+                                        ) : (
+                                          <button
+                                            onClick={() =>
+                                              handleAddToCart(price)
+                                            }
+                                            className="bg-[#0097b2] text-white py-1 px-2 rounded-[5px] font-Poppins text-[10px] font-medium hover:bg-[#007a8f] transition-all whitespace-nowrap"
+                                          >
+                                            ADD
+                                          </button>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
                           </div>
                         </>
@@ -655,7 +675,7 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="detail">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] rounded-[20px]">
                         {product.description ? (
-                          <div className="bb-details mx-3">
+                          <div className="bb-details">
                             <ExpandableContent
                               html={product.description}
                               limit={400}
@@ -674,7 +694,7 @@ const ProductDetails = () => {
                     <div className="tab-pro-pane" id="information">
                       <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] rounded-[20px]">
                         {product.information ? (
-                          <div className="bb-details mx-3">
+                          <div className="bb-details">
                             <ExpandableContent
                               html={product.information}
                               limit={400}
@@ -691,70 +711,120 @@ const ProductDetails = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 w-[100%]">
-              <div className="nav-item relative leading-[28px] mb-3">
-                <div className="nav-link px-5 font-Poppins text-[16px] font-medium capitalize leading-[28px] tracking-[0.03rem] block text-black">
-                  Reviews
-                </div>
-              </div>
-              <div className="tab-pro-pane w-[100%] p-3" id="reviews">
-                <div className="bb-inner-tabs border-[1px] border-solid border-[#858585] pt-[15px] rounded-[20px]">
-                  <div className="bb-reviews mx-3">
-                    {reviews.length === 0 && (
-                      <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#3d4750]">
-                        No Review Found
+            <div className="mt-4 w-full px-[12px]">
+  <a id="bb-spt-nav-review"></a> {/* Anchor link for easy navigation from the product details section */}
+
+  {/* Review Summary and Heading */}
+  <div className="bb-review-heading mb-6 border-b-2 border-[#0097b2] pb-2">
+    <h3 className="font-quicksand text-[24px] font-bold tracking-[0.03rem] text-[#3d4750] mb-2">
+      Customer Reviews
+    </h3>
+
+    {reviews.length > 0 && (
+      <div className="flex items-center space-x-4">
+        {/* Average Rating Display - Ensure you have the 'rating' state updated correctly */}
+        <div className="flex items-center">
+          <span className="font-quicksand text-[28px] font-bold text-[#0097b2]">
+            {(rating).toFixed(1)}
+          </span>
+          <span className="text-[16px] text-[#777] ml-1">/ 5.0</span>
+        </div>
+        {/* Star Rating Visualization */}
+        <div className="flex">
+          {displayRating()} {/* Reusing the existing displayRating function */}
+        </div>
+        <span className="font-Poppins text-[16px] text-[#3d4750]">
+          based on {reviews.length} reviews
+        </span>
+      </div>
+    )}
+  </div>
+
+  {/* Review List Container */}
+  <div className="tab-pro-pane w-full" id="reviews-list">
+    <div className="bb-inner-tabs p-0 rounded-[10px]">
+      <div className="bb-reviews">
+        {reviews.length === 0 ? (
+          <div className="p-4 border border-[#e0e0e0] rounded-[10px] shadow-sm bg-white">
+            <h4 className="font-quicksand leading-[1.2] text-[16px] font-bold text-[#3d4750]">
+              No reviews yet. Be the first to share your experience!
+            </h4>
+          </div>
+        ) : (
+          <>
+            {/* Grid Container for Reviews */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Show only visible reviews */}
+              {reviews.slice(0, visibleReviews).map((review) => (
+                <div
+                  className="reviews-bb-box flex flex-col p-5 border border-[#f0f0f0] rounded-[15px] shadow-lg bg-white transition-shadow duration-300 hover:shadow-xl"
+                  key={review._id}
+                >
+                  {/* Review Header (User, Date, Verification) */}
+                  <div className="review-header flex justify-between items-start mb-3 border-b border-[#f0f0f0] pb-3">
+                    <div className="flex items-center">
+                      <i className="ri-user-fill text-[24px] text-[#0097b2] mr-2"></i>
+                      <h4 className="font-quicksand leading-[1.2] text-[18px] font-bold text-[#0097b2]">
+                        {review.user_name}
                       </h4>
-                    )}
+                    </div>
 
-                    {/* Show only visible reviews */}
-                    {reviews.slice(0, visibleReviews).map((review) => (
-                      <div
-                        className="reviews-bb-box flex mb-[24px]"
-                        key={review._id}
-                      >
-                        <div className="inner-image max-[575px]:mb-[12px] mr-2">
-                          <div className="w-[100px]">
-                            <h4 className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[16px] font-bold text-[#0097b2]">
-                              {review.user_name}
-                            </h4>
-                            <small>{formatDate(review.created_at)}</small>
-                            <img
-                              src="/assets/img/reviews/verified_purchase.png"
-                              className="w-100 mt-1 pr-3"
-                            />
-                          </div>
-                        </div>
-                        <div className="inner-contact">
-                          <div className="bb-pro-rating flex">
-                            {[...Array(review.rating)].map((star, index) => (
-                              <i
-                                key={index}
-                                className="ri-star-fill float-left text-[15px] mr-[3px] text-yellow-500"
-                              ></i>
-                            ))}
-                          </div>
-                          <p className="font-quicksand leading-[1.2] tracking-[0.03rem] mb-[5px] text-[14px] text-[#777]">
-                            {review.comment}
-                          </p>
-                        </div>
+                    <div className="text-right">
+                      <small className="font-Poppins text-[12px] text-[#777] block">
+                        {formatDate(review.created_at)}
+                      </small>
+                      <div className="mt-1 flex items-center justify-end">
+                        <img
+                          src="/assets/img/reviews/verified_purchase.png"
+                          alt="Verified Purchase"
+                          className="w-16 mr-1"
+                        />
+                        {/* <span className="font-Poppins text-[12px] text-green-600 font-medium">
+                          Verified
+                        </span> */}
                       </div>
-                    ))}
+                    </div>
+                  </div>
 
-                    {/* Load More Button */}
-                    {visibleReviews < reviews.length && (
-                      <div className="text-center mt-4 mb-3">
-                        <button
-                          onClick={() => setVisibleReviews((prev) => prev + 5)}
-                          className="bg-[#0097b2] hover:bg-[#007a8f] text-white py-2 px-6 rounded-[10px] font-Poppins text-[14px] font-medium transition-all"
-                        >
-                          Load More
-                        </button>
-                      </div>
-                    )}
+                  {/* Review Content (Rating and Comment) */}
+                  <div className="review-content">
+                    <div className="bb-pro-rating flex mb-3">
+                      {[...Array(5)].map((_, index) => (
+                        <i
+                          key={index}
+                          className={`float-left text-[18px] mr-[3px] ${
+                            index < review.rating
+                              ? "ri-star-fill text-yellow-500"
+                              : "ri-star-line text-gray-300"
+                          }`}
+                        ></i>
+                      ))}
+                    </div>
+                    <p className="font-Poppins text-[15px] leading-[1.6] tracking-[0.03rem] text-[#3d4750]">
+                      {review.comment}
+                    </p>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
+
+            {/* Load More Button */}
+            {visibleReviews < reviews.length && (
+              <div className="text-center mt-6 mb-3">
+                <button
+                  onClick={() => setVisibleReviews((prev) => prev + 5)}
+                  className="bg-[#0097b2] hover:bg-[#007a8f] text-white py-2 px-6 rounded-[5px] font-Poppins text-[14px] font-medium transition-all shadow-md"
+                >
+                  Load More Reviews ({reviews.length - visibleReviews} remaining)
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
           </div>
         </div>
       </section>
