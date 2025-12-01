@@ -48,7 +48,7 @@ const ProductDetails = () => {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
-    } 
+    }
   };
 
   const fetchReviews = async (product_id) => {
@@ -116,6 +116,7 @@ const ProductDetails = () => {
       );
       console.log("Response: " + response.data.product);
       if (response.data.success) {
+        console.log("Product Details: " + response.data.product);
         fetchReviews(response.data.product._id);
         setProduct(response.data.product);
         if (response.data.product.product_images.length > 0) {
@@ -203,8 +204,6 @@ const ProductDetails = () => {
       window.pageYOffset || document.documentElement.scrollTop;
 
     try {
-      
-
       const cartItem = {
         product_id: product._id,
         net_quantity: price.net_quantity,
@@ -305,9 +304,10 @@ const ProductDetails = () => {
       <PageTitle title={`${product.name}`} />
       <Breadcrumb
         title="Product Details"
-        destination1="Home"
-        destination2="Product Details"
-        destination3={product.name}
+        destination1="Product"
+        destination2={product.category || null}
+        destination3={product.subcategory || null}
+        destination4={product.name}
       />
       <section className="section-product py-[50px] max-[1199px]:py-[35px]">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
@@ -325,6 +325,13 @@ const ProductDetails = () => {
                             src={mainImage}
                             alt={product.name}
                           />
+                          {product.available ? null : (
+                            <div class="img-responsive rounded-[20px] absolute inset-0 bg-gray-800 opacity-75 flex items-center justify-center">
+                              <span class="text-white text-3xl md:text-4xl font-bold uppercase tracking-wider transform rotate-[-35deg] z-10">
+                                Out of Stock
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex mt-4 space-x-2 overflow-x-auto">

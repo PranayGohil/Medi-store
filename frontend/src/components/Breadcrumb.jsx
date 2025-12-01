@@ -1,7 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Breadcrumb = ({title, destination1, destination2}) => {
+const Breadcrumb = ({
+  title,
+  destination1,
+  destination2,
+  destination3,
+  destination4,
+}) => {
   return (
     <section className="section-breadcrumb mb-[50px] max-[1199px]:mb-[35px] border-b-[1px] border-solid border-[#858585] bg-[#f8f8fb]">
       <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
@@ -23,12 +29,36 @@ const Breadcrumb = ({title, destination1, destination2}) => {
                       {destination1}
                     </Link>
                   </li>
-                  <li className="text-[14px] font-normal px-[5px]">
-                    <i className="ri-arrow-right-double-fill text-[14px] font-semibold leading-[28px]" />
-                  </li>
-                  <li className="bb-breadcrumb-item font-Poppins text-[#686e7d] text-[14px] leading-[28px] font-normal tracking-[0.03rem] px-[5px] active">
-                    {destination2}
-                  </li>
+                  {destination2 && (
+                    <>
+                      <li className="text-[14px] font-normal px-[5px]">
+                        <i className="ri-arrow-right-double-fill text-[14px] font-semibold leading-[28px]" />
+                      </li>
+                      <li className="bb-breadcrumb-item font-Poppins text-[#686e7d] text-[14px] leading-[28px] font-normal tracking-[0.03rem] px-[5px] active">
+                        {destination2}
+                      </li>
+                    </>
+                  )}
+                  {destination3 && (
+                    <>
+                      <li className="text-[14px] font-normal px-[5px]">
+                        <i className="ri-arrow-right-double-fill text-[14px] font-semibold leading-[28px]" />
+                      </li>
+                      <li className="bb-breadcrumb-item font-Poppins text-[#686e7d] text-[14px] leading-[28px] font-normal tracking-[0.03rem] px-[5px] active">
+                        {destination3}
+                      </li>
+                    </>
+                  )}
+                  {destination4 && (
+                    <>
+                      <li className="text-[14px] font-normal px-[5px]">
+                        <i className="ri-arrow-right-double-fill text-[14px] font-semibold leading-[28px]" />
+                      </li>
+                      <li className="bb-breadcrumb-item font-Poppins text-[#686e7d] text-[14px] leading-[28px] font-normal tracking-[0.03rem] px-[5px] active">
+                        {destination4}
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>

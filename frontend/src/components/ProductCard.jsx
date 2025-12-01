@@ -37,7 +37,7 @@ const ProductCard = (product) => {
           />
           {product.available ? null : (
             <div class="absolute inset-0 bg-gray-800 opacity-75 flex items-center justify-center">
-              <span class="text-white text-xl font-bold uppercase tracking-wider transform rotate-[-45deg] z-10">
+              <span class="text-white text-lg md:text-3xl font-bold uppercase tracking-wider transform rotate-[-45deg] z-10">
                 Out of Stock
               </span>
             </div>
