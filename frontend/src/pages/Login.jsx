@@ -5,18 +5,15 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import LoadingSpinner from "../components/LoadingSpinner";
-
 import ReCAPTCHA from "react-google-recaptcha";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
   const [error, setError] = useState("");
   const { login } = useContext(AuthContext);
   const { cartItems, addItemToCart, clearCart, syncCartFromStorage } =
@@ -24,9 +21,90 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Yup validation schema
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Please enter a valid email address"
+      ),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .max(50, "Password must not exceed 50 characters"),
+  });
+
+  // Formik setup
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setError("");
+
+      if (!isCaptchaVerified) {
+        setError("Please complete the CAPTCHA verification.");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await axios.post(
+          `${import.meta.env.VITE_APP_API_URL}/api/user/login`,
+          {
+            email: values.email,
+            password: values.password,
+          }
+        );
+
+        if (response.data.success) {
+          // Store token
+          localStorage.setItem("token", response.data.token);
+
+          // Login user
+          login(response.data.user);
+
+          // Get local cart items before they might be modified
+          const localCartItems = [...cartItems];
+
+          // Get server cart items
+          const serverCartItems = response.data.cartData || [];
+
+          // Sync carts
+          const mergedCartItems = await syncCartWithServer(
+            response.data.user._id,
+            localCartItems,
+            serverCartItems
+          );
+
+          console.log(
+            "Cart synced successfully. Total items:",
+            mergedCartItems.length
+          );
+
+          // Force a page reload to update cart context from localStorage
+          // This ensures CartContext reads the updated localStorage
+          window.location.href = from;
+        } else {
+          // Login failed
+          setError(response.data.message);
+          setIsCaptchaVerified(false);
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "An error occurred during login."
+        );
+        console.error("Login error:", err);
+        setIsCaptchaVerified(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
 
   // Function to sync local cart with server
   const syncCartWithServer = async (userId, localCart, serverCart) => {
@@ -111,69 +189,6 @@ const Login = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!isCaptchaVerified) {
-      setError("Please complete the CAPTCHA verification.");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/user/login`,
-        {
-          email: formData.email,
-          password: formData.password,
-        }
-      );
-
-      if (response.data.success) {
-        // Store token
-        localStorage.setItem("token", response.data.token);
-
-        // Login user
-        login(response.data.user);
-
-        // Get local cart items before they might be modified
-        const localCartItems = [...cartItems];
-
-        // Get server cart items
-        const serverCartItems = response.data.cartData || [];
-
-        // Sync carts
-        const mergedCartItems = await syncCartWithServer(
-          response.data.user._id,
-          localCartItems,
-          serverCartItems
-        );
-
-        console.log(
-          "Cart synced successfully. Total items:",
-          mergedCartItems.length
-        );
-
-        // Force a page reload to update cart context from localStorage
-        // This ensures CartContext reads the updated localStorage
-        window.location.href = from;
-      } else {
-        // Login failed
-        setError(response.data.message);
-        setIsCaptchaVerified(false);
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "An error occurred during login."
-      );
-      console.error("Login error:", err);
-      setIsCaptchaVerified(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -202,7 +217,7 @@ const Login = () => {
             </div>
             <div className="w-full px-[12px]">
               <div className="bb-login-contact max-w-[500px] m-[auto] border-[1px] border-solid border-[#858585] p-[30px] rounded-[20px]">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={formik.handleSubmit}>
                   <div className="bb-login-wrap mb-[24px]">
                     <label
                       htmlFor="email"
@@ -215,11 +230,20 @@ const Login = () => {
                       id="email"
                       name="email"
                       placeholder="Enter Your Email"
-                      className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
+                      className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                        formik.touched.email && formik.errors.email
+                          ? "border-red-500"
+                          : "border-[#858585]"
+                      }`}
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                     />
+                    {formik.touched.email && formik.errors.email && (
+                      <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                        {formik.errors.email}
+                      </div>
+                    )}
                   </div>
                   <div className="bb-login-wrap mb-[24px]">
                     <label
@@ -234,10 +258,14 @@ const Login = () => {
                         id="password"
                         name="password"
                         placeholder="Enter Your Password"
-                        className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
+                        className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                          formik.touched.password && formik.errors.password
+                            ? "border-red-500"
+                            : "border-[#858585]"
+                        }`}
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
                       <span
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -250,6 +278,11 @@ const Login = () => {
                         )}
                       </span>
                     </div>
+                    {formik.touched.password && formik.errors.password && (
+                      <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                        {formik.errors.password}
+                      </div>
+                    )}
                   </div>
                   <div className="bb-login-wrap mb-[24px]">
                     <Link
@@ -277,9 +310,9 @@ const Login = () => {
                   )}
                   <div className="bb-login-button m-[-5px] flex justify-between items-center">
                     <button
-                      className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] m-[5px] py-[8px] px-[25px] text-[14px] font-medium text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                      className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] m-[5px] py-[8px] px-[25px] text-[14px] font-medium text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750] disabled:opacity-50 disabled:cursor-not-allowed"
                       type="submit"
-                      disabled={!isCaptchaVerified}
+                      disabled={!isCaptchaVerified || formik.isSubmitting}
                     >
                       Login
                     </button>

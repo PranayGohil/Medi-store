@@ -33,7 +33,6 @@ const ProductDetails = () => {
 
   const fetchCart = async () => {
     try {
-      setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_URL}/api/cart/get-cart-items`,
@@ -49,9 +48,7 @@ const ProductDetails = () => {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const fetchReviews = async (product_id) => {
@@ -145,11 +142,13 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (user) {
+      window.scrollTo(0, 0);
       fetchCart();
     }
   }, [user]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchProduct();
   }, [alias]);
 
@@ -199,8 +198,12 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = async (price) => {
+    // Save current scroll position before state updates
+    const scrollPosition =
+      window.pageYOffset || document.documentElement.scrollTop;
+
     try {
-      setIsLoading(true);
+      
 
       const cartItem = {
         product_id: product._id,
@@ -237,7 +240,10 @@ const ProductDetails = () => {
       setError("An error occurred while adding to cart.");
       setTimeout(() => setError(null), 3000);
     } finally {
-      setIsLoading(false);
+      // Restore scroll position after state updates
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
     }
   };
 
@@ -283,7 +289,14 @@ const ProductDetails = () => {
     }
   };
 
-  if (!product || isLoading) {
+  const goToReviews = () => {
+    const element = document.getElementById("reviews");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  if (isLoading || !product) {
     return <LoadingSpinner />;
   }
 
@@ -294,6 +307,7 @@ const ProductDetails = () => {
         title="Product Details"
         destination1="Home"
         destination2="Product Details"
+        destination3={product.name}
       />
       <section className="section-product py-[50px] max-[1199px]:py-[35px]">
         <div className="flex flex-wrap justify-between relative items-center mx-auto min-[1400px]:max-w-[1320px] min-[1200px]:max-w-[1140px] min-[992px]:max-w-[960px] min-[768px]:max-w-[720px] min-[576px]:max-w-[540px]">
@@ -364,14 +378,14 @@ const ProductDetails = () => {
                         <span className="bb-pro-rating mr-[10px]">
                           {displayRating()}
                         </span>
-                        <span className="bb-read-review">
+                        <span className="bb-read-review cursor-pointer">
                           |&nbsp;&nbsp;
-                          <Link
-                            to="#bb-spt-nav-review"
+                          <span
+                            onClick={() => goToReviews()}
                             className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]"
                           >
                             {product.reviews.length} Reviews
-                          </Link>
+                          </span>
                         </span>
                       </div>
                       <div className="font-Poppins text-[15px] font-light leading-[28px] tracking-[0.03rem]">
@@ -712,7 +726,7 @@ const ProductDetails = () => {
               </div>
             </div>
             <div className="mt-4 w-full px-[12px]">
-              <a id="bb-spt-nav-review"></a>{" "}
+              <a id="reviews"></a>{" "}
               {/* Anchor link for easy navigation from the product details section */}
               {/* Review Summary and Heading */}
               <div className="bb-review-heading mb-6 border-b-2 border-[#0097b2] pb-2">

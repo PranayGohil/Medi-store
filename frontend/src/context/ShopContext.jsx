@@ -7,7 +7,7 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const currency = "Rp";
+  const currency = "$";
   const [delivery_fee, set_delivery_charge] = useState(0);
 
   const fetchProducts = async () => {

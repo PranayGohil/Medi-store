@@ -1,7 +1,6 @@
 import Product from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import { convertUSDtoIDR } from "../utils/currencyConverter.js";
 
 export const addProduct = async (req, res) => {
   try {
@@ -15,22 +14,22 @@ export const addProduct = async (req, res) => {
     let productImageUrls = await Promise.all(
       product_images
         ? product_images.map(async (image) => {
-          let result = await cloudinary.uploader.upload(image.path, {
-            resource_type: "image",
-          });
-          return result.secure_url;
-        })
+            let result = await cloudinary.uploader.upload(image.path, {
+              resource_type: "image",
+            });
+            return result.secure_url;
+          })
         : []
     );
 
     let manufacturerImageUrl = await Promise.all(
       manufacturer_image
         ? manufacturer_image.map(async (image) => {
-          let result = await cloudinary.uploader.upload(image.path, {
-            resource_type: "image",
-          });
-          return result.secure_url;
-        })
+            let result = await cloudinary.uploader.upload(image.path, {
+              resource_type: "image",
+            });
+            return result.secure_url;
+          })
         : ""
     );
 
@@ -171,6 +170,7 @@ export const editProduct = async (req, res) => {
         pricing: parsedPricing,
         stock_quantity,
         prescription_required: prescription_required === "true",
+        updated_at: Date.now(),
       },
       { new: true, runValidators: true }
     );
@@ -186,29 +186,7 @@ export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({});
 
-    // Convert prices for each product
-    const convertedProducts = await Promise.all(
-      products.map(async (product) => {
-        const convertedPricing = await Promise.all(
-          product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(priceItem.total_price);
-            const convertedUnit = await convertUSDtoIDR(priceItem.unit_price);
-            return {
-              ...priceItem.toObject(),
-              total_price: convertedTotal,
-              unit_price: convertedUnit,
-            };
-          })
-        );
-
-        return {
-          ...product.toObject(),
-          pricing: convertedPricing,
-        };
-      })
-    );
-
-    return res.json({ success: true, products: convertedProducts });
+    return res.json({ success: true, products });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });
@@ -220,25 +198,7 @@ export const getSingleProduct = async (req, res) => {
     const productId = req.params.id;
     const product = await Product.findById(productId);
 
-    // Convert product pricing from USD to IDR
-    const convertedPricing = await Promise.all(
-      product.pricing.map(async (priceItem) => {
-        const convertedTotal = await convertUSDtoIDR(priceItem.total_price, false); // false → use static rate for speed
-        const convertedUnit = await convertUSDtoIDR(priceItem.unit_price, false);
-        return {
-          ...priceItem.toObject(),
-          total_price: convertedTotal,
-          unit_price: convertedUnit,
-        };
-      })
-    );
-
-    const convertedProduct = {
-      ...product.toObject(),
-      pricing: convertedPricing,
-    };
-
-    return res.json({ success: true, product: convertedProduct });
+    return res.json({ success: true, product });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });
@@ -250,26 +210,8 @@ export const getProductByAlias = async (req, res) => {
     const alias = req.params.alias;
     const product = await Product.findOne({ alias: alias });
 
-    // Convert product pricing from USD to IDR
-    const convertedPricing = await Promise.all(
-      product.pricing.map(async (priceItem) => {
-        const convertedTotal = await convertUSDtoIDR(priceItem.total_price, false); // false → use static rate for speed
-        const convertedUnit = await convertUSDtoIDR(priceItem.unit_price, false);
-        return {
-          ...priceItem.toObject(),
-          total_price: convertedTotal,
-          unit_price: convertedUnit,
-        };
-      })
-    );
-
-    const convertedProduct = {
-      ...product.toObject(),
-      pricing: convertedPricing,
-    };
-
     console.log("Product", product);
-    return res.json({ success: true, product: convertedProduct });
+    return res.json({ success: true, product });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });
@@ -288,29 +230,7 @@ export const getProductsByIds = async (req, res) => {
 
     const products = await Product.find({ _id: { $in: ids } });
 
-    // Convert prices for each product
-    const convertedProducts = await Promise.all(
-      products.map(async (product) => {
-        const convertedPricing = await Promise.all(
-          product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(priceItem.total_price);
-            const convertedUnit = await convertUSDtoIDR(priceItem.unit_price);
-            return {
-              ...priceItem.toObject(),
-              total_price: convertedTotal,
-              unit_price: convertedUnit,
-            };
-          })
-        );
-
-        return {
-          ...product.toObject(),
-          pricing: convertedPricing,
-        };
-      })
-    );
-
-    res.status(200).json({ success: true, products: convertedProducts });
+    res.status(200).json({ success: true, products: products });
   } catch (error) {
     console.error("Error fetching products by IDs:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -322,29 +242,7 @@ export const productSuggestions = async (req, res) => {
     console.log("suggestions");
     const suggestions = await Product.find({}).limit(5);
 
-    // Convert prices for each product
-    const convertedProducts = await Promise.all(
-      suggestions.map(async (product) => {
-        const convertedPricing = await Promise.all(
-          product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(priceItem.total_price);
-            const convertedUnit = await convertUSDtoIDR(priceItem.unit_price);
-            return {
-              ...priceItem.toObject(),
-              total_price: convertedTotal,
-              unit_price: convertedUnit,
-            };
-          })
-        );
-
-        return {
-          ...product.toObject(),
-          pricing: convertedPricing,
-        };
-      })
-    );
-
-    return res.json({ success: true, suggestions: convertedProducts });
+    return res.json({ success: true, suggestions });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });

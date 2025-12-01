@@ -1,7 +1,6 @@
 import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
-import { convertUSDtoIDR } from "../utils/currencyConverter.js";
 
 const getStartOfPeriod = (period) => {
   const now = new Date();
@@ -172,32 +171,16 @@ export const getBestSellers = async (req, res) => {
 
     const manualProductIds = manualBestSellers.map((p) => p._id.toString());
 
-    // Helper to convert pricing to IDR
-    const convertPricingToIDR = async (pricingArray) => {
-      return await Promise.all(
-        pricingArray.map(async (p) => {
-          const totalIDR = await convertUSDtoIDR(p.total_price, false);
-          const unitIDR = await convertUSDtoIDR(p.unit_price, false);
-          return {
-            ...p.toObject(),
-            total_price: totalIDR,
-            unit_price: unitIDR,
-          };
-        })
-      );
-    };
-
     // 4. Enrich manual best sellers with actual sales + convert pricing
     const enrichedManualBestSellers = await Promise.all(
       manualBestSellers.map(async (product) => {
         const id = product._id.toString();
         const saleData = productSales[id] || { quantity: 0, revenue: 0 };
-        const convertedPricing = await convertPricingToIDR(product.pricing);
 
         return {
           ...product.toObject(),
-          pricing: convertedPricing,
-          unit_price: convertedPricing[0]?.unit_price_idr || 0,
+          pricing: product.pricing,
+          unit_price: product.pricing[0]?.unit_price || 0,
           quantity_sold: saleData.quantity,
           total_revenue: saleData.revenue,
         };
@@ -223,12 +206,10 @@ export const getBestSellers = async (req, res) => {
           const product = productMap[id];
           if (!product) return null;
 
-          const convertedPricing = await convertPricingToIDR(product.pricing);
-
           return {
             ...product.toObject(),
-            pricing: convertedPricing,
-            unit_price: convertedPricing[0]?.unit_price_idr || 0,
+            pricing: product.pricing,
+            unit_price: product.pricing[0]?.unit_price || 0,
             quantity_sold: data.quantity,
             total_revenue: data.revenue,
           };

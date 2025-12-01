@@ -8,6 +8,8 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,22 +18,120 @@ const Register = () => {
   const [error, setError] = useState("");
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
-    email: "",
-    phonenumber: "",
-    password: "",
-    confirmpassword: "",
-  });
-
   const { login } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Yup validation schema
+  const validationSchema = Yup.object({
+    firstname: Yup.string()
+      .required("First name is required")
+      .min(2, "First name must be at least 2 characters")
+      .max(50, "First name must not exceed 50 characters")
+      .matches(/^[a-zA-Z\s]+$/, "First name can only contain letters"),
+    lastname: Yup.string()
+      .required("Last name is required")
+      .min(2, "Last name must be at least 2 characters")
+      .max(50, "Last name must not exceed 50 characters")
+      .matches(/^[a-zA-Z\s]+$/, "Last name can only contain letters"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Invalid email format")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Please enter a valid email address"
+      ),
+    phonenumber: Yup.string()
+      .required("Phone number is required")
+      .test("phone-format", "Invalid phone number format", function (value) {
+        if (!value) return false;
+        const sanitizedPhone = value.replace(/\s+/g, "");
+        return /^\+\d{7,15}$/.test(sanitizedPhone);
+      }),
+    password: Yup.string()
+      .required("Password is required")
+      .min(8, "Password must be at least 8 characters")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
+    confirmpassword: Yup.string()
+      .required("Please confirm your password")
+      .oneOf([Yup.ref("password"), null], "Passwords must match"),
+  });
+
+  // Formik setup
+  const formik = useFormik({
+    initialValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      phonenumber: "",
+      password: "",
+      confirmpassword: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setError("");
+
+      if (!isCaptchaVerified) {
+        setError("Please complete the CAPTCHA verification.");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+
+        // Register API
+        const response = await axios.post(
+          `${import.meta.env.VITE_APP_API_URL}/api/user/register`,
+          {
+            first_name: values.firstname,
+            last_name: values.lastname,
+            email: values.email,
+            phone: values.phonenumber,
+            password: values.password,
+          }
+        );
+
+        if (response.data.success) {
+          // Save token and login user
+          localStorage.setItem("token", response.data.token);
+          login(response.data.user);
+
+          // 🛒 Merge local + server cart just like Login.jsx
+          const localCartItems = [...cartItems];
+          const serverCartItems = response.data.cartData || [];
+
+          const mergedCartItems = await syncCartWithServer(
+            response.data.user._id,
+            localCartItems,
+            serverCartItems
+          );
+
+          console.log(
+            "Cart merged successfully after registration:",
+            mergedCartItems.length
+          );
+
+          // Reload to refresh cart context
+          window.location.href = "/";
+        } else {
+          setError(response.data.message);
+          setIsCaptchaVerified(false);
+        }
+      } catch (err) {
+        console.error("Registration error:", err);
+        setError(
+          err.response?.data?.message ||
+            "An error occurred during registration."
+        );
+        setIsCaptchaVerified(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
 
   // 🛒 Sync local cart with server (copied from Login.jsx)
   const syncCartWithServer = async (userId, localCart, serverCart) => {
@@ -110,101 +210,6 @@ const Register = () => {
     }
   };
 
-  // 🧾 Handle Register Submit
-  const handleSubmit = async () => {
-    setError("");
-
-    // Validation checks
-    if (
-      formData.firstname === "" ||
-      formData.lastname === "" ||
-      formData.email === "" ||
-      formData.phonenumber === "" ||
-      formData.password === "" ||
-      formData.confirmpassword === ""
-    ) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
-      setError("Invalid email format.");
-      return;
-    }
-
-    const sanitizedPhone = formData.phonenumber.replace(/\s+/g, "");
-    if (!/^\+\d{7,15}$/.test(sanitizedPhone)) {
-      setError("Invalid phone number format.");
-      return;
-    }
-
-    if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(
-        formData.password
-      )
-    ) {
-      setError("Please enter a strong password.");
-      return;
-    }
-
-    if (formData.password !== formData.confirmpassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    if (!isCaptchaVerified) {
-      setError("Please complete the CAPTCHA verification.");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      // Register API
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/user/register`,
-        {
-          first_name: formData.firstname,
-          last_name: formData.lastname,
-          email: formData.email,
-          phone: formData.phonenumber,
-          password: formData.password,
-        }
-      );
-
-      if (response.data.success) {
-        // Save token and login user
-        localStorage.setItem("token", response.data.token);
-        login(response.data.user);
-
-        // 🛒 Merge local + server cart just like Login.jsx
-        const localCartItems = [...cartItems];
-        const serverCartItems = response.data.cartData || [];
-
-        const mergedCartItems = await syncCartWithServer(
-          response.data.user._id,
-          localCartItems,
-          serverCartItems
-        );
-
-        console.log(
-          "Cart merged successfully after registration:",
-          mergedCartItems.length
-        );
-
-        // Reload to refresh cart context
-        window.location.href = "/";
-      } else {
-        setError(response.data.message);
-      }
-    } catch (err) {
-      console.error("Registration error:", err);
-      setError("An error occurred during registration.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -243,7 +248,10 @@ const Register = () => {
                     </div>
                   </div>
                   <div className="w-full px-[12px]">
-                    <form className="flex flex-wrap mx-[-12px]">
+                    <form
+                      onSubmit={formik.handleSubmit}
+                      className="flex flex-wrap mx-[-12px]"
+                    >
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
                           First Name*
@@ -252,11 +260,21 @@ const Register = () => {
                           type="text"
                           name="firstname"
                           placeholder="Enter your first name"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
-                          value={formData.firstname}
-                          onChange={handleChange}
+                          className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                            formik.touched.firstname && formik.errors.firstname
+                              ? "border-red-500"
+                              : "border-[#858585]"
+                          }`}
+                          value={formik.values.firstname}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                         />
+                        {formik.touched.firstname &&
+                          formik.errors.firstname && (
+                            <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                              {formik.errors.firstname}
+                            </div>
+                          )}
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
@@ -266,11 +284,20 @@ const Register = () => {
                           type="text"
                           name="lastname"
                           placeholder="Enter your Last name"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
-                          value={formData.lastname}
-                          onChange={handleChange}
+                          className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                            formik.touched.lastname && formik.errors.lastname
+                              ? "border-red-500"
+                              : "border-[#858585]"
+                          }`}
+                          value={formik.values.lastname}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                         />
+                        {formik.touched.lastname && formik.errors.lastname && (
+                          <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                            {formik.errors.lastname}
+                          </div>
+                        )}
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
@@ -280,11 +307,20 @@ const Register = () => {
                           type="email"
                           name="email"
                           placeholder="Enter your Email"
-                          className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                          required=""
-                          value={formData.email}
-                          onChange={handleChange}
+                          className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                            formik.touched.email && formik.errors.email
+                              ? "border-red-500"
+                              : "border-[#858585]"
+                          }`}
+                          value={formik.values.email}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                         />
+                        {formik.touched.email && formik.errors.email && (
+                          <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                            {formik.errors.email}
+                          </div>
+                        )}
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
@@ -292,15 +328,26 @@ const Register = () => {
                         </label>
                         <PhoneInput
                           country={"in"}
-                          value={formData.phonenumber}
-                          onChange={(phone) =>
-                            setFormData({
-                              ...formData,
-                              phonenumber: "+" + phone,
-                            })
+                          value={formik.values.phonenumber}
+                          onChange={(phone) => {
+                            formik.setFieldValue("phonenumber", "+" + phone);
+                          }}
+                          onBlur={() =>
+                            formik.setFieldTouched("phonenumber", true)
                           }
-                          inputClass="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
+                          inputClass={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                            formik.touched.phonenumber &&
+                            formik.errors.phonenumber
+                              ? "border-red-500"
+                              : "border-[#858585]"
+                          }`}
                         />
+                        {formik.touched.phonenumber &&
+                          formik.errors.phonenumber && (
+                            <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                              {formik.errors.phonenumber}
+                            </div>
+                          )}
                       </div>
 
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
@@ -309,25 +356,34 @@ const Register = () => {
                         </label>
                         <div className="relative">
                           <input
-                            type={`${showPassword ? "text" : "password"}`}
+                            type={showPassword ? "text" : "password"}
                             name="password"
                             placeholder="Enter Password"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                            required=""
-                            value={formData.password}
-                            onChange={handleChange}
+                            className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                              formik.touched.password && formik.errors.password
+                                ? "border-red-500"
+                                : "border-[#858585]"
+                            }`}
+                            value={formik.values.password}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                           />
                           <span
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                             onClick={togglePasswordVisibility}
                           >
                             {showPassword ? (
-                              <i className="ri-eye-fill"></i>
+                              <i className="ri-eye-fill text-[18px] text-[#686e7d]"></i>
                             ) : (
-                              <i className="ri-eye-off-fill"></i>
+                              <i className="ri-eye-off-fill text-[18px] text-[#686e7d]"></i>
                             )}
                           </span>
                         </div>
+                        {formik.touched.password && formik.errors.password && (
+                          <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                            {formik.errors.password}
+                          </div>
+                        )}
                       </div>
                       <div className="bb-register-wrap w-[50%] max-[575px]:w-full px-[12px] mb-[24px]">
                         <label className="inline-block mb-[6px] text-[14px] leading-[18px] font-medium text-[#3d4750]">
@@ -335,27 +391,36 @@ const Register = () => {
                         </label>
                         <div className="relative">
                           <input
-                            type={`${
-                              showConfirmPassword ? "text" : "password"
-                            }`}
+                            type={showConfirmPassword ? "text" : "password"}
                             name="confirmpassword"
                             placeholder="Confirm Password"
-                            className="w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid border-[#858585] outline-[0] leading-[26px] rounded-[10px]"
-                            required=""
-                            value={formData.confirmpassword}
-                            onChange={handleChange}
+                            className={`w-full p-[10px] text-[14px] font-normal text-[#686e7d] border-[1px] border-solid outline-[0] leading-[26px] rounded-[10px] ${
+                              formik.touched.confirmpassword &&
+                              formik.errors.confirmpassword
+                                ? "border-red-500"
+                                : "border-[#858585]"
+                            }`}
+                            value={formik.values.confirmpassword}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                           />
                           <span
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                             onClick={toggleConfirmPasswordVisibility}
                           >
-                            {showPassword ? (
-                              <i className="ri-eye-fill"></i>
+                            {showConfirmPassword ? (
+                              <i className="ri-eye-fill text-[18px] text-[#686e7d]"></i>
                             ) : (
-                              <i className="ri-eye-off-fill"></i>
+                              <i className="ri-eye-off-fill text-[18px] text-[#686e7d]"></i>
                             )}
                           </span>
                         </div>
+                        {formik.touched.confirmpassword &&
+                          formik.errors.confirmpassword && (
+                            <div className="text-red-500 text-[12px] mt-[5px] font-Poppins">
+                              {formik.errors.confirmpassword}
+                            </div>
+                          )}
                       </div>
                       <div className="bb-register-wrap w-full px-[12px] mb-[24px]">
                         <ReCAPTCHA
@@ -369,15 +434,15 @@ const Register = () => {
                         />
                       </div>
                       {error && (
-                        <div className="w-full px-[12px] mb-[12px] text-red-500">
+                        <div className="w-full px-[12px] mb-[12px] p-[10px] text-center text-[14px] text-red-600 bg-red-50 border border-red-200 rounded-[10px]">
                           {error}
                         </div>
                       )}
                       <div className="bb-register-button w-full md:flex md:justify-between px-[12px]">
                         <button
-                          type="button"
-                          onClick={handleSubmit}
-                          className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750]"
+                          type="submit"
+                          className="bb-btn-2 transition-all duration-[0.3s] ease-in-out font-Poppins leading-[28px] tracking-[0.03rem] py-[4px] px-[20px] text-[14px] font-normal text-[#fff] bg-[#0097b2] rounded-[10px] border-[1px] border-solid border-[#0097b2] hover:bg-transparent hover:border-[#3d4750] hover:text-[#3d4750] disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!isCaptchaVerified || formik.isSubmitting}
                         >
                           Register
                         </button>

@@ -35,35 +35,39 @@ const Products = () => {
   const selectedCategory = searchParams.get("category") || "";
   const selectedSubcategory = searchParams.get("subcategory") || "";
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory =
-      !selectedCategory ||
-      product.categories.some((cat) => cat.category === selectedCategory);
-    const matchesSubcategory =
-      !selectedSubcategory ||
-      product.categories.some((cat) => cat.subcategory === selectedSubcategory);
-    const matchesSearch =
-      product.name.toLowerCase().includes(search.toLowerCase()) ||
-      product.generic_name.toLowerCase().includes(search.toLowerCase()) ||
-      product.manufacturer.toLowerCase().includes(search.toLowerCase()) ||
-      product.product_code.includes(search);
+  const filteredProducts = products
+    .filter((product) => {
+      const matchesCategory =
+        !selectedCategory ||
+        product.categories.some((cat) => cat.category === selectedCategory);
+      const matchesSubcategory =
+        !selectedSubcategory ||
+        product.categories.some(
+          (cat) => cat.subcategory === selectedSubcategory
+        );
+      const matchesSearch =
+        product.name.toLowerCase().includes(search.toLowerCase()) ||
+        product.generic_name.toLowerCase().includes(search.toLowerCase()) ||
+        product.manufacturer.toLowerCase().includes(search.toLowerCase()) ||
+        product.product_code.includes(search);
 
-    const matchesBestSeller = !filterBestSeller || product.best_seller_manual;
-    const matchesAvailability =
-      filterAvailability === ""
-        ? true
-        : filterAvailability === "in"
-        ? product.available
-        : !product.available;
+      const matchesBestSeller = !filterBestSeller || product.best_seller_manual;
+      const matchesAvailability =
+        filterAvailability === ""
+          ? true
+          : filterAvailability === "in"
+          ? product.available
+          : !product.available;
 
-    return (
-      matchesCategory &&
-      matchesSubcategory &&
-      matchesSearch &&
-      matchesBestSeller &&
-      matchesAvailability
-    );
-  });
+      return (
+        matchesCategory &&
+        matchesSubcategory &&
+        matchesSearch &&
+        matchesBestSeller &&
+        matchesAvailability
+      );
+    })
+    .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
   useEffect(() => {
     if (!observerRef.current) return;

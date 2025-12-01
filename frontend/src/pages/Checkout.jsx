@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import axios from "axios";
+import * as Yup from "yup";
+
 import { ShopContext } from "../context/ShopContext";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -45,6 +47,8 @@ const Checkout = () => {
     city: locationData.city || "",
     pincode: locationData.pincode || "",
   });
+  const [addressErrors, setAddressErrors] = useState({});
+
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -68,6 +72,45 @@ const Checkout = () => {
       navigate("/login");
     }
   }, []);
+
+  const addressSchema = Yup.object().shape({
+    first_name: Yup.string().required("First name is required"),
+    last_name: Yup.string().required("Last name is required"),
+    email: Yup.string()
+      .email("Enter a valid email address")
+      .required("Email is required"),
+    phone: Yup.string()
+      .matches(/^[0-9+\-\s()]+$/, "Enter a valid phone number")
+      .required("Phone number is required"),
+    address: Yup.string().required("Address is required"),
+    country: Yup.string().required("Country is required"),
+    state: Yup.string().required("State is required"),
+    city: Yup.string().required("City is required"),
+    pincode: Yup.string().required("Post code is required"),
+  });
+
+  const validateAddress = async () => {
+    try {
+      await addressSchema.validate(newAddress, { abortEarly: false });
+      setAddressErrors({});
+      return true;
+    } catch (err) {
+      const errors = {};
+
+      if (err.inner && err.inner.length > 0) {
+        err.inner.forEach((e) => {
+          if (e.path && !errors[e.path]) {
+            errors[e.path] = e.message;
+          }
+        });
+      } else if (err.path) {
+        errors[err.path] = err.message;
+      }
+
+      setAddressErrors(errors);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -141,7 +184,14 @@ const Checkout = () => {
   const total = subtotal + delivery_fee - discount;
 
   const handleInputChange = (e) => {
-    setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewAddress({ ...newAddress, [name]: value });
+
+    // clear error for this field as user types
+    setAddressErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
   const handleAddressSelect = (address) => {
@@ -251,147 +301,6 @@ const Checkout = () => {
     }
   };
 
-  // PayPal Handlers
-  const handlePayPalApprove = async (orderID) => {
-    try {
-      setIsLoading(true);
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/paypal/captureorder`,
-        {
-          orderID,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.success) {
-        const token = localStorage.getItem("token");
-        let deliveryAddress = isNewAddress ? [newAddress] : [selectedAddress];
-
-        const orderData = {
-          order_id: orderID,
-          products: cartItems.map((item) => ({
-            product_id: item.id,
-            net_quantity: item.net_quantity,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          sub_total: subtotal,
-          delivery_charge: delivery_fee,
-          discount: discount,
-          discount_code: couponCode,
-          total: total,
-          delivery_address: deliveryAddress,
-          payment_method: "paypal",
-          payment_status: "completed",
-          payment_details: response.data.data,
-          order_status: "Order Placed",
-        };
-
-        const addOrder = await axios.post(
-          `${import.meta.env.VITE_APP_API_URL}/api/order/add`,
-          orderData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!addOrder.data.success) {
-          setError(addOrder.data.message);
-          return;
-        }
-
-        const deleteCart = await axios.delete(
-          `${import.meta.env.VITE_APP_API_URL}/api/cart/clear-cart`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!deleteCart.data.success) {
-          setError(deleteCart.data.message);
-          return;
-        }
-
-        clearCart();
-        navigate("/payment-completed");
-      } else {
-        setError("Payment Capturing Failed.");
-      }
-    } catch (error) {
-      console.error("Error capturing order:", error);
-      navigate("/payment-cancelled");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const createPayPalOrder = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!isNewAddress && !selectedAddress) {
-        setError("Please select or add an address.");
-        return;
-      }
-      if (isNewAddress) {
-        if (
-          newAddress.first_name === "" ||
-          newAddress.last_name === "" ||
-          newAddress.email === "" ||
-          newAddress.phone === "" ||
-          newAddress.address === "" ||
-          newAddress.country === "" ||
-          newAddress.state === "" ||
-          newAddress.city === "" ||
-          newAddress.pincode === ""
-        ) {
-          setError("Please fill all the details.");
-          return;
-        }
-      }
-
-      if (isNewAddress) {
-        await axios.put(
-          `${import.meta.env.VITE_APP_API_URL}/api/user/add-address`,
-          { address: newAddress },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/paypal/createorder`,
-        {
-          total: totalAmount,
-          products: [
-            {
-              product_id: "product_id",
-              quantity: "1",
-              price: totalAmount,
-            },
-          ],
-        }
-      );
-
-      return response.data.id;
-    } catch (error) {
-      console.error("Error creating PayPal order:", error);
-      setError("Failed to create order");
-    }
-  };
-
   // Paylabs Handlers
   const handlePaylabsPayment = async () => {
     try {
@@ -400,7 +309,7 @@ const Checkout = () => {
 
       const token = localStorage.getItem("token");
 
-      // Validate address
+      // Validate address selection
       if (!isNewAddress && !selectedAddress) {
         setError("Please select or add an address.");
         setIsLoading(false);
@@ -408,18 +317,9 @@ const Checkout = () => {
       }
 
       if (isNewAddress) {
-        if (
-          newAddress.first_name === "" ||
-          newAddress.last_name === "" ||
-          newAddress.email === "" ||
-          newAddress.phone === "" ||
-          newAddress.address === "" ||
-          newAddress.country === "" ||
-          newAddress.state === "" ||
-          newAddress.city === "" ||
-          newAddress.pincode === ""
-        ) {
-          setError("Please fill all the details.");
+        const isValid = await validateAddress();
+        if (!isValid) {
+          setError("Please fix the highlighted errors in the address form.");
           setIsLoading(false);
           return;
         }
@@ -460,6 +360,7 @@ const Checkout = () => {
           merchantTradeNo: paylabsData.merchantTradeNo,
           products: cartItems.map((item) => ({
             product_id: item.id,
+            alias: item.alias,
             net_quantity: item.net_quantity,
             quantity: item.quantity,
             price: item.price,
@@ -633,7 +534,8 @@ const Checkout = () => {
                   </div>
                   <div className="bb-checkout-pro mb-[-24px]">
                     {cartItems.map((item) => (
-                      <div
+                      <Link
+                        to={`/product/${item.alias}`}
                         key={item.id + item.net_quantity}
                         className="pro-items p-[15px] bg-[#f8f8fb] border-[1px] border-solid border-[#eee] rounded-[20px] flex mb-[24px] max-[420px]:flex-col"
                       >
@@ -673,50 +575,49 @@ const Checkout = () => {
                           </div>
 
                           {/* Quantity Controls */}
-                            <div className="flex items-center">
-                              <span className="font-Poppins text-[14px] font-medium text-[#3d4750] mr-3">
-                                Quantity:
-                              </span>
-                              <div className="qty-plus-minus w-[100px] h-[35px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
-                                <button
-                                  type="button"
-                                  className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
-                                  onClick={() => {
-                                    if (item.quantity === 1) {
-                                      handleRemove(item.id, item.net_quantity);
-                                    } else {
-                                      handleQuantityChange(
-                                        item.id,
-                                        item.net_quantity,
-                                        item.quantity - 1
-                                      );
-                                    }
-                                  }}
-                                  disabled={isLoading}
-                                >
-                                  -
-                                </button>
-                                <span className="text-sm font-medium mx-2 min-w-[20px] text-center">
-                                  {item.quantity}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
-                                  onClick={() =>
+                          <div className="flex items-center">
+                            <span className="font-Poppins text-[14px] font-medium text-[#3d4750] mr-3">
+                              Quantity:
+                            </span>
+                            <div className="qty-plus-minus w-[100px] h-[35px] border-[1px] border-solid border-[#eee] overflow-hidden relative flex items-center justify-between bg-[#fff] rounded-[5px]">
+                              <button
+                                type="button"
+                                className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                                onClick={() => {
+                                  if (item.quantity === 1) {
+                                    handleRemove(item.id, item.net_quantity);
+                                  } else {
                                     handleQuantityChange(
                                       item.id,
                                       item.net_quantity,
-                                      item.quantity + 1
-                                    )
+                                      item.quantity - 1
+                                    );
                                   }
-                                  disabled={isLoading}
-                                >
-                                  +
-                                </button>
-                              </div>
+                                }}
+                                disabled={isLoading}
+                              >
+                                -
+                              </button>
+                              <span className="text-sm font-medium mx-2 min-w-[20px] text-center">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                className="bb-qtybtn w-8 h-full flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.id,
+                                    item.net_quantity,
+                                    item.quantity + 1
+                                  )
+                                }
+                                disabled={isLoading}
+                              >
+                                +
+                              </button>
                             </div>
+                          </div>
                           <div className="flex items-center justify-between mt-3">
-
                             <div className="text-right">
                               <div className="inner-price flex items-center justify-left mb-[2px]">
                                 <span className="new-price font-Poppins text-[#3d4750] font-semibold leading-[26px] tracking-[0.02rem] text-[12px]">
@@ -732,7 +633,7 @@ const Checkout = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -804,6 +705,11 @@ const Checkout = () => {
                               value={newAddress.first_name}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.first_name && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.first_name}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="min-[992px]:w-[50%] w-full px-[12px]">
@@ -820,6 +726,11 @@ const Checkout = () => {
                               value={newAddress.last_name}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.last_name && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.last_name}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="min-[992px]:w-[50%] w-full px-[12px]">
@@ -836,6 +747,11 @@ const Checkout = () => {
                               value={newAddress.email}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.email && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.email}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="min-[992px]:w-[50%] w-full px-[12px]">
@@ -852,6 +768,11 @@ const Checkout = () => {
                               value={newAddress.phone}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.phone && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.phone}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="w-full px-[12px]">
@@ -868,6 +789,11 @@ const Checkout = () => {
                               value={newAddress.address}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.address && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.address}
+                              </p>
+                            )}
                           </div>
                         </div>
 
@@ -896,6 +822,11 @@ const Checkout = () => {
                                   </option>
                                 ))}
                               </select>
+                              {addressErrors.country && (
+                                <p className="mt-[4px] text-[12px] text-red-500">
+                                  {addressErrors.country}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -926,6 +857,11 @@ const Checkout = () => {
                                   </option>
                                 ))}
                               </select>
+                              {addressErrors.state && (
+                                <p className="mt-[4px] text-[12px] text-red-500">
+                                  {addressErrors.state}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -951,6 +887,11 @@ const Checkout = () => {
                                   </option>
                                 ))}
                               </select>
+                              {addressErrors.city && (
+                                <p className="mt-[4px] text-[12px] text-red-500">
+                                  {addressErrors.city}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -968,6 +909,11 @@ const Checkout = () => {
                               value={newAddress.pincode}
                               onChange={handleInputChange}
                             />
+                            {addressErrors.pincode && (
+                              <p className="mt-[4px] text-[12px] text-red-500">
+                                {addressErrors.pincode}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>

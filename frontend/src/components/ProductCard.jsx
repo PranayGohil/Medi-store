@@ -35,12 +35,19 @@ const ProductCard = (product) => {
             src={product.product_images[0]}
             alt={product.name}
           />
+          {product.available ? null : (
+            <div class="absolute inset-0 bg-gray-800 opacity-75 flex items-center justify-center">
+              <span class="text-white text-xl font-bold uppercase tracking-wider transform rotate-[-45deg] z-10">
+                Out of Stock
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Product Details */}
         <div className="p-[20px] max-[575px]:p-[12px]">
           <div className="bb-pro-subtitle mb-[8px] max-[575px]:mb-[4px] flex flex-wrap justify-between items-center">
-            <p className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] max-[575px]:text-[10px] leading-[16px] max-[575px]:leading-[14px] text-[#777] font-light tracking-[0.03rem]">
+            <p className="transition-all duration-[0.3s] ease-in-out font-Poppins text-[13px] max-[575px]:text-[10px] leading-[16px] max-[575px]:leading-[14px] text-[#777] font-semibold tracking-[0.03rem] md:font-light">
               {product.generic_name}
             </p>
             <span className="bb-pro-rating flex">{displayRating()}</span>
@@ -79,7 +86,7 @@ const ProductCard = (product) => {
           <h4 className="md:text-lg text-base max-[575px]:text-[12px] font-semibold max-[575px]:mb-1">
             {product.name}
           </h4>
-          <p className="text-sm max-[575px]:text-[10px] text-gray-700 mb-1 max-[575px]:mb-0">
+          <p className="text-sm max-[575px]:text-[10px] text-gray-700 font-semibold mb-1 max-[575px]:mb-0">
             {product.generic_name}
           </p>
           <div className="bb-pro-rating flex">{displayRating()}</div>

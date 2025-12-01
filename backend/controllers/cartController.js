@@ -1,7 +1,6 @@
 import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
 import jwt from "jsonwebtoken";
-import { convertUSDtoIDR } from "../utils/currencyConverter.js";
 
 export const addToCart = async (req, res) => {
   try {
@@ -52,27 +51,11 @@ export const getCartItems = async (req, res) => {
       const product = await Product.findById(cartItem.product_id);
 
       if (product) {
-        const convertedPricing = await Promise.all(
-          product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(
-              priceItem.total_price,
-              false
-            ); // false → use static rate for speed
-            const convertedUnit = await convertUSDtoIDR(
-              priceItem.unit_price,
-              false
-            );
-            return {
-              ...priceItem.toObject(),
-              total_price: convertedTotal,
-              unit_price: convertedUnit,
-            };
-          })
-        );
 
         const convertedProduct = {
           ...product.toObject(),
-          pricing: convertedPricing,
+          pricing: product.pricing,
+          alias: product.alias,
         };
 
         // Find the correct pricing based on the net quantity
@@ -87,9 +70,10 @@ export const getCartItems = async (req, res) => {
           } else {
             allAvailable = false;
           }
-
+          console.log("Converted Product in Cart:", convertedProduct);
           cartItems.push({
             id: convertedProduct._id,
+            alias: convertedProduct.alias,
             name: convertedProduct.name,
             available: convertedProduct.available,
             generic_name: convertedProduct.generic_name,
@@ -127,32 +111,9 @@ export const getCartItemsById = async (req, res) => {
       const product = await Product.findById(cartItem.product_id);
 
       if (product) {
-        // Convert product pricing from USD to IDR
-        const convertedPricing = await Promise.all(
-          product.pricing.map(async (priceItem) => {
-            const convertedTotal = await convertUSDtoIDR(
-              priceItem.total_price,
-              false
-            ); // false → use static rate for speed
-            const convertedUnit = await convertUSDtoIDR(
-              priceItem.unit_price,
-              false
-            );
-            return {
-              ...priceItem.toObject(),
-              total_price: convertedTotal,
-              unit_price: convertedUnit,
-            };
-          })
-        );
-
-        const convertedProduct = {
-          ...product.toObject(),
-          pricing: convertedPricing,
-        };
 
         // Find the correct pricing based on the net quantity
-        const pricing = convertedProduct.pricing.find(
+        const pricing = product.pricing.find(
           (p) => p.net_quantity === cartItem.net_quantity
         );
 
@@ -161,14 +122,14 @@ export const getCartItemsById = async (req, res) => {
           totalCartPrice += itemTotal;
 
           cartItems.push({
-            id: convertedProduct._id,
-            name: convertedProduct.name,
-            generic_name: convertedProduct.generic_name,
-            dosage_form: convertedProduct.dosage_form,
+            id: product._id,
+            name: product.name,
+            generic_name: product.generic_name,
+            dosage_form: product.dosage_form,
             price: pricing.total_price,
             quantity: cartItem.quantity,
             net_quantity: cartItem.net_quantity,
-            image: convertedProduct.product_images[0], // Assuming the first image is the main image
+            image: product.product_images[0], // Assuming the first image is the main image
             total: itemTotal,
           });
         }

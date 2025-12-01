@@ -633,7 +633,7 @@ const Header = () => {
                             .map((suggestion, index) => (
                               <li
                                 key={index}
-                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                className="p-2 cursor-pointer hover:bg-gray-100 border-b-2"
                                 onClick={() =>
                                   handleGenericSuggestionClick(suggestion)
                                 }
@@ -644,7 +644,7 @@ const Header = () => {
                           {suggestions.slice(0, 8).map((suggestion, index) => (
                             <li
                               key={index}
-                              className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
+                              className="flex items-center p-2 cursor-pointer hover:bg-gray-100 border-b-2"
                               onClick={() =>
                                 handleSearchSuggestionClick(suggestion)
                               }
@@ -738,7 +738,7 @@ const Header = () => {
                             <span className="main-label-note-new" />
                           </div>
                           <div className="bb-btn-desc flex flex-col ml-[10px] max-lg:hidden">
-                            <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-[#3d4750] mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
+                            <span className="bb-btn-title font-Poppins transition-all duration-[0.3s] ease-in-out text-[12px] leading-[1] text-red-500 mb-[4px] tracking-[0.6px] capitalize font-medium whitespace-nowrap">
                               <b className="bb-cart-count">{totalCartItems}</b>{" "}
                               items
                             </span>
